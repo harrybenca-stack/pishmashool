@@ -17,7 +17,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009923088/",
   "reason": "انقضای مدیراش ۱۶ فروردین ۱۴۰۲ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "dormant"
  },
  {
   "sort_order": 2,
@@ -37,7 +38,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009924682/",
   "reason": "انقضای مدیراش ۱۶ فروردین ۱۴۰۲ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "dormant"
  },
  {
   "sort_order": 3,
@@ -62,7 +64,8 @@
     "display": "۰۵۶-۳۲۳۱۲۳۷۵",
     "tel": "05632312375"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 4,
@@ -82,7 +85,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009981425/",
   "reason": "انقضای مدیراش ۷ اردیبهشت ۱۴۰۲ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "dormant"
  },
  {
   "sort_order": 5,
@@ -102,7 +106,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009999387/",
   "reason": "انقضای مدیراش ۱۵ اردیبهشت ۱۴۰۲ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "dormant"
  },
  {
   "sort_order": 6,
@@ -131,7 +136,8 @@
     "display": "۰۲۳۳۳۶۵۳۵۷۶",
     "tel": "02333653576"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 7,
@@ -156,7 +162,8 @@
     "display": "۰۲۱-۸۸۶۴۲۰۷۳",
     "tel": "02188642073"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 8,
@@ -176,7 +183,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14011757316/",
   "reason": "انقضای مدیراش ۲۳ آذر ۱۴۰۳ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "dormant"
  },
  {
   "sort_order": 9,
@@ -196,7 +204,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14012156496/",
   "reason": "انقضای مدیراش ۲۹ فروردین ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 10,
@@ -216,7 +225,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009944375/",
   "reason": "انقضای مدیراش ۳۰ فروردین ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 11,
@@ -236,7 +246,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/10260424826/",
   "reason": "انقضای مدیراش ۱۴ مهر ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 12,
@@ -265,7 +276,8 @@
     "display": "۸۸۲۴۱۴۲",
     "tel": "8824142"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 13,
@@ -290,7 +302,8 @@
     "display": "۰۳۱۳۶۲۰۵۷۰۰",
     "tel": "03136205700"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 14,
@@ -310,7 +323,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14012751656/",
   "reason": "انقضای مدیراش ۲۳ آبان ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 15,
@@ -330,7 +344,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/10860374000/",
   "reason": "انقضای مدیراش ۲۴ دی ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 16,
@@ -355,7 +370,8 @@
     "display": "۰۵۸۳۶۲۱۱۲۰۷",
     "tel": "05836211207"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 17,
@@ -380,7 +396,8 @@
     "display": "۰۵۸۵۶۲۲۹۳۷۷",
     "tel": "05856229377"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 18,
@@ -400,7 +417,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013008840/",
   "reason": "انقضای مدیراش ۳۰ دی ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 19,
@@ -429,7 +447,8 @@
     "display": "۰۲۱-۷۸۵۸۱۱۱۱",
     "tel": "02178581111"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 20,
@@ -449,7 +468,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013105411/",
   "reason": "انقضای مدیراش ۱ اسفند ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 21,
@@ -486,7 +506,8 @@
     "display": "۲۲۰۶۸۹۴۷",
     "tel": "22068947"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 22,
@@ -506,7 +527,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013137892/",
   "reason": "انقضای مدیراش ۹ اسفند ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 23,
@@ -526,7 +548,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013144326/",
   "reason": "انقضای مدیراش ۱۳ اسفند ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 24,
@@ -546,7 +569,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013188649/",
   "reason": "انقضای مدیراش ۲۳ اسفند ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 25,
@@ -566,7 +590,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013190796/",
   "reason": "انقضای مدیراش ۲۴ اسفند ۱۴۰۴ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 26,
@@ -586,7 +611,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009923983/",
   "reason": "انقضای مدیراش ۱۸ فروردین ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 27,
@@ -606,7 +632,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14010934797/",
   "reason": "انقضای مدیراش ۱۹ فروردین ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 28,
@@ -626,7 +653,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14011054133/",
   "reason": "انقضای مدیراش ۲۹ فروردین ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 29,
@@ -651,7 +679,8 @@
     "display": "۰۳۴۳۴۲۹۴۳۰۱",
     "tel": "03434294301"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 30,
@@ -680,7 +709,8 @@
     "display": "۰۹۱۳۱۸۲۴۷۱۶",
     "tel": "09131824716"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 31,
@@ -700,7 +730,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14011652995/",
   "reason": "انقضای مدیراش ۲۰ اردیبهشت ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 32,
@@ -729,7 +760,8 @@
     "display": "۰۱۳۳۳۲۲۳۹۹۶",
     "tel": "01333223996"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 33,
@@ -754,7 +786,8 @@
     "display": "۱۷۳۴۵۳۷۶۶۹",
     "tel": "1734537669"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 34,
@@ -774,7 +807,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14012229926/",
   "reason": "انقضای مدیراش ۱۵ خرداد ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 35,
@@ -799,7 +833,8 @@
     "display": "۰۹۱۴۳۲۱۴۰۰۸",
     "tel": "09143214008"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 36,
@@ -819,7 +854,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013494921/",
   "reason": "انقضای مدیراش ۱۰ تیر ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 37,
@@ -844,7 +880,8 @@
     "display": "۰۲۱۷۷۲۲۹۴۸۴",
     "tel": "02177229484"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 38,
@@ -869,7 +906,8 @@
     "display": "۰۹۰۵۶۵۳۵۹۹۱",
     "tel": "09056535991"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 39,
@@ -898,7 +936,8 @@
     "display": "۰۲۱۸۸۶۰۷۷۹۰",
     "tel": "02188607790"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 40,
@@ -923,7 +962,8 @@
     "display": "۰۹۱۴۴۴۶۰۷۳۰",
     "tel": "09144460730"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 41,
@@ -943,7 +983,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14012407191/",
   "reason": "انقضای مدیراش ۱۳ مرداد ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 42,
@@ -968,7 +1009,8 @@
     "display": "۰۲۱۵۵۱۵۴۱۱۶",
     "tel": "02155154116"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 43,
@@ -988,7 +1030,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013697492/",
   "reason": "انقضای مدیراش ۸ شهریور ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 44,
@@ -1017,7 +1060,8 @@
     "display": "۰۹۱۲۲۵۶۴۲۶۶",
     "tel": "09122564266"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 45,
@@ -1037,7 +1081,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013791928/",
   "reason": "انقضای مدیراش ۱۳ مهر ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 46,
@@ -1057,7 +1102,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14013804282/",
   "reason": "انقضای مدیراش ۱۶ مهر ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 47,
@@ -1077,7 +1123,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/10100904045/",
   "reason": "انقضای مدیراش ۲۱ مهر ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 48,
@@ -1102,7 +1149,8 @@
     "display": "۳۴۶۱۱۵۶۹",
     "tel": "34611569"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 49,
@@ -1122,7 +1170,8 @@
   "phone_source": "",
   "rasmio_url": "https://rasmio.com/company/14009089687/",
   "reason": "انقضای مدیراش ۲۰ آبان ۱۴۰۵ گذشته و تمدید نشده هلیا، بازرساش هم منقضی‌ان — احتمالاً تمدید می‌خوان.",
-  "phones": []
+  "phones": [],
+  "act_status": "active"
  },
  {
   "sort_order": 50,
@@ -1147,7 +1196,8 @@
     "display": "۰۳۱۳۲۷۳۶۰۲۲",
     "tel": "03132736022"
    }
-  ]
+  ],
+  "act_status": "active"
  },
  {
   "sort_order": 51,
@@ -1172,6 +1222,7 @@
     "display": "۰۹۱۳۲۳۰۶۸۵۹",
     "tel": "09132306859"
    }
-  ]
+  ],
+  "act_status": "active"
  }
 ]

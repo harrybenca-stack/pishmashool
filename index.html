@@ -148,6 +148,9 @@
       .card-head h3 { font-size: 1.12rem; font-weight: 800; margin: 0; }
       .city { color: var(--ink-2); font-size: .88rem; }
       .badge { font-size: .75rem; font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-inline-start: auto; white-space: nowrap; }
+      .act-chip { font-size: .72rem; font-weight: 800; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+      .act-chip.on { background: #e2f6ea; color: #177245; }
+      .act-chip.off { background: #f5e9cf; color: #8a6d3b; }
       .badge.new { background: var(--accent-soft); color: var(--accent); }
       .badge.progress { background: var(--amber-soft); color: var(--amber); }
       .badge.won { background: var(--green-soft); color: var(--green); }
@@ -1457,6 +1460,8 @@
           if (st === 'new') h += '<span class="new-tag">جدید</span>';
           h += '<span class="city">' + esc(faText(cityDisplay(c.city))) + '</span>';
           h += '<span class="badge ' + st + '">' + (st === 'new' ? 'جدید' : st === 'progress' ? 'در حال پیگیری' : st === 'won' ? 'مشتری شد' : 'رد شده') + '</span>';
+          if (c.act_status === 'active') h += '<span class="act-chip on">فعال و سرپا</span>';
+          else if (c.act_status === 'dormant') h += '<span class="act-chip off">راکد به نظر می‌رسه</span>';
           if (c.phones && c.phones.length) h += '<a class="call-fab" href="tel:' + esc(c.phones[0].tel) + '" onclick="event.stopPropagation()" aria-label="زنگ بزن" title="زنگ بزن">📞</a>';
           h += '</div>';
           h += '<div class="meta">';
