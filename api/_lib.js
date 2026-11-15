@@ -115,7 +115,7 @@ export function addDaysJalali(dt, n) {
 export function parsePhones(raw) {
   if (!raw || !String(raw).trim()) return [];
   const out = [];
-  String(raw).split('/').map((x) => x.trim()).filter(Boolean).forEach((part) => {
+  String(raw).replace(/\([^)]*\)|\uFF08[^\uFF09]*\uFF09/g, ' ').split(/[\\/\u060C,]/).map((x) => x.trim()).filter(Boolean).forEach((part) => {
     const latin = enDigits(part).replace(/[^\d-]/g, '');
     const two = /^(\d{8})-(\d{7})$/.exec(latin);
     if (two && latin[0] !== '0') {
@@ -213,8 +213,8 @@ async function doInit(db) {
   for (const c of seedCompanies) {
     if (c.phone) {
       await db.query(
-        'UPDATE companies SET phone = $1, phone_source = $2 WHERE national_id = $3 AND (phone IS NULL OR phone = $4)',
-        [c.phone, c.phone_source, c.national_id, '']
+        'UPDATE companies SET phone = $1, phone_source = $2 WHERE national_id = $3 AND phone IS DISTINCT FROM $1',
+        [c.phone, c.phone_source, c.national_id]
       );
     }
   }
@@ -265,7 +265,7 @@ function shapeCompany(row, logs) {
 
 const RELEASED_SQL = `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.released_at
   FROM user_company uc JOIN companies c ON c.id = uc.company_id
-  WHERE uc.user_id = $1 ORDER BY c.sort_order`;
+  WHERE uc.user_id = $1 ORDER BY (CASE WHEN c.phone IS NULL OR c.phone = '' THEN 1 ELSE 0 END), c.sort_order`;
 const LOGS_SQL = `SELECT id, company_id, note, follow_up_date, created_at FROM call_logs
   WHERE user_id = $1 ORDER BY created_at DESC, id DESC`;
 
@@ -356,7 +356,7 @@ export async function handleHunt(req, db) {
   }
   const next = await db.query(
     `SELECT * FROM companies c WHERE NOT EXISTS (SELECT 1 FROM user_company uc WHERE uc.company_id = c.id AND uc.user_id = $1)
-     ORDER BY c.sort_order LIMIT 10`,
+     ORDER BY (CASE WHEN c.phone IS NULL OR c.phone = '' THEN 1 ELSE 0 END), c.sort_order LIMIT 10`,
     [s.uid]
   );
   if (!next.length) {
