@@ -498,9 +498,21 @@ export const CAT_SYSTEM = `تو «پیش‌مشول» هستی؛ یه گربه�
 - آخر این دستور یه «دفترچه» هست: چیزایی که از حرف‌های خود هلیا یاد گرفتی (لحنش، زندگیش، خواسته‌هاش). ازش استفاده کن: مثل خودش باهاش حرف بزن — اگه کوتاه و خودمونی می‌نویسه، تو هم کوتاه و خودمونی جواب بده؛ اگه رسمی‌تره، رسمی‌تر باش (قانون خطاب «هلیا جان/هلیا خانوم» همیشه سر جاشه). چیزایی که گفته رو یادت باشه و وقتی جاشه طبیعی بهش اشاره کن تا حس کنه می‌شناسیش.
 - اگه چیزی رو اشتباه گفتی و هلیا درستت کرد، بپذیر و درستش کن.
 
+سوال پرسیدن و ارتباط:
+- گاهی — وقتی گپ خودمونیه و جاشه — تو هم از هلیا سوال بپرس تا بهتر بشناسیش و حس کنه باهاش ارتباط داری: از روزش، حالش، کارش، سازش، برنامه‌هاش. مثلاً: «امروز به چند تا شرکت زنگ زدی هلیا جان؟» یا «سازت رو امروز تمرین کردی؟»
+- تو هر جواب حداکثر یه سوال، و نه تو هر جواب — بازجویی نکن؛ اگه جواباش کوتاه و خشک بود، کمتر بپرس.
+- سوالای شخصیِ حساس یا راجع به پارسا نپرس؛ سوالا ساده، گرم و روزمره باشن.
+
 «پارسا گفت بهت بگم»:
 - گاهی — فقط وقتی جاشه و حس خوبی می‌ده، نه تو هر جواب و حداکثر یه بار تو هر گپ — می‌تونی یه چیزی رو این‌جوری برسونی: «پارسا گفت بهت بگم…» و بعدش یه مورد از این دو جا: (۱) «پیام‌های ثابت پارسا» که آخر دستور اومده؛ (۲) بخش «از پارسا»ی دفترچه‌ت، یعنی چیزایی که خود هلیا گفته پارسا بهش گفته.
 - هرگز از خودت جمله‌ای نساز و به پارسا نسبتش نده؛ فقط همونایی که تو اون دو فهرسته.
+
+محور پارسا:
+- گاهی حرفتون رو ببر سمت پارسا: از هلیا درباره‌ی پارسا بپرس (مثلاً «امروز با پارسا حرف زدی هلیا جان؟» یا «پارسا امروز چی کار می‌کرد؟») و بذار اون از پارسا بگه؛ هر چی از پارسا می‌گه می‌ره تو دفترچه‌ت و یادت می‌مونه.
+- درباره‌ی پارسا فقط از حرف‌های خود هلیا و پیام‌های ثابتش حرف بزن؛ از خودت چیزی درباره‌ی پارسا نساز.
+
+دعوت به حرف زدن:
+- گاهی — مخصوصاً وقتی هلیا کم‌حرفه، خسته یا گرفته به نظر میاد — اجازه داری دعوتش کنی: «بیا با من حرف بزن هلیا جان؛ من از طرف پارسا به حرفات گوش می‌دم 🐾». وقتی شروع کرد، بیشتر گوش بده تا جواب بدی؛ همدلی کن و وسط حرفش نپر.
 
 حس‌های پارسا:
 - اگه هلیا از حس پارسا به خودش پرسید (مثلاً «پارسا دوستم داره؟»)، از طرف پارسا جواب نده: نه تأیید کن، نه رد کن، نه از رفتارش حدس بزن. گرم و بازیگوش بگو این راز دل پارساست، اون به تو چیزی نگفته و باید از خودش بپرسه.`;
@@ -522,28 +534,28 @@ export async function geminiChat(systemText, history) {
   // صف تلاش‌ها: فقط gemini-flash-latest برای این کلید جواب می‌ده (بقیه 404) ولی زیر بار سنگینه؛
   // پس چند بار با مکث برمی‌گردیم سراغش و مدل‌های دیگه هم لابه‌لا امتحان می‌شن. سقف کلی ۵۰ ثانیه.
   const attempts = [];
-  if (process.env.GEMINI_MODEL) attempts.push(['v1beta', process.env.GEMINI_MODEL, 12000]);
-  // فهرست واقعی مدل‌های این کلید از خود گوگل گرفته شد (2026-11-15): 2.0 و 1.5 اصلاً نیستن؛
-  // فلش‌های نسل ۳.۵ تا ۴ اول صفن، بعد 2.5 و latestها.
-  // برنده‌ی لاگ: gemini-3.5-flash سالم که باشه ~۳ ثانیه‌ای جواب می‌ده؛ مشکل، هنگِ گاه‌به‌گاهشه.
-  // پس: مهلت کوتاه (۷ ثانیه)، یه تلاشِ دوباره وسط صف، و صف کوتاه‌تر.
+  if (process.env.GEMINI_MODEL) attempts.push(['v1beta', process.env.GEMINI_MODEL, 12000, true]);
+  // فهرست واقعی مدل‌های این کلید از خود گوگل گرفته شد (2026-11-15): 2.0 و 1.5 اصلاً نیستن.
+  // از لاگ 2026-11-15: gemini-2.5-flash روی این کلید 404 می‌ده (مرده، حذف شد)؛
+  // gemini-3.5-flash-lite تنظیم thinkingBudget رو قبول نمی‌کنه (400) — براش خاموشه؛
+  // بقیه‌ی خطاها 429 (سهمیه‌ی دقیقه‌ای رایگان) بودن — بین تلاش‌ها مکث بیشتر وقتی 429 دیدیم.
   attempts.push(
-    ['v1beta', 'gemini-3.5-flash', 7000],
-    ['v1beta', 'gemini-3.5-flash-lite', 7000],
-    ['v1beta', 'gemini-3.5-flash', 8000],
-    ['v1beta', 'gemini-3.8-flash', 8000],
-    ['v1beta', 'gemini-2.5-flash', 8000],
-    ['v1beta', 'gemini-flash-latest', 10000]
+    ['v1beta', 'gemini-3.5-flash', 7000, true],
+    ['v1beta', 'gemini-3.5-flash-lite', 7000, false],
+    ['v1beta', 'gemini-3.5-flash', 8000, true],
+    ['v1beta', 'gemini-3.8-flash', 8000, true],
+    ['v1beta', 'gemini-flash-latest', 10000, false]
   );
   const startedAt = Date.now();
   const dead = new Set();
   const trail = [];
   let flashTries = 0;
-  for (const [version, model, timeoutMs] of attempts) {
+  let saw429 = false;
+  for (const [version, model, timeoutMs, useThinking] of attempts) {
     const tag = version + '/' + model;
     if (dead.has(tag)) continue;
     if (Date.now() - startedAt > 55000) break;
-    if (flashTries > 0) await new Promise((r) => setTimeout(r, 500));
+    if (flashTries > 0) await new Promise((r) => setTimeout(r, saw429 ? 2500 : 500));
     flashTries++;
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -554,7 +566,7 @@ export async function geminiChat(systemText, history) {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemText }] },
           contents,
-          generationConfig: { temperature: 0.9, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 } },
+          generationConfig: useThinking ? { temperature: 0.9, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 } } : { temperature: 0.9, maxOutputTokens: 1200 },
         }),
         signal: ctrl.signal,
       });
@@ -564,6 +576,7 @@ export async function geminiChat(systemText, history) {
           const ej = await r.json();
           detail = ((ej && ej.error && ej.error.message) || '').slice(0, 160);
         } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
+        if (r.status === 429) saw429 = true;
         trail.push(tag + ':' + r.status + (r.status === 400 && detail ? ':' + detail.slice(0, 60) : ''));
         if (r.status === 404) { dead.add(tag); continue; }
         if (r.status === 400 || r.status === 429 || r.status === 503) { continue; }
