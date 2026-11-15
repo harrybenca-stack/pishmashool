@@ -1,7 +1,8 @@
 // پیش‌مشول — کتابخانه‌ی سمت سرور: دیتابیس، نشست، مقداردهی اولیه و منطق API
 import { neon } from '@neondatabase/serverless';
 import crypto from 'node:crypto';
-import seedCompanies from './_seed.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+const seedCompanies = JSON.parse(readFileSync(new URL('./_seed.json', import.meta.url), 'utf8'));
 
 // ---------- دیتابیس ----------
 export function makeDb() {
@@ -464,6 +465,7 @@ export function adapt(handler) {
         res.json(out.json || { ok: true });
       }
     } catch (e) {
+      console.error('pm api error:', e);
       res.status(500).json({ ok: false, error: 'server_error' });
     }
   };
