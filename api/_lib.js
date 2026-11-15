@@ -508,16 +508,15 @@ export async function geminiChat(systemText, history) {
   if (process.env.GEMINI_MODEL) attempts.push(['v1beta', process.env.GEMINI_MODEL, 12000]);
   // فهرست واقعی مدل‌های این کلید از خود گوگل گرفته شد (2026-11-15): 2.0 و 1.5 اصلاً نیستن؛
   // فلش‌های نسل ۳.۵ تا ۴ اول صفن، بعد 2.5 و latestها.
+  // برنده‌ی لاگ: gemini-3.5-flash سالم که باشه ~۳ ثانیه‌ای جواب می‌ده؛ مشکل، هنگِ گاه‌به‌گاهشه.
+  // پس: مهلت کوتاه (۷ ثانیه)، یه تلاشِ دوباره وسط صف، و صف کوتاه‌تر.
   attempts.push(
-    ['v1beta', 'gemini-3.5-flash', 12000],
-    ['v1beta', 'gemini-3.8-flash', 12000],
-    ['v1beta', 'gemini-4-carbon', 12000],
-    ['v1beta', 'gemini-3.5-flash-lite', 10000],
-    ['v1beta', 'gemini-flash-lite-latest', 10000],
-    ['v1beta', 'gemini-2.5-flash', 10000],
-    ['v1beta', 'gemini-flash-latest', 12000],
-    ['v1beta', 'gemini-3.1-flash-lite', 10000],
-    ['v1beta', 'gemini-2.5-flash-lite', 10000]
+    ['v1beta', 'gemini-3.5-flash', 7000],
+    ['v1beta', 'gemini-3.5-flash-lite', 7000],
+    ['v1beta', 'gemini-3.5-flash', 8000],
+    ['v1beta', 'gemini-3.8-flash', 8000],
+    ['v1beta', 'gemini-2.5-flash', 8000],
+    ['v1beta', 'gemini-flash-latest', 10000]
   );
   const startedAt = Date.now();
   const dead = new Set();
@@ -538,7 +537,7 @@ export async function geminiChat(systemText, history) {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemText }] },
           contents,
-          generationConfig: { temperature: 0.9, maxOutputTokens: 800 },
+          generationConfig: { temperature: 0.9, maxOutputTokens: 500 },
         }),
         signal: ctrl.signal,
       });
