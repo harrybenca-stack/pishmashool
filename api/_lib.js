@@ -501,14 +501,16 @@ export async function geminiChat(systemText, history) {
     else contents.push({ role, parts: [{ text: m.body }] });
   }
   if (contents.length && contents[0].role === 'model') contents.shift();
-  // زنجیره‌ی مدل‌ها: اگه یه مدل برای این کلید در دسترس نبود (404)، بعدی امتحان می‌شه
+  // زنجیره‌ی مدل‌ها: خطای گذرا (404 نبودن مدل، 429 سقف، 503 شلوغی) → مدل بعدی؛ دو دور کامل
   const models = [];
   if (process.env.GEMINI_MODEL) models.push(process.env.GEMINI_MODEL);
-  for (const m of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-1.5-flash']) {
+  for (const m of ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']) {
     if (!models.includes(m)) models.push(m);
   }
   let lastErr = null;
-  for (const model of models) {
+  for (let pass = 0; pass < 2; pass++) {
+    if (pass) await new Promise((r) => setTimeout(r, 1200));
+    for (const model of models) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 20000);
     try {
@@ -529,7 +531,7 @@ export async function geminiChat(systemText, history) {
           detail = ((ej && ej.error && ej.error.message) || '').slice(0, 220);
         } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
         const err = new Error('gemini http ' + r.status + ' (' + model + ')' + (detail ? ': ' + detail : ''));
-        if (r.status === 404) { lastErr = err; continue; }
+        if (r.status === 404 || r.status === 429 || r.status === 503) { lastErr = err; continue; }
         throw err;
       }
       const j = await r.json();
@@ -537,8 +539,9 @@ export async function geminiChat(systemText, history) {
       const text = parts.map((x) => x.text || '').join('').trim();
       if (!text) throw new Error('gemini empty reply (' + model + ')');
       return text;
-    } finally {
-      clearTimeout(timer);
+      } finally {
+        clearTimeout(timer);
+      }
     }
   }
   throw lastErr || new Error('gemini: no model available');
