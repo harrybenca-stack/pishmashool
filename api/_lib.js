@@ -493,7 +493,6 @@ const CHAT_FALLBACK = 'هلیا جان، الان یه کم گیجم و نمی�
 export async function geminiChat(systemText, history) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY is not set');
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const contents = [];
   for (const m of history) {
     const role = m.role === 'assistant' ? 'model' : 'user';
@@ -502,28 +501,39 @@ export async function geminiChat(systemText, history) {
     else contents.push({ role, parts: [{ text: m.body }] });
   }
   if (contents.length && contents[0].role === 'model') contents.shift();
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
-  try {
-    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemText }] },
-        contents,
-        generationConfig: { temperature: 0.9, maxOutputTokens: 800 },
-      }),
-      signal: ctrl.signal,
-    });
-    if (!r.ok) throw new Error('gemini http ' + r.status);
-    const j = await r.json();
-    const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
-    const text = parts.map((x) => x.text || '').join('').trim();
-    if (!text) throw new Error('gemini empty reply');
-    return text;
-  } finally {
-    clearTimeout(timer);
+  // زنجیره‌ی مدل‌ها: اگه یه مدل برای این کلید در دسترس نبود (404)، بعدی امتحان می‌شه
+  const models = [];
+  if (process.env.GEMINI_MODEL) models.push(process.env.GEMINI_MODEL);
+  for (const m of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-1.5-flash']) {
+    if (!models.includes(m)) models.push(m);
   }
+  let lastErr = null;
+  for (const model of models) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    try {
+      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemText }] },
+          contents,
+          generationConfig: { temperature: 0.9, maxOutputTokens: 800 },
+        }),
+        signal: ctrl.signal,
+      });
+      if (r.status === 404) { lastErr = new Error('gemini http 404 (' + model + ')'); continue; }
+      if (!r.ok) throw new Error('gemini http ' + r.status + ' (' + model + ')');
+      const j = await r.json();
+      const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
+      const text = parts.map((x) => x.text || '').join('').trim();
+      if (!text) throw new Error('gemini empty reply (' + model + ')');
+      return text;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr || new Error('gemini: no model available');
 }
 
 async function buildWorkContext(db, userId, todayStrIn) {
