@@ -1122,7 +1122,11 @@
           pm.classList.add('waving');
           setTimeout(function () { pm.classList.remove('waving'); }, 1700);
           pmJump('hop', 520);
-          pmSay('سلام هلیا جان! 🐾 لیستت خالیه — بزن رو «شرکت جدید بیار» تا برم برات شرکت‌های تازه بیارم');
+          setTimeout(function () {
+            var n = document.querySelectorAll('.card').length;
+            if (n > 0) pmSay('سلام هلیا جان! 🐾 شرکت‌هات توی لیستن — روشون بزن تا کاراشون رو با هم انجام بدیم');
+            else pmSay('سلام هلیا جان! 🐾 لیستت خالیه — بزن رو «شرکت جدید بیار» تا برم برات شرکت‌های تازه بیارم');
+          }, 900);
           pmStartIdle();
         };
 
