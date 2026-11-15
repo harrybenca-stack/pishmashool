@@ -184,6 +184,7 @@ async function doInit(db) {
   )`);
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
+  await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
     user_id INTEGER NOT NULL REFERENCES users(id),
     company_id INTEGER NOT NULL REFERENCES companies(id),
@@ -364,11 +365,13 @@ export async function handleState(req, db) {
   const today = (req.query && req.query.today) || '';
   const st = await loadState(db, s.uid, today);
   let catSlots = {};
+  let catLines = [];
   try {
-    const mr = await db.query('SELECT slots FROM cat_memory WHERE user_id = $1', [s.uid]);
+    const mr = await db.query('SELECT slots, panel_lines FROM cat_memory WHERE user_id = $1', [s.uid]);
     if (mr.length && mr[0].slots) catSlots = JSON.parse(mr[0].slots) || {};
+    if (mr.length && mr[0].panel_lines) { try { const pl = JSON.parse(mr[0].panel_lines); if (Array.isArray(pl)) catLines = pl; } catch (e) { /* ignore */ } }
   } catch (e) { catSlots = {}; }
-  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots } };
+  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines } };
 }
 
 export async function handleHunt(req, db) {
@@ -684,6 +687,16 @@ export const LEARN_SYSTEM = `تو حافظه‌ی «پیش‌مشول» هستی
 - لحن دفترچه ساده و واقعی باشه.
 - در انتهای خروجی، یه خط بنویس: ---SLOTS--- و خط بعدش فقط یه JSON تک‌خطی با این کلیدها: {"instrument":"","drink":"","wake":"","city":"","food":""} — هر کلید رو فقط وقتی پر کن که هلیا صریحاً خودش گفته (سازش، نوشیدنی همیشگی‌ش، ساعت بیدارشدنش، شهرش، غذای موردعلاقه‌ش). از «جای‌های خالی قبلی» شروع کن و با حرف‌های تازه به‌روزش کن؛ هرگز حدس نزن.`;
 
+export const PANEL_LINES_SYSTEM = `تو نویسنده‌ی جمله‌های «گربه‌کوچولوی پایین صفحه»ای؛ همون پیش‌مشول، ولی نسخه‌ی کوچیکِ توی پنل کاری هلیا که هر چند دقیقه یه جمله توی حبابش می‌گه.
+ورودی: دفترچه‌ی پیش‌مشول درباره‌ی هلیا (از گپ‌هاشون)، جای‌های خالی (ساز و علایقش) و خلاصه‌ی کارش توی پنل.
+خروجی: فقط یه آرایه‌ی JSON از ۸ تا ۱۰ جمله‌ی کوتاه و تک‌خطی (هر کدوم حداکثر حدود ۹۰ حرف). هیچ متن اضافه‌ای نده.
+جمله‌ها باید:
+- مشخص و شخصی باشن: از جزئیات واقعی دفترچه استفاده کن (سازش، برنامه‌هاش، چیزایی که تعریف کرده، آدما و اتفاقایی که گفته)؛ کلی و قالبی نباش — انگار واقعاً می‌شناسیش و حرفاش یادته.
+- ترکیبی باشن: چند تا درباره‌ی زندگی و حال خودش (با پیگیری چیزایی که قبلاً گفته، مثلاً «اون … چی شد؟»)، چند تا درباره‌ی کارش توی پنل (شرکت‌ها و پیگیری‌ها)، یکی دو تا از خانواده‌ی «پارسا رئیسمه» (پارسا بهم سخت می‌گیره، غذای تشویقی، پارسا گفته بهت سر بزنم).
+- بعضیاش سؤال باشن که هلیا رو به حرف‌زدن بیارن.
+- گرم و بازیگوش و گربه‌ای؛ گاهی «هلیا جان» یا «هلیا خانوم» داشته باشن.
+- قانون‌ها: کلمه‌ی «رفیق» هرگز؛ لحن عاشقانه هرگز؛ چیزی رو که توی دفترچه نیست از خودت نساز؛ درباره‌ی حس‌های پارسا هیچی نگو.`;
+
 // پیام‌های ثابتی که خود پارسا داده تا گربه گاهی به هلیا برسونه (منبع: پارسا، 2026-11-15)
 const PARSA_FIXED_RELAYS = [
   'بهش یادآوری کن سازش رو تمرین کنه: «پارسا گفت بهت بگم سازتو تمرین کنی»',
@@ -733,6 +746,22 @@ async function maybeLearn(db, uid, call) {
     const lastId = pending[pending.length - 1].id;
     await db.query('INSERT INTO cat_memory (user_id, notes, last_msg_id, slots, updated_at) VALUES ($1,$2,$3,$4, now()) ON CONFLICT (user_id) DO UPDATE SET notes = EXCLUDED.notes, last_msg_id = EXCLUDED.last_msg_id, slots = EXCLUDED.slots, updated_at = now()', [uid, notes, lastId, JSON.stringify(slots)]);
     console.log('pm chat learn ok: uid', uid, 'msgs', pending.length);
+    try {
+      const st = await loadState(db, uid, '');
+      const newNames = st.companies.filter((c) => c.status === 'new').slice(0, 3).map((c) => c.name).join('، ');
+      const workLine = 'الان ' + st.companies.length + ' شرکت توی لیستشه (' + st.stats.new + ' جدید، ' + st.stats.contacted + ' تماس‌گرفته‌شده، ' + st.stats.customer + ' مشتری‌شده) و ' + st.warehouse_remaining + ' شرکت توی انباره.' + (newNames ? ' چند تا از جدیدها: ' + newNames + '.' : '');
+      const linesInput = 'دفترچه:\n' + notes + '\n\nجای‌های خالی: ' + JSON.stringify(slots) + '\n\nکارش توی پنل: ' + workLine;
+      const rawLines = String(await call(PANEL_LINES_SYSTEM, [{ role: 'user', body: linesInput }]));
+      const a = rawLines.indexOf('['), b = rawLines.lastIndexOf(']');
+      if (a >= 0 && b > a) {
+        const arr = JSON.parse(rawLines.slice(a, b + 1));
+        const clean = (Array.isArray(arr) ? arr : []).filter((x) => typeof x === 'string' && x.trim().length >= 5 && x.trim().length <= 140 && !x.includes('رفیق')).map((x) => x.trim()).slice(0, 10);
+        if (clean.length >= 3) {
+          await db.query('UPDATE cat_memory SET panel_lines = $1 WHERE user_id = $2', [JSON.stringify(clean), uid]);
+          console.log('pm panel lines ok: uid', uid, 'lines', clean.length);
+        }
+      }
+    } catch (e) { console.error('pm panel lines error:', e); }
   } catch (e) {
     console.error('pm chat learn error:', e);
   }

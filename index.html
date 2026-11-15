@@ -1200,7 +1200,15 @@
         // ---------- جمله‌های کیوت وقت بی‌کاری (موتور بی‌کاری پنل) ----------
         var pmIdleLines = ['هلیا چه خبر؟ 🐾', 'هلیا جان، دلم برات تنگ شده بود', 'امروز چقدر قشنگ شدی هلیا خانوم ✨', 'ناخنات چه رنگیه هلیا؟ امروز لاک زدی یا نزدی؟ 💅', 'هلیا {inst}تو تمرین کردی؟ 🎶', 'هلیا جان، {drink} خوردی امروز؟ ☕', 'امروز چه موزیکی گوش دادی هلیا؟', 'هلیا خانوم، یه لبخند بزن ببینم 😊', 'من امروز خیلی خوابم میاد… ولی منتظر تو بودم', 'هلیا جان اگه خسته شدی یه کم استراحت کن، شرکتا فرار نمی‌کنن', 'امروز موهات رو چطوری بستی هلیا؟', 'دلم می‌خواد برام تعریف کنی امروزت چطور بود هلیا', 'هلیا، بیرون چه هواییه؟ دلم پنجره می‌خواد', 'هلیا جان، من اینجام، هر وقت خواستی صدام کن', 'هلیا خانوم، امروز یه چیز خوشمزه خوردی؟ 🍰', 'هلیا جان، یه چرت کوچولو زدم و خواب تو رو دیدم 🐾', 'امروز چه رنگی پوشیدی هلیا؟ حتماً بهت میاد ✨', 'هلیا، می‌دونی الان دلم چی می‌خواد؟ اینکه تو بخندی 😊'];
         var pmLastIdleLine = -1, pmIdleChatTimer = null;
+        var pmLastCatLine = -1;
         function pmPickIdleLine() {
+          var catLines = window.__pmCatLines || [];
+          if (catLines.length && Math.random() < 0.55) {
+            var j;
+            do { j = Math.floor(Math.random() * catLines.length); } while (catLines.length > 1 && j === pmLastCatLine);
+            pmLastCatLine = j;
+            return catLines[j];
+          }
           var pool = pmIdleLines.slice();
           var sl = window.__pmSlots || {};
           pmUnlockLines.forEach(function (u) { if (sl[u.k]) pool.push(u.t); });
@@ -1689,6 +1697,7 @@
             if (!res.ok) return null;
             S.companies = res.j.companies || [];
             window.__pmSlots = res.j.cat_slots || {};
+            window.__pmCatLines = res.j.cat_lines || [];
             S.warehouse = res.j.warehouse_remaining || 0;
             S.loaded = true;
             return res.j;
