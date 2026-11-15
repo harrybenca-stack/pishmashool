@@ -1,0 +1,1 @@
+{"dependencies":{"@neondatabase/serverless":"^0.10.4"},"description":"پیش‌مشول — پنل واقعی هلیا (Vercel + Neon)","name":"pishmashool-app","private":true,"scripts":{"test":"node test/smoke.mjs"},"type":"module","version":"1.0.0"}
