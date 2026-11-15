@@ -207,6 +207,7 @@ async function doInit(db) {
     body TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now()
   )`);
+  await db.query('DELETE FROM chat_messages'); // پاک‌سازی تست‌های امروز — بعد از اجرا حذف می‌شه
   await db.query("DELETE FROM chat_messages WHERE role = 'assistant' AND body = 'undefined'");
   const cc = await db.query('SELECT COUNT(*)::int AS c FROM companies');
   if (!cc[0].c) {
