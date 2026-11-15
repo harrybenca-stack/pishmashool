@@ -153,6 +153,7 @@
       .act-chip.off { background: #f5e9cf; color: #8a6d3b; }
       .act-chip.mid { background: #eceff3; color: #5b6b7f; }
       .act-reason { font-size: .76rem; line-height: 1.7; color: var(--ink-2); padding: 2px 14px 9px; }
+      .evid { background: var(--accent-soft); border-radius: 10px; padding: 7px 10px; }
       .badge.new { background: var(--accent-soft); color: var(--accent); }
       .badge.progress { background: var(--amber-soft); color: var(--amber); }
       .badge.won { background: var(--green-soft); color: var(--green); }
@@ -1504,6 +1505,7 @@
           h += metaRow('کد پستی: ', c.postal_code);
           h += metaRow('تاریخ تأسیس: ', c.founded);
           if (c.activity) h += '<div class="wide"><span class="k">موضوع فعالیت: </span><span class="v">' + esc(faText(c.activity)) + '</span></div>';
+          if (c.act_evidence) h += '<div class="wide evid"><span class="k">🔎 چرا این برچسب رو خورد؟ </span><span class="v">' + esc(c.act_evidence) + '</span></div>';
           h += '<div class="wide"><span class="k">نشانی ثبت‌شده: </span><span class="v">' + esc(faText(c.address)) + '</span></div>';
           h += '</div>';
           if (c.phones && c.phones.length) {

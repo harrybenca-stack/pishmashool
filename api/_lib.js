@@ -184,6 +184,7 @@ async function doInit(db) {
   )`);
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
+  await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_evidence TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
@@ -222,9 +223,9 @@ async function doInit(db) {
   if (!cc[0].c) {
     for (const c of seedCompanies) {
       await db.query(
-        `INSERT INTO companies (sort_order, name, national_id, reg_no, city, address, postal_code, founded, board_expiry, ceo, chair, inspector, activity, phone, phone_source, rasmio_url, reason, act_status, act_reason)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
-        [c.sort_order, c.name, c.national_id, c.reg_no, c.city, c.address, c.postal_code, c.founded, c.board_expiry, c.ceo, c.chair, c.inspector, c.activity, c.phone, c.phone_source, c.rasmio_url, c.reason, c.act_status || null, c.act_reason || null]
+        `INSERT INTO companies (sort_order, name, national_id, reg_no, city, address, postal_code, founded, board_expiry, ceo, chair, inspector, activity, phone, phone_source, rasmio_url, reason, act_status, act_reason, act_evidence)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+        [c.sort_order, c.name, c.national_id, c.reg_no, c.city, c.address, c.postal_code, c.founded, c.board_expiry, c.ceo, c.chair, c.inspector, c.activity, c.phone, c.phone_source, c.rasmio_url, c.reason, c.act_status || null, c.act_reason || null, c.act_evidence || null]
       );
     }
   }
@@ -239,8 +240,8 @@ async function doInit(db) {
   for (const c of seedCompanies) {
     if (c.act_status) {
       await db.query(
-        'UPDATE companies SET act_status = $1, act_reason = $2 WHERE national_id = $3 AND (act_status IS DISTINCT FROM $1 OR act_reason IS DISTINCT FROM $2)',
-        [c.act_status, c.act_reason || null, c.national_id]
+        'UPDATE companies SET act_status = $1, act_reason = $2, act_evidence = $3 WHERE national_id = $4 AND (act_status IS DISTINCT FROM $1 OR act_reason IS DISTINCT FROM $2 OR act_evidence IS DISTINCT FROM $3)',
+        [c.act_status, c.act_reason || null, c.act_evidence || null, c.national_id]
       );
     }
   }
@@ -277,6 +278,7 @@ function shapeCompany(row, logs) {
     activity: row.activity,
     act_status: row.act_status || null,
     act_reason: row.act_reason || '',
+    act_evidence: row.act_evidence || '',
     phone: row.phone || '',
     phones: parsePhones(row.phone),
     phone_source: row.phone_source || '',
