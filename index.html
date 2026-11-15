@@ -1539,6 +1539,7 @@
             : 'سلام هلیا جان! 🐾 لیستت خالیه — بزن رو «شرکت جدید بیار» تا برم برات شرکت‌های تازه بیارم.';
         }
         window.__pmUpdateStats = updateStats;
+        window.__pmApi = api;
         function untouchedCards() {
           return liveCards().filter(function (c) {
             return c.getAttribute('data-status') === 'new' && !c.dataset.acted;
@@ -2188,6 +2189,12 @@
         };
 
         // ---------- گپ با پیش‌مشول ----------
+        function chatApi(path, opts) {
+          if (window.__pmApi) return window.__pmApi(path, opts);
+          return fetch(path, opts || {}).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (j) { return { http: r.status, ok: r.ok, j: j }; });
+          });
+        }
         var chatView = document.getElementById('chatView');
         var chatMsgs = document.getElementById('chatMsgs');
         var chatForm = document.getElementById('chatForm');
@@ -2218,7 +2225,7 @@
           document.body.classList.add('chat-open');
           if (!chatLoaded) {
             chatLoaded = true;
-            api('/api/chat').then(function (res) {
+            chatApi('/api/chat').then(function (res) {
               if (res.ok && res.j.messages && res.j.messages.length) {
                 res.j.messages.forEach(function (m) { chatBubble(m.role, m.body); });
               } else {
@@ -2249,7 +2256,7 @@
             chatCtrl = new AbortController();
             chatTimer = setTimeout(function () { chatCtrl.abort(); }, 50000);
           }
-          api('/api/chat', {
+          chatApi('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text, today: todayStr() }),
