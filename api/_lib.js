@@ -207,9 +207,7 @@ async function doInit(db) {
     body TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now()
   )`);
-  await db.query('DELETE FROM chat_messages'); // پاک‌سازی یک‌باره‌ی پیام‌های تست سارا — بعد از اجرا حذف می‌شه
   await db.query("DELETE FROM chat_messages WHERE role = 'assistant' AND body = 'undefined'");
-  await db.query("DELETE FROM chat_messages WHERE role = 'user' AND created_at < '2026-11-15T15:30:00Z' AND body IN ('سلام پیش‌مشول، امروز به کی باید زنگ بزنم؟','سلام پیش‌مشول، چطوری؟','امروز پیگیری خاصی دارم؟','سلام','سلام پیش‌مشول')");
   const cc = await db.query('SELECT COUNT(*)::int AS c FROM companies');
   if (!cc[0].c) {
     for (const c of seedCompanies) {
