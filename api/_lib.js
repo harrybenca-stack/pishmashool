@@ -207,6 +207,7 @@ async function doInit(db) {
     body TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now()
   )`);
+  await db.query("DELETE FROM chat_messages WHERE role = 'assistant' AND body = 'undefined'");
   const cc = await db.query('SELECT COUNT(*)::int AS c FROM companies');
   if (!cc[0].c) {
     for (const c of seedCompanies) {
@@ -504,7 +505,7 @@ export async function geminiChat(systemText, history) {
   // زنجیره‌ی مدل‌ها: خطای گذرا (404 نبودن مدل، 429 سقف، 503 شلوغی، timeout) → مدل بعدی؛ سقف کلی ۴۰ ثانیه
   const models = [];
   if (process.env.GEMINI_MODEL) models.push(process.env.GEMINI_MODEL);
-  for (const m of ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']) {
+  for (const m of ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']) {
     if (!models.includes(m)) models.push(m);
   }
   const startedAt = Date.now();
@@ -553,6 +554,7 @@ export async function geminiChat(systemText, history) {
       }
     }
   }
+  throw lastErr || new Error('gemini: no model available');
 }
 
 async function buildWorkContext(db, userId, todayStrIn) {
