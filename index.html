@@ -2244,16 +2244,24 @@
           chatBubble('user', text);
           var typing = chatBubble('assistant', 'پیش‌مشول داره می‌نویسه…');
           typing.classList.add('typing');
+          var chatCtrl = null, chatTimer = null;
+          if (window.AbortController) {
+            chatCtrl = new AbortController();
+            chatTimer = setTimeout(function () { chatCtrl.abort(); }, 50000);
+          }
           api('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, today: todayStr() })
+            body: JSON.stringify({ message: text, today: todayStr() }),
+            signal: chatCtrl ? chatCtrl.signal : undefined
           }).then(function (res) {
+            if (chatTimer) clearTimeout(chatTimer);
             typing.remove();
             chatBusy = false;
             var reply = (res.j && res.j.reply) || 'هلیا جان، الان نمی‌تونم جواب بدم 😿 یه بار دیگه امتحان کن 🐾';
             chatBubble('assistant', reply);
           }).catch(function () {
+            if (chatTimer) clearTimeout(chatTimer);
             typing.remove();
             chatBusy = false;
             chatBubble('assistant', 'هلیا جان، الان نمی‌تونم جواب بدم 😿 یه بار دیگه امتحان کن 🐾');
