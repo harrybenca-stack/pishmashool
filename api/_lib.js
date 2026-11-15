@@ -210,6 +210,14 @@ async function doInit(db) {
       );
     }
   }
+  for (const c of seedCompanies) {
+    if (c.phone) {
+      await db.query(
+        'UPDATE companies SET phone = $1, phone_source = $2 WHERE national_id = $3 AND (phone IS NULL OR phone = $4)',
+        [c.phone, c.phone_source, c.national_id, '']
+      );
+    }
+  }
   const uu = await db.query('SELECT id FROM users WHERE username = $1', [SEED_USER.username]);
   if (!uu.length) {
     const { hash, salt } = hashPassword(SEED_USER.password);
