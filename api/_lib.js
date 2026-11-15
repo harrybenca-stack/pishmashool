@@ -183,6 +183,7 @@ async function doInit(db) {
     reason TEXT
   )`);
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
+  await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
     user_id INTEGER NOT NULL REFERENCES users(id),
     company_id INTEGER NOT NULL REFERENCES companies(id),
@@ -362,7 +363,12 @@ export async function handleState(req, db) {
   await ensureInit(db);
   const today = (req.query && req.query.today) || '';
   const st = await loadState(db, s.uid, today);
-  return { status: 200, json: { ok: true, user: { username: s.username }, ...st } };
+  let catSlots = {};
+  try {
+    const mr = await db.query('SELECT slots FROM cat_memory WHERE user_id = $1', [s.uid]);
+    if (mr.length && mr[0].slots) catSlots = JSON.parse(mr[0].slots) || {};
+  } catch (e) { catSlots = {}; }
+  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots } };
 }
 
 export async function handleHunt(req, db) {
@@ -675,7 +681,8 @@ export const LEARN_SYSTEM = `تو حافظه‌ی «پیش‌مشول» هستی
 - دفترچه‌ی قبلی رو با پیام‌های تازه ادغام کن: تکراری‌ها رو یه بار بنویس؛ اگه پیام تازه چیزی رو نقض کرد یا هلیا اصلاحش کرد، نسخه‌ی تازه برنده‌ست.
 - بخش «از پارسا» فقط از حرف‌های هلیاست؛ اگه چیزی نبود بنویس: —
 - اگه بخشی خالی موند بنویس: —
-- لحن دفترچه ساده و واقعی باشه.`;
+- لحن دفترچه ساده و واقعی باشه.
+- در انتهای خروجی، یه خط بنویس: ---SLOTS--- و خط بعدش فقط یه JSON تک‌خطی با این کلیدها: {"instrument":"","drink":"","wake":"","city":"","food":""} — هر کلید رو فقط وقتی پر کن که هلیا صریحاً خودش گفته (سازش، نوشیدنی همیشگی‌ش، ساعت بیدارشدنش، شهرش، غذای موردعلاقه‌ش). از «جای‌های خالی قبلی» شروع کن و با حرف‌های تازه به‌روزش کن؛ هرگز حدس نزن.`;
 
 // پیام‌های ثابتی که خود پارسا داده تا گربه گاهی به هلیا برسونه (منبع: پارسا، 2026-11-15)
 const PARSA_FIXED_RELAYS = [
@@ -702,16 +709,29 @@ async function buildMemoryContext(db, userId) {
 const LEARN_EVERY = 10; // هر ۱۰ پیام، یه بار دفترچه به‌روز می‌شه (مدل پس‌زمینه‌ای که پارسا انتخاب کرد)
 async function maybeLearn(db, uid, call) {
   try {
-    const rows = await db.query('SELECT notes, last_msg_id FROM cat_memory WHERE user_id = $1', [uid]);
-    const mem = rows.length ? rows[0] : { notes: '', last_msg_id: 0 };
+    const rows = await db.query('SELECT notes, last_msg_id, slots FROM cat_memory WHERE user_id = $1', [uid]);
+    const mem = rows.length ? rows[0] : { notes: '', last_msg_id: 0, slots: '' };
     const pending = await db.query('SELECT id, role, body FROM chat_messages WHERE user_id = $1 AND id > $2 ORDER BY id ASC LIMIT 60', [uid, mem.last_msg_id]);
     if (pending.length < LEARN_EVERY) return;
     const material = pending.map((m) => (m.role === 'user' ? 'هلیا: ' : 'پیش‌مشول: ') + m.body).join('\n');
-    const input = 'دفترچه‌ی قبلی:\n' + (mem.notes || '(خالی)') + '\n\nپیام‌های تازه:\n' + material;
-    const notes = String(await call(LEARN_SYSTEM, [{ role: 'user', body: input }])).trim().slice(0, 3000);
+    const input = 'دفترچه‌ی قبلی:\n' + (mem.notes || '(خالی)') + '\n\nجای‌های خالی قبلی:\n' + (mem.slots || '{}') + '\n\nپیام‌های تازه:\n' + material;
+    const rawOut = String(await call(LEARN_SYSTEM, [{ role: 'user', body: input }]));
+    const outParts = rawOut.split('---SLOTS---');
+    const notes = outParts[0].trim().slice(0, 3000);
     if (!notes) return;
+    let slots = {};
+    try { slots = JSON.parse(mem.slots || '{}') || {}; } catch (e) { slots = {}; }
+    if (outParts[1]) {
+      try {
+        const fresh = JSON.parse(outParts[1].trim().split('\n')[0]);
+        for (const k of ['instrument', 'drink', 'wake', 'city', 'food']) {
+          const v = fresh && typeof fresh[k] === 'string' ? fresh[k].trim().slice(0, 40) : '';
+          if (v) slots[k] = v;
+        }
+      } catch (e) { /* اسلات خراب بود؛ قبلیا می‌مونن */ }
+    }
     const lastId = pending[pending.length - 1].id;
-    await db.query('INSERT INTO cat_memory (user_id, notes, last_msg_id, updated_at) VALUES ($1,$2,$3, now()) ON CONFLICT (user_id) DO UPDATE SET notes = EXCLUDED.notes, last_msg_id = EXCLUDED.last_msg_id, updated_at = now()', [uid, notes, lastId]);
+    await db.query('INSERT INTO cat_memory (user_id, notes, last_msg_id, slots, updated_at) VALUES ($1,$2,$3,$4, now()) ON CONFLICT (user_id) DO UPDATE SET notes = EXCLUDED.notes, last_msg_id = EXCLUDED.last_msg_id, slots = EXCLUDED.slots, updated_at = now()', [uid, notes, lastId, JSON.stringify(slots)]);
     console.log('pm chat learn ok: uid', uid, 'msgs', pending.length);
   } catch (e) {
     console.error('pm chat learn error:', e);

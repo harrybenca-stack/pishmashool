@@ -1068,7 +1068,23 @@
           pmMouthOpen.setAttribute('opacity', '0');
           pmMouthClosed.setAttribute('opacity', '1');
         }
+        function pmFill(t) {
+          var sl = window.__pmSlots || {};
+          return String(t)
+            .replace(/\{inst\}/g, sl.instrument || 'ساز')
+            .replace(/\{drink\}/g, sl.drink || 'چایی')
+            .replace(/\{wake\}/g, sl.wake || '')
+            .replace(/\{city\}/g, sl.city || '');
+        }
+        var pmUnlockLines = [
+          { k: 'instrument', t: 'هلیا، {inst}ت کوکه؟ یه کم بزن دلم باز شه 🎻' },
+          { k: 'instrument', t: 'امروز {inst}تو زدی هلیا؟ 🎶' },
+          { k: 'drink', t: 'بوی {drink} میاد هلیا… یا دلم برات تنگ شده؟ ☕' },
+          { k: 'wake', t: 'هلیا امروزم ساعت {wake} بیدار شدی؟ آفرین به این نظم ⏰' },
+          { k: 'city', t: 'هلیا، تو {city} هوا چطوره امروز؟ 🌦' }
+        ];
         function pmSay(text, hold) {
+          text = pmFill(text);
           pmLastSayAt = Date.now();
           pmStopTalk();
           pmText.innerHTML = '';
@@ -1182,13 +1198,16 @@
         pmStartIdle();
 
         // ---------- جمله‌های کیوت وقت بی‌کاری (موتور بی‌کاری پنل) ----------
-        var pmIdleLines = ['هلیا چه خبر؟ 🐾', 'هلیا جان، دلم برات تنگ شده بود', 'امروز چقدر قشنگ شدی هلیا خانوم ✨', 'ناخنات چه رنگیه هلیا؟ امروز لاک زدی یا نزدی؟ 💅', 'هلیا سازتو تمرین کردی؟ 🎶', 'هلیا جان، چایی خوردی امروز؟ ☕', 'امروز چه موزیکی گوش دادی هلیا؟', 'هلیا خانوم، یه لبخند بزن ببینم 😊', 'من امروز خیلی خوابم میاد… ولی منتظر تو بودم', 'هلیا جان اگه خسته شدی یه کم استراحت کن، شرکتا فرار نمی‌کنن', 'امروز موهات رو چطوری بستی هلیا؟', 'دلم می‌خواد برام تعریف کنی امروزت چطور بود هلیا', 'هلیا، بیرون چه هواییه؟ دلم پنجره می‌خواد', 'هلیا جان، من اینجام، هر وقت خواستی صدام کن', 'هلیا خانوم، امروز یه چیز خوشمزه خوردی؟ 🍰', 'هلیا جان، یه چرت کوچولو زدم و خواب تو رو دیدم 🐾', 'امروز چه رنگی پوشیدی هلیا؟ حتماً بهت میاد ✨', 'هلیا، می‌دونی الان دلم چی می‌خواد؟ اینکه تو بخندی 😊'];
+        var pmIdleLines = ['هلیا چه خبر؟ 🐾', 'هلیا جان، دلم برات تنگ شده بود', 'امروز چقدر قشنگ شدی هلیا خانوم ✨', 'ناخنات چه رنگیه هلیا؟ امروز لاک زدی یا نزدی؟ 💅', 'هلیا {inst}تو تمرین کردی؟ 🎶', 'هلیا جان، {drink} خوردی امروز؟ ☕', 'امروز چه موزیکی گوش دادی هلیا؟', 'هلیا خانوم، یه لبخند بزن ببینم 😊', 'من امروز خیلی خوابم میاد… ولی منتظر تو بودم', 'هلیا جان اگه خسته شدی یه کم استراحت کن، شرکتا فرار نمی‌کنن', 'امروز موهات رو چطوری بستی هلیا؟', 'دلم می‌خواد برام تعریف کنی امروزت چطور بود هلیا', 'هلیا، بیرون چه هواییه؟ دلم پنجره می‌خواد', 'هلیا جان، من اینجام، هر وقت خواستی صدام کن', 'هلیا خانوم، امروز یه چیز خوشمزه خوردی؟ 🍰', 'هلیا جان، یه چرت کوچولو زدم و خواب تو رو دیدم 🐾', 'امروز چه رنگی پوشیدی هلیا؟ حتماً بهت میاد ✨', 'هلیا، می‌دونی الان دلم چی می‌خواد؟ اینکه تو بخندی 😊'];
         var pmLastIdleLine = -1, pmIdleChatTimer = null;
         function pmPickIdleLine() {
+          var pool = pmIdleLines.slice();
+          var sl = window.__pmSlots || {};
+          pmUnlockLines.forEach(function (u) { if (sl[u.k]) pool.push(u.t); });
           var i;
-          do { i = Math.floor(Math.random() * pmIdleLines.length); } while (pmIdleLines.length > 1 && i === pmLastIdleLine);
+          do { i = Math.floor(Math.random() * pool.length); } while (pool.length > 1 && i === pmLastIdleLine);
           pmLastIdleLine = i;
-          return pmIdleLines[i];
+          return pool[i];
         }
         function pmIdleAct() {
           var acts = ['purr', 'hearts', 'loveblink', 'bigtilt', 'none'];
@@ -1669,6 +1688,7 @@
           return api('/api/state?today=' + encodeURIComponent(todayStr())).then(function (res) {
             if (!res.ok) return null;
             S.companies = res.j.companies || [];
+            window.__pmSlots = res.j.cat_slots || {};
             S.warehouse = res.j.warehouse_remaining || 0;
             S.loaded = true;
             return res.j;
