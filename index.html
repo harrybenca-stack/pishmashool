@@ -2189,6 +2189,10 @@
         };
 
         // ---------- گپ با پیش‌مشول ----------
+        function chatToday() {
+          var t = window.__pmTodayParts;
+          return t ? (t.y + '-' + t.m + '-' + t.d) : '';
+        }
         function chatApi(path, opts) {
           if (window.__pmApi) return window.__pmApi(path, opts);
           return fetch(path, opts || {}).then(function (r) {
@@ -2259,7 +2263,7 @@
           chatApi('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, today: todayStr() }),
+            body: JSON.stringify({ message: text, today: chatToday() }),
             signal: chatCtrl ? chatCtrl.signal : undefined
           }).then(function (res) {
             if (chatTimer) clearTimeout(chatTimer);
