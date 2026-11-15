@@ -522,8 +522,16 @@ export async function geminiChat(systemText, history) {
         }),
         signal: ctrl.signal,
       });
-      if (r.status === 404) { lastErr = new Error('gemini http 404 (' + model + ')'); continue; }
-      if (!r.ok) throw new Error('gemini http ' + r.status + ' (' + model + ')');
+      if (!r.ok) {
+        let detail = '';
+        try {
+          const ej = await r.json();
+          detail = ((ej && ej.error && ej.error.message) || '').slice(0, 220);
+        } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
+        const err = new Error('gemini http ' + r.status + ' (' + model + ')' + (detail ? ': ' + detail : ''));
+        if (r.status === 404) { lastErr = err; continue; }
+        throw err;
+      }
       const j = await r.json();
       const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
       const text = parts.map((x) => x.text || '').join('').trim();
