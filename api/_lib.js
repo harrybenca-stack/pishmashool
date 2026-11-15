@@ -507,16 +507,18 @@ export async function geminiChat(systemText, history) {
   // پس چند بار با مکث برمی‌گردیم سراغش و مدل‌های دیگه هم لابه‌لا امتحان می‌شن. سقف کلی ۵۰ ثانیه.
   const attempts = [];
   if (process.env.GEMINI_MODEL) attempts.push(['v1beta', process.env.GEMINI_MODEL, 12000]);
+  // فهرست واقعی مدل‌های این کلید از خود گوگل گرفته شد (2026-11-15): 2.0 و 1.5 اصلاً نیستن؛
+  // فلش‌های نسل ۳.۵ تا ۴ اول صفن، بعد 2.5 و latestها.
   attempts.push(
-    ['v1beta', 'gemini-flash-latest', 15000],
-    ['v1', 'gemini-2.0-flash', 8000],
-    ['v1beta', 'gemini-flash-latest', 15000],
-    ['v1beta', 'gemini-2.5-flash', 8000],
-    ['v1beta', 'gemini-2.0-flash', 8000],
-    ['v1beta', 'gemini-2.5-flash-lite', 8000],
-    ['v1beta', 'gemini-2.0-flash-lite', 8000],
-    ['v1beta', 'gemini-1.5-flash', 8000],
-    ['v1beta', 'gemini-flash-latest', 12000]
+    ['v1beta', 'gemini-3.5-flash', 12000],
+    ['v1beta', 'gemini-3.8-flash', 12000],
+    ['v1beta', 'gemini-4-carbon', 12000],
+    ['v1beta', 'gemini-3.5-flash-lite', 10000],
+    ['v1beta', 'gemini-flash-lite-latest', 10000],
+    ['v1beta', 'gemini-2.5-flash', 10000],
+    ['v1beta', 'gemini-flash-latest', 12000],
+    ['v1beta', 'gemini-3.1-flash-lite', 10000],
+    ['v1beta', 'gemini-2.5-flash-lite', 10000]
   );
   const startedAt = Date.now();
   const dead = new Set();
@@ -525,11 +527,9 @@ export async function geminiChat(systemText, history) {
   for (const [version, model, timeoutMs] of attempts) {
     const tag = version + '/' + model;
     if (dead.has(tag)) continue;
-    if (Date.now() - startedAt > 50000) break;
-    if (model === 'gemini-flash-latest') {
-      flashTries++;
-      if (flashTries > 1) await new Promise((r) => setTimeout(r, 900));
-    }
+    if (Date.now() - startedAt > 55000) break;
+    if (flashTries > 0) await new Promise((r) => setTimeout(r, 500));
+    flashTries++;
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
@@ -549,9 +549,9 @@ export async function geminiChat(systemText, history) {
           const ej = await r.json();
           detail = ((ej && ej.error && ej.error.message) || '').slice(0, 160);
         } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
-        trail.push(tag + ':' + r.status);
+        trail.push(tag + ':' + r.status + (r.status === 400 && detail ? ':' + detail.slice(0, 60) : ''));
         if (r.status === 404) { dead.add(tag); continue; }
-        if (r.status === 429 || r.status === 503) { continue; }
+        if (r.status === 400 || r.status === 429 || r.status === 503) { continue; }
         throw new Error('gemini http ' + r.status + ' (' + tag + ')' + (detail ? ': ' + detail : '') + ' | trail: ' + trail.join(' '));
       }
       const j = await r.json();
