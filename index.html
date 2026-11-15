@@ -151,6 +151,8 @@
       .act-chip { font-size: .72rem; font-weight: 800; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
       .act-chip.on { background: #e2f6ea; color: #177245; }
       .act-chip.off { background: #f5e9cf; color: #8a6d3b; }
+      .act-chip.mid { background: #eceff3; color: #5b6b7f; }
+      .act-reason { font-size: .76rem; line-height: 1.7; color: var(--ink-2); padding: 2px 14px 9px; }
       .badge.new { background: var(--accent-soft); color: var(--accent); }
       .badge.progress { background: var(--amber-soft); color: var(--amber); }
       .badge.won { background: var(--green-soft); color: var(--green); }
@@ -1488,9 +1490,11 @@
           h += '<span class="city">' + esc(faText(cityDisplay(c.city))) + '</span>';
           h += '<span class="badge ' + st + '">' + (st === 'new' ? 'جدید' : st === 'progress' ? 'در حال پیگیری' : st === 'won' ? 'مشتری شد' : 'رد شده') + '</span>';
           if (c.act_status === 'active') h += '<span class="act-chip on">فعال و سرپا</span>';
+          else if (c.act_status === 'legal') h += '<span class="act-chip mid">کارش نامشخص</span>';
           else if (c.act_status === 'dormant') h += '<span class="act-chip off">راکد به نظر می‌رسه</span>';
           if (c.phones && c.phones.length) h += '<a class="call-fab" href="tel:' + esc(c.phones[0].tel) + '" onclick="event.stopPropagation()" aria-label="زنگ بزن" title="زنگ بزن">📞</a>';
           h += '</div>';
+          if (c.act_reason) h += '<div class="act-reason">' + esc(c.act_reason) + '</div>';
           h += '<div class="meta">';
           h += metaRow('مدیرعامل: ', c.ceo);
           h += metaRow('رئیس هیئت‌مدیره: ', c.chair);

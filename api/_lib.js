@@ -183,6 +183,7 @@ async function doInit(db) {
     reason TEXT
   )`);
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
+  await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
@@ -221,9 +222,9 @@ async function doInit(db) {
   if (!cc[0].c) {
     for (const c of seedCompanies) {
       await db.query(
-        `INSERT INTO companies (sort_order, name, national_id, reg_no, city, address, postal_code, founded, board_expiry, ceo, chair, inspector, activity, phone, phone_source, rasmio_url, reason, act_status)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
-        [c.sort_order, c.name, c.national_id, c.reg_no, c.city, c.address, c.postal_code, c.founded, c.board_expiry, c.ceo, c.chair, c.inspector, c.activity, c.phone, c.phone_source, c.rasmio_url, c.reason, c.act_status || null]
+        `INSERT INTO companies (sort_order, name, national_id, reg_no, city, address, postal_code, founded, board_expiry, ceo, chair, inspector, activity, phone, phone_source, rasmio_url, reason, act_status, act_reason)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+        [c.sort_order, c.name, c.national_id, c.reg_no, c.city, c.address, c.postal_code, c.founded, c.board_expiry, c.ceo, c.chair, c.inspector, c.activity, c.phone, c.phone_source, c.rasmio_url, c.reason, c.act_status || null, c.act_reason || null]
       );
     }
   }
@@ -238,8 +239,8 @@ async function doInit(db) {
   for (const c of seedCompanies) {
     if (c.act_status) {
       await db.query(
-        'UPDATE companies SET act_status = $1 WHERE national_id = $2 AND act_status IS DISTINCT FROM $1',
-        [c.act_status, c.national_id]
+        'UPDATE companies SET act_status = $1, act_reason = $2 WHERE national_id = $3 AND (act_status IS DISTINCT FROM $1 OR act_reason IS DISTINCT FROM $2)',
+        [c.act_status, c.act_reason || null, c.national_id]
       );
     }
   }
@@ -275,6 +276,7 @@ function shapeCompany(row, logs) {
     inspector: row.inspector,
     activity: row.activity,
     act_status: row.act_status || null,
+    act_reason: row.act_reason || '',
     phone: row.phone || '',
     phones: parsePhones(row.phone),
     phone_source: row.phone_source || '',
@@ -658,6 +660,7 @@ async function buildWorkContext(db, userId, todayStrIn) {
     for (const c of st.companies) {
       let line = '  • ' + c.name + ' — شهر: ' + (c.city || '؟') + ' — مدیرعامل: ' + (c.ceo || '؟') + ' — وضعیت: ' + (STATUS_FA_CHAT[c.status] || c.status);
       if (c.act_status === 'dormant') line += ' — وضعیت فعالیت: راکد به نظر می‌رسه (قانونی فعاله ولی ردّی از کارکردنش نیست؛ هلیا حواسش باشه)';
+      else if (c.act_status === 'legal') line += ' — وضعیت فعالیت: قانوناً فعاله ولی هیچ ردّ کاری ازش پیدا نشده؛ ممکنه فقط روی کاغذ زنده باشه، هلیا حواسش باشه';
       else if (c.act_status === 'active') line += ' — وضعیت فعالیت: فعال و سرپا';
       if (c.phone) line += ' — تلفن: ' + c.phone;
       if (c.due) line += ' — پیگیری بعدی: ' + c.due;
