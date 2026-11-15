@@ -208,6 +208,7 @@ async function doInit(db) {
     created_at TIMESTAMPTZ DEFAULT now()
   )`);
   await db.query("DELETE FROM chat_messages WHERE role = 'assistant' AND body = 'undefined'");
+  await db.query("DELETE FROM chat_messages WHERE role = 'user' AND created_at < '2026-11-15T15:30:00Z' AND body IN ('سلام پیش‌مشول، امروز به کی باید زنگ بزنم؟','سلام پیش‌مشول، چطوری؟','امروز پیگیری خاصی دارم؟','سلام','سلام پیش‌مشول')");
   const cc = await db.query('SELECT COUNT(*)::int AS c FROM companies');
   if (!cc[0].c) {
     for (const c of seedCompanies) {
@@ -502,24 +503,34 @@ export async function geminiChat(systemText, history) {
     else contents.push({ role, parts: [{ text: m.body }] });
   }
   if (contents.length && contents[0].role === 'model') contents.shift();
-  // زنجیره‌ی مدل‌ها: خطای گذرا (404 نبودن مدل، 429 سقف، 503 شلوغی، timeout) → مدل بعدی؛ سقف کلی ۴۰ ثانیه
-  const models = [];
-  if (process.env.GEMINI_MODEL) models.push(process.env.GEMINI_MODEL);
-  for (const m of ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b']) {
-    if (!models.includes(m)) models.push(m);
-  }
+  // زنجیره‌ی تلاش‌ها (نسخه‌ی API × مدل): خطای گذرا (404 نبودن، 429 سقف، 503 شلوغی، timeout) → تلاش بعدی؛ سقف کلی ۴۵ ثانیه
+  const attempts = [];
+  const seen = new Set();
+  const addAttempt = (v, m) => { const k = v + '/' + m; if (!seen.has(k)) { seen.add(k); attempts.push([v, m]); } };
+  if (process.env.GEMINI_MODEL) addAttempt('v1beta', process.env.GEMINI_MODEL);
+  addAttempt('v1beta', 'gemini-flash-latest');
+  addAttempt('v1', 'gemini-2.0-flash');
+  addAttempt('v1beta', 'gemini-2.0-flash');
+  addAttempt('v1', 'gemini-1.5-flash');
+  addAttempt('v1beta', 'gemini-2.5-flash');
+  addAttempt('v1beta', 'gemini-2.5-flash-lite');
+  addAttempt('v1beta', 'gemini-2.0-flash-lite');
+  addAttempt('v1beta', 'gemini-1.5-flash');
+  addAttempt('v1beta', 'gemini-1.5-flash-8b');
   const startedAt = Date.now();
   const dead = new Set();
+  const trail = [];
   let lastErr = null;
   for (let pass = 0; pass < 2; pass++) {
     if (pass) await new Promise((r) => setTimeout(r, 1200));
-    for (const model of models) {
-      if (dead.has(model)) continue;
-      if (Date.now() - startedAt > 40000) break;
+    for (const [version, model] of attempts) {
+      const tag = version + '/' + model;
+      if (dead.has(tag)) continue;
+      if (Date.now() - startedAt > 45000) break;
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 10000);
+      const timer = setTimeout(() => ctrl.abort(), 8000);
       try {
-        const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+        const r = await fetch('https://generativelanguage.googleapis.com/' + version + '/models/' + model + ':generateContent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
           body: JSON.stringify({
@@ -533,28 +544,28 @@ export async function geminiChat(systemText, history) {
           let detail = '';
           try {
             const ej = await r.json();
-            detail = ((ej && ej.error && ej.error.message) || '').slice(0, 220);
+            detail = ((ej && ej.error && ej.error.message) || '').slice(0, 160);
           } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
-          const err = new Error('gemini http ' + r.status + ' (' + model + ')' + (detail ? ': ' + detail : ''));
-          if (r.status === 404) { dead.add(model); lastErr = err; continue; }
-          if (r.status === 429 || r.status === 503) { lastErr = err; continue; }
-          throw err;
+          trail.push(tag + ':' + r.status);
+          if (r.status === 404) { dead.add(tag); continue; }
+          if (r.status === 429 || r.status === 503) { continue; }
+          throw new Error('gemini http ' + r.status + ' (' + tag + ')' + (detail ? ': ' + detail : '') + ' | trail: ' + trail.join(' '));
         }
         const j = await r.json();
         const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
         const text = parts.map((x) => x.text || '').join('').trim();
-        if (!text) { lastErr = new Error('gemini empty reply (' + model + ')'); continue; }
+        if (!text) { trail.push(tag + ':empty'); continue; }
         return text;
       } catch (e) {
-        if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) { lastErr = new Error('gemini timeout (' + model + ')'); continue; }
-        if (e instanceof TypeError) { lastErr = new Error('gemini network (' + model + '): ' + e.message); continue; }
+        if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) { trail.push(tag + ':timeout'); continue; }
+        if (e instanceof TypeError) { trail.push(tag + ':network'); continue; }
         throw e;
       } finally {
         clearTimeout(timer);
       }
     }
   }
-  throw lastErr || new Error('gemini: no model available');
+  throw new Error('gemini all failed | trail: ' + trail.join(' ')) ;
 }
 
 async function buildWorkContext(db, userId, todayStrIn) {
