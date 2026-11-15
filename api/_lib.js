@@ -557,6 +557,7 @@ export async function geminiChat(systemText, history) {
       const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
       const text = parts.map((x) => x.text || '').join('').trim();
       if (!text) { trail.push(tag + ':empty'); continue; }
+      console.log('pm chat ai ok:', tag, (Date.now() - startedAt) + 'ms', 'trail:', trail.join(' ') || '-');
       return text;
     } catch (e) {
       if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) { trail.push(tag + ':timeout'); continue; }
