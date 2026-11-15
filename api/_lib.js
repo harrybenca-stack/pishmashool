@@ -8,7 +8,7 @@ const seedCompanies = JSON.parse(readFileSync(new URL('./_seed.json', import.met
 export function makeDb() {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
   const sql = neon(process.env.DATABASE_URL);
-  return { query: (text, params) => sql.query(text, params || []) };
+  return { query: (text, params) => sql(text, params || []) };
 }
 
 // ---------- رمز عبور (scrypt) ----------
