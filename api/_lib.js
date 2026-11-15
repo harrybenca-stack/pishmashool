@@ -501,50 +501,58 @@ export async function geminiChat(systemText, history) {
     else contents.push({ role, parts: [{ text: m.body }] });
   }
   if (contents.length && contents[0].role === 'model') contents.shift();
-  // زنجیره‌ی مدل‌ها: خطای گذرا (404 نبودن مدل، 429 سقف، 503 شلوغی) → مدل بعدی؛ دو دور کامل
+  // زنجیره‌ی مدل‌ها: خطای گذرا (404 نبودن مدل، 429 سقف، 503 شلوغی، timeout) → مدل بعدی؛ سقف کلی ۴۰ ثانیه
   const models = [];
   if (process.env.GEMINI_MODEL) models.push(process.env.GEMINI_MODEL);
   for (const m of ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']) {
     if (!models.includes(m)) models.push(m);
   }
+  const startedAt = Date.now();
+  const dead = new Set();
   let lastErr = null;
   for (let pass = 0; pass < 2; pass++) {
     if (pass) await new Promise((r) => setTimeout(r, 1200));
     for (const model of models) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 20000);
-    try {
-      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemText }] },
-          contents,
-          generationConfig: { temperature: 0.9, maxOutputTokens: 800 },
-        }),
-        signal: ctrl.signal,
-      });
-      if (!r.ok) {
-        let detail = '';
-        try {
-          const ej = await r.json();
-          detail = ((ej && ej.error && ej.error.message) || '').slice(0, 220);
-        } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
-        const err = new Error('gemini http ' + r.status + ' (' + model + ')' + (detail ? ': ' + detail : ''));
-        if (r.status === 404 || r.status === 429 || r.status === 503) { lastErr = err; continue; }
-        throw err;
-      }
-      const j = await r.json();
-      const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
-      const text = parts.map((x) => x.text || '').join('').trim();
-      if (!text) throw new Error('gemini empty reply (' + model + ')');
-      return text;
+      if (dead.has(model)) continue;
+      if (Date.now() - startedAt > 40000) break;
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 10000);
+      try {
+        const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemText }] },
+            contents,
+            generationConfig: { temperature: 0.9, maxOutputTokens: 800 },
+          }),
+          signal: ctrl.signal,
+        });
+        if (!r.ok) {
+          let detail = '';
+          try {
+            const ej = await r.json();
+            detail = ((ej && ej.error && ej.error.message) || '').slice(0, 220);
+          } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
+          const err = new Error('gemini http ' + r.status + ' (' + model + ')' + (detail ? ': ' + detail : ''));
+          if (r.status === 404) { dead.add(model); lastErr = err; continue; }
+          if (r.status === 429 || r.status === 503) { lastErr = err; continue; }
+          throw err;
+        }
+        const j = await r.json();
+        const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
+        const text = parts.map((x) => x.text || '').join('').trim();
+        if (!text) { lastErr = new Error('gemini empty reply (' + model + ')'); continue; }
+        return text;
+      } catch (e) {
+        if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) { lastErr = new Error('gemini timeout (' + model + ')'); continue; }
+        if (e instanceof TypeError) { lastErr = new Error('gemini network (' + model + '): ' + e.message); continue; }
+        throw e;
       } finally {
         clearTimeout(timer);
       }
     }
   }
-  throw lastErr || new Error('gemini: no model available');
 }
 
 async function buildWorkContext(db, userId, todayStrIn) {
