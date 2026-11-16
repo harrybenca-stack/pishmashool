@@ -370,12 +370,17 @@ export async function handleState(req, db) {
   const st = await loadState(db, s.uid, today);
   let catSlots = {};
   let catLines = [];
+  let catPending = 0;
+  try {
+    const pr = await db.query("SELECT COUNT(*)::int AS c FROM chat_messages WHERE user_id = $1 AND id > COALESCE((SELECT last_msg_id FROM cat_memory WHERE user_id = $1), 0)", [s.uid]);
+    if (pr.length) catPending = pr[0].c;
+  } catch (e) { /* شمارش نبود هم اشکالی نداره */ }
   try {
     const mr = await db.query('SELECT slots, panel_lines FROM cat_memory WHERE user_id = $1', [s.uid]);
     if (mr.length && mr[0].slots) catSlots = JSON.parse(mr[0].slots) || {};
     if (mr.length && mr[0].panel_lines) { try { const pl = JSON.parse(mr[0].panel_lines); if (Array.isArray(pl)) catLines = pl; } catch (e) { /* ignore */ } }
   } catch (e) { catSlots = {}; }
-  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines } };
+  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines, cat_pending: catPending, learn_every: LEARN_EVERY } };
 }
 
 export async function handleHunt(req, db) {
