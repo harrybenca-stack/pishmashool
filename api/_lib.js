@@ -381,6 +381,26 @@ export async function handleState(req, db) {
     if (mr.length && mr[0].slots) catSlots = JSON.parse(mr[0].slots) || {};
     if (mr.length && mr[0].panel_lines) { try { const pl = JSON.parse(mr[0].panel_lines); if (Array.isArray(pl)) catLines = pl; } catch (e) { /* ignore */ } }
   } catch (e) { catSlots = {}; }
+  try {
+    if (await ensureUserExtras(db)) {
+      const ups = await db.query('SELECT id, company_id, phone FROM user_phones WHERE user_id = $1 ORDER BY id', [s.uid]);
+      const uns = await db.query('SELECT company_id, note, remind_date FROM user_notes WHERE user_id = $1', [s.uid]);
+      const byCo = {};
+      for (const r of ups) (byCo[r.company_id] = byCo[r.company_id] || []).push(r);
+      const noteByCo = {};
+      for (const r of uns) noteByCo[r.company_id] = r;
+      for (const c of st.companies) {
+        const mine = (byCo[c.id] || []).map((r) => {
+          const parsed = parsePhones(r.phone);
+          return { id: r.id, display: parsed.length ? parsed[0].display : r.phone, tel: parsed.length ? parsed[0].tel : enDigits(String(r.phone)).replace(/[^\d]/g, '') };
+        });
+        c.my_phones = mine;
+        if (mine.length) c.phones = (c.phones || []).concat(mine.map((ph) => ({ display: ph.display, tel: ph.tel, manual: true })));
+        const n = noteByCo[c.id];
+        c.my_note = n ? { note: n.note || '', remind_date: n.remind_date || '' } : null;
+      }
+    }
+  } catch (e) { /* امکانات دستی نبود هم استیت کامل برمی‌گرده */ }
   return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines, cat_pending: catPending, learn_every: LEARN_EVERY, gen_pending: await poolCount(db, s.uid) } };
 }
 
@@ -472,6 +492,72 @@ export async function handleAdd(req, db) {
     console.error('pm add error:', e);
     return { status: 500, json: { ok: false, error: 'server_error' } };
   }
+}
+
+
+// ---------- امکانات دستی هلیا روی کارت‌ها: شماره‌های دستی + یادداشت قبل از تماس ----------
+let extrasReady = false;
+async function ensureUserExtras(db) {
+  if (extrasReady) return true;
+  try {
+    await db.query('CREATE TABLE IF NOT EXISTS user_phones (id BIGSERIAL PRIMARY KEY, user_id INT NOT NULL, company_id INT NOT NULL, phone TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
+    await db.query('CREATE TABLE IF NOT EXISTS user_notes (id BIGSERIAL PRIMARY KEY, user_id INT NOT NULL, company_id INT NOT NULL, note TEXT, remind_date TEXT, updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), UNIQUE (user_id, company_id))');
+    extrasReady = true;
+  } catch (e) { /* این امکانات نبود هم پنل با بقیه‌ی بخش‌ها کار می‌کنه */ }
+  return extrasReady;
+}
+async function userPhonesOf(db, uid, cid) {
+  const rows = await db.query('SELECT id, phone FROM user_phones WHERE user_id = $1 AND company_id = $2 ORDER BY id', [uid, cid]);
+  return rows.map((r) => {
+    const parsed = parsePhones(r.phone);
+    return { id: r.id, display: parsed.length ? parsed[0].display : r.phone, tel: parsed.length ? parsed[0].tel : enDigits(String(r.phone)).replace(/[^\d]/g, '') };
+  });
+}
+export async function handlePhone(req, db) {
+  const s = requireAuth(req);
+  if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
+  if (req.method !== 'POST') return { status: 405, json: { ok: false } };
+  await ensureInit(db);
+  if (!(await ensureUserExtras(db))) return { status: 500, json: { ok: false, error: 'unavailable' } };
+  const b = bodyOf(req);
+  const cid = parseInt(b.company_id, 10);
+  if (!Number.isFinite(cid)) return { status: 400, json: { ok: false, error: 'bad_request' } };
+  const link = await db.query('SELECT status FROM user_company WHERE user_id = $1 AND company_id = $2', [s.uid, cid]);
+  if (!link.length) return { status: 404, json: { ok: false, error: 'not_yours' } };
+  if (b.action === 'add') {
+    const raw = String(b.phone || '').trim().slice(0, 40);
+    const digits = enDigits(raw).replace(/[^\d]/g, '');
+    if (digits.length < 7 || digits.length > 15) return { status: 400, json: { ok: false, error: 'bad_phone' } };
+    await db.query('INSERT INTO user_phones (user_id, company_id, phone) VALUES ($1,$2,$3)', [s.uid, cid, raw]);
+  } else if (b.action === 'remove') {
+    const pid = parseInt(b.phone_id, 10);
+    if (!Number.isFinite(pid)) return { status: 400, json: { ok: false, error: 'bad_request' } };
+    await db.query('DELETE FROM user_phones WHERE id = $1 AND user_id = $2 AND company_id = $3', [pid, s.uid, cid]);
+  } else {
+    return { status: 400, json: { ok: false, error: 'bad_action' } };
+  }
+  return { status: 200, json: { ok: true, phones: await userPhonesOf(db, s.uid, cid) } };
+}
+export async function handleNote(req, db) {
+  const s = requireAuth(req);
+  if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
+  if (req.method !== 'POST') return { status: 405, json: { ok: false } };
+  await ensureInit(db);
+  if (!(await ensureUserExtras(db))) return { status: 500, json: { ok: false, error: 'unavailable' } };
+  const b = bodyOf(req);
+  const cid = parseInt(b.company_id, 10);
+  if (!Number.isFinite(cid)) return { status: 400, json: { ok: false, error: 'bad_request' } };
+  const link = await db.query('SELECT status FROM user_company WHERE user_id = $1 AND company_id = $2', [s.uid, cid]);
+  if (!link.length) return { status: 404, json: { ok: false, error: 'not_yours' } };
+  const note = String(b.note || '').trim().slice(0, 1000);
+  let rd = String(b.remind_date || '').trim();
+  if (rd && !/^\d{4}-\d{1,2}-\d{1,2}$/.test(rd)) rd = '';
+  if (!note && !rd) {
+    await db.query('DELETE FROM user_notes WHERE user_id = $1 AND company_id = $2', [s.uid, cid]);
+    return { status: 200, json: { ok: true, my_note: null } };
+  }
+  await db.query('INSERT INTO user_notes (user_id, company_id, note, remind_date, updated_at) VALUES ($1,$2,$3,$4, now()) ON CONFLICT (user_id, company_id) DO UPDATE SET note = EXCLUDED.note, remind_date = EXCLUDED.remind_date, updated_at = now()', [s.uid, cid, note, rd || null]);
+  return { status: 200, json: { ok: true, my_note: { note: note, remind_date: rd } } };
 }
 
 export async function handleAction(req, db) {
@@ -739,6 +825,14 @@ async function buildWorkContext(db, userId, todayStrIn) {
   const dm = dueNames(tomorrowP);
   lines.push('- پیگیری‌های امروز: ' + (dt.length ? dt.join('، ') : 'هیچی ثبت نشده'));
   lines.push('- پیگیری‌های فردا: ' + (dm.length ? dm.join('، ') : 'هیچی ثبت نشده'));
+  try {
+    if (await ensureUserExtras(db)) {
+      const nr = await db.query('SELECT company_id, remind_date FROM user_notes WHERE user_id = $1 AND remind_date IS NOT NULL', [userId]);
+      const nameOf = (id) => { const cc = st.companies.find((x) => x.id === id); return cc ? cc.name : null; };
+      const rn = nr.filter((r) => todayP && normalizeJalali(r.remind_date) === todayP).map((r) => nameOf(r.company_id)).filter(Boolean);
+      if (rn.length) lines.push('- یادآوری‌های امروز از یادداشت‌های قبل از تماسش (یادداشت شخصی خودشه، ربطی به پیگیری تماس‌ها نداره): ' + rn.join('، '));
+    }
+  } catch (e) { /* ignore */ }
   if (st.companies.length) {
     lines.push('- شرکت‌های تو لیستش:');
     for (const c of st.companies) {

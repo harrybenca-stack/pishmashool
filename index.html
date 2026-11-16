@@ -634,6 +634,18 @@
       .call-fab { flex-shrink: 0; width: 2.7rem; height: 2.7rem; border-radius: 50%; background: var(--green, #1d9e57); color: #fff; display: grid; place-items: center; font-size: 1.3rem; text-decoration: none; box-shadow: 0 4px 14px rgba(29, 158, 87, .35); }
       .call-fab:active { transform: scale(.94); }
       .no-phone { display: block; padding: .55rem .8rem; border: 1.5px dashed #d8c9a3; border-radius: .8rem; color: #8a6d3b; background: #fdf6e0; font-size: .92rem; line-height: 1.7; }
+      .call-link.manual a { color: inherit; text-decoration: none; }
+      .manual-tag { background: #f5c542; color: #5b4300; border-radius: 999px; font-size: .72rem; font-weight: 800; padding: 1px 8px; }
+      .myphone-del { background: transparent; border: 0; color: #b03a2e; font-weight: 900; cursor: pointer; padding: 0 2px; min-height: 1.2rem; font-size: .95rem; }
+      .myphone-add { display: flex; gap: 8px; margin-top: 8px; }
+      .myphone-in { flex: 1 1 auto; min-width: 0; border: 1.5px solid var(--line); border-radius: 10px; padding: 7px 10px; background: var(--surface); color: var(--ink); font-size: .92rem; font-family: inherit; }
+      .myphone-btn { flex: 0 0 auto; border: 1.5px dashed var(--green); background: transparent; color: var(--green); border-radius: 10px; font-weight: 800; padding: 7px 12px; cursor: pointer; font-family: inherit; }
+      .note-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+      .note-open { border: 1.5px dashed var(--accent); background: transparent; color: var(--accent); border-radius: 10px; font-weight: 800; padding: 7px 14px; cursor: pointer; font-family: inherit; }
+      .note-when { font-size: .85rem; font-weight: 700; color: var(--ink-2); cursor: pointer; }
+      .nchip { border: 1px solid var(--line); background: var(--surface); color: var(--accent); border-radius: 999px; padding: 3px 14px; font-size: .84rem; font-weight: 700; cursor: pointer; min-height: 2rem; font-family: inherit; }
+      .nchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+      .note-remind-lbl { font-weight: 800; color: var(--accent); margin: 8px 0 0; min-height: 1.2em; }
       .call-link .num { font-weight: 900; letter-spacing: .2px; }
       footer { margin-top: 26px; text-align: center; color: var(--ink-2); font-size: .82rem; }
       @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -804,6 +816,34 @@
           <label>یادداشتت (از کجا پیداش کردی؟ چرا می‌خوایش؟)<textarea id="addNote" placeholder="هر چی دوست داری بنویس…"></textarea></label>
           <p class="add-err" id="addErr"></p>
           <button class="btn-save" type="submit" id="addSubmit">ثبتش کن 🐾</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="sheet-backdrop" id="noteSheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="noteTitle">
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-kicker">یادداشت قبل از تماس</div>
+            <h4 id="noteTitle">یادداشت</h4>
+            <p class="sheet-sub">این یادداشت فقط مال قبل از تماسه؛ با یادداشت‌های تماس‌هات قاطی نمی‌شه 🐾</p>
+          </div>
+          <button class="sheet-close" type="button" id="noteClose" aria-label="بستن یادداشت">✕</button>
+        </div>
+        <form class="call-form" id="noteForm">
+          <label>یادداشتت<textarea id="noteText" placeholder="مثلاً: اول با مدیرعامل حرف بزن، درباره‌ی تمدید هیئت‌مدیره بگو…"></textarea></label>
+          <div class="fu-quick" role="group" aria-label="یادآوری">
+            <span class="fu-quick-lbl">یادآوری:</span>
+            <button class="nchip" type="button" data-add="0">امروز</button>
+            <button class="nchip" type="button" data-add="1">فردا</button>
+            <button class="nchip" type="button" data-add="3">۳ روز دیگه</button>
+            <button class="nchip" type="button" data-add="7">هفته‌ی دیگه</button>
+            <button class="nchip" type="button" data-add="-1">بدون یادآوری</button>
+          </div>
+          <p class="note-remind-lbl" id="noteRemindLbl"></p>
+          <p class="add-err" id="noteErr"></p>
+          <button class="btn-save" type="submit" id="noteSave">ذخیره یادداشت 🐾</button>
+          <button class="btn reject" type="button" id="noteClear">پاک کردن یادداشت و یادآوری</button>
         </form>
       </div>
     </div>
@@ -1576,6 +1616,21 @@
             '<button class="btn-save" type="submit">ذخیره تماس</button>' +
             '</form>';
         }
+        function noteWhenHTML(c) {
+          if (!c.my_note || (!c.my_note.note && !c.my_note.remind_date)) return '';
+          var t = '<span class="note-when">یادداشت داره';
+          if (c.my_note.remind_date) {
+            var pd = window.__pmParseDue ? window.__pmParseDue(c.my_note.remind_date) : null;
+            var tp = window.__pmTodayParts;
+            var lbl = '';
+            if (pd && tp) {
+              var cmp = (pd.y - tp.y) || (pd.m - tp.m) || (pd.d - tp.d);
+              lbl = cmp < 0 ? '⏰ یادآوریش گذشته!' : cmp === 0 ? '⏰ یادآوری: امروز' : (window.__pmFmtDate ? '⏰ یادآوری: ' + window.__pmFmtDate(pd) : '');
+            }
+            if (lbl) t += ' — ' + lbl;
+          }
+          return t + '</span>';
+        }
         function cardHTML(c) {
           var st = UI_STATUS[c.status] || 'new';
           var h = '<div class="card-head"><h3>' + esc(c.name) + '</h3>';
@@ -1600,20 +1655,23 @@
           if (c.act_evidence) h += '<div class="wide evid"><span class="k">🔎 چرا این برچسب رو خورد؟ </span><span class="v">' + esc(c.act_evidence) + '</span></div>';
           h += '<div class="wide"><span class="k">نشانی ثبت‌شده: </span><span class="v">' + esc(faText(c.address)) + '</span></div>';
           h += '</div>';
-          if (c.phones && c.phones.length) {
-            h += '<div class="call-row">';
-            c.phones.forEach(function (p) {
-              h += '<a class="call-link" href="tel:' + esc(p.tel) + '">📞 زنگ بزن: <span class="num" dir="ltr">' + esc(p.display) + '</span></a>';
-            });
-            h += '</div>';
-          }
-          else {
-            h += '<div class="call-row"><span class="no-phone">🐾 هلیا جان، این شرکت هیچ شماره‌ی عمومی‌ای منتشر نکرده که پیداش کنم؛ اسم و شهرش رو سرچ کنی شاید یه ردّی ازش پیدا شه</span></div>';
-          }
+          var pubPhones = (c.phones || []).filter(function (p) { return !p.manual; });
+          var myPhones = c.my_phones || [];
+          h += '<div class="call-row">';
+          pubPhones.forEach(function (p) {
+            h += '<a class="call-link" href="tel:' + esc(p.tel) + '">📞 زنگ بزن: <span class="num" dir="ltr">' + esc(p.display) + '</span></a>';
+          });
+          myPhones.forEach(function (p) {
+            h += '<span class="call-link manual"><a href="tel:' + esc(p.tel) + '">📞 زنگ بزن: <span class="num" dir="ltr">' + esc(p.display) + '</span></a><span class="manual-tag">دستی ✋</span><button class="myphone-del" type="button" data-pid="' + p.id + '" aria-label="حذف این شماره">✕</button></span>';
+          });
+          if (!pubPhones.length && !myPhones.length) h += '<span class="no-phone">🐾 هلیا جان، این شرکت هیچ شماره‌ی عمومی‌ای منتشر نکرده که پیداش کنم؛ اسم و شهرش رو سرچ کنی شاید یه ردّی ازش پیدا شه</span>';
+          h += '</div>';
+          h += '<div class="myphone-add"><input type="text" class="myphone-in" inputmode="tel" placeholder="شماره‌ای خودت پیدا کردی؟ اینجا بنویس 📞"><button class="myphone-btn" type="button">+ اضافه کن</button></div>';
           h += '<div class="reason"><div class="reason-chips"><span class="rchip board">🔥 مدیرا تموم شدن</span><span class="rchip insp">⏰ بازرس تموم شده</span></div>' +
             '<span class="pm-voice">هلیا اینو ببین!</span> <b>چرا فکر می‌کنم الان به تو نیاز داره:</b> ' + esc(c.reason) + '</div>';
           h += '<a class="reg-src" href="' + esc(c.rasmio_url) + '" target="_blank" rel="noopener">پروفایل رسمیو</a>';
           h += '<div class="actions"><button class="btn primary" type="button">تماس گرفتم</button><button class="btn win" type="button">مشتری شد</button><button class="btn reject" type="button">رد کردن</button></div>';
+          h += '<div class="note-row"><button class="note-open" type="button">📝 یادداشت قبل از تماس + یادآوری</button>' + noteWhenHTML(c) + '</div>';
           h += '<div class="history"><h4>تاریخچه تماس‌ها</h4><ul class="tl"></ul>' + formHTML() + '</div>';
           return h;
         }
@@ -1905,6 +1963,135 @@
               sub.disabled = false;
               addErr.textContent = 'یه مشکلی پیش اومد؛ دوباره بزن 🐾';
             });
+          });
+        })();
+        (function () {
+          var noteSheet = document.getElementById('noteSheet');
+          if (!noteSheet) return;
+          var noteCo = null;
+          var noteRemind = '';
+          var noteText = document.getElementById('noteText');
+          var noteLbl = document.getElementById('noteRemindLbl');
+          var noteErr = document.getElementById('noteErr');
+          function dimJ(y, m) {
+            if (m <= 6) return 31;
+            if (m <= 11) return 30;
+            var r = y % 33;
+            return (r === 1 || r === 5 || r === 9 || r === 13 || r === 17 || r === 22 || r === 26 || r === 30) ? 30 : 29;
+          }
+          function addDaysJ(dt, n) {
+            var y = dt.y, m = dt.m, d = dt.d + n;
+            while (d > dimJ(y, m)) { d -= dimJ(y, m); m++; if (m > 12) { m = 1; y++; } }
+            return { y: y, m: m, d: d };
+          }
+          function dueStrL(dt) { return dt.y + '-' + dt.m + '-' + dt.d; }
+          function setRemind(rd) {
+            noteRemind = rd || '';
+            var tp = window.__pmTodayParts;
+            noteSheet.querySelectorAll('.nchip').forEach(function (ch) {
+              var add = parseInt(ch.getAttribute('data-add'), 10);
+              var mine = add < 0 ? '' : (tp ? dueStrL(addDaysJ(tp, add)) : '');
+              ch.classList.toggle('on', mine === noteRemind);
+            });
+            noteLbl.textContent = noteRemind ? ('⏰ یادآوری: ' + (window.__pmFmtDate && window.__pmParseDue ? window.__pmFmtDate(window.__pmParseDue(noteRemind)) : noteRemind)) : 'یادآوری نداره';
+          }
+          function openNote(cid) {
+            var c = null;
+            S.companies.forEach(function (x) { if (x.id === cid) c = x; });
+            if (!c) return;
+            noteCo = cid;
+            document.getElementById('noteTitle').textContent = 'یادداشت — ' + c.name;
+            noteText.value = c.my_note ? (c.my_note.note || '') : '';
+            noteErr.textContent = '';
+            setRemind(c.my_note ? (c.my_note.remind_date || '') : '');
+            noteSheet.hidden = false;
+            if (window.__pmSay) window.__pmSay('این یادداشت فقط مال قبل از تماسه هلیا جان؛ با یادداشت‌های تماس‌هات قاطی نمی‌شه 🐾');
+          }
+          function closeNote() { noteSheet.hidden = true; noteCo = null; }
+          document.getElementById('noteClose').addEventListener('click', closeNote);
+          noteSheet.addEventListener('click', function (e) { if (e.target === noteSheet) closeNote(); });
+          document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !noteSheet.hidden) closeNote(); });
+          noteSheet.querySelectorAll('.nchip').forEach(function (ch) {
+            ch.addEventListener('click', function () {
+              var add = parseInt(ch.getAttribute('data-add'), 10);
+              var tp = window.__pmTodayParts;
+              setRemind(add < 0 || !tp ? '' : dueStrL(addDaysJ(tp, add)));
+            });
+          });
+          function refreshCard(cid) {
+            return loadState().then(function () {
+              var c = null;
+              S.companies.forEach(function (x) { if (x.id === cid) c = x; });
+              var oldEl = cardsEl.querySelector('[data-id="' + cid + '"]');
+              if (!c || !oldEl) { renderAll(); return; }
+              var wasOpen = oldEl.classList.contains('open');
+              var el = buildCard(c);
+              oldEl.replaceWith(el);
+              if (wasOpen) { if (window.__pmOpenCard) window.__pmOpenCard(el); }
+              else if (window.__pmCloseCard) window.__pmCloseCard(el);
+            });
+          }
+          document.getElementById('noteForm').addEventListener('submit', function (ev) {
+            ev.preventDefault();
+            if (noteCo == null) return;
+            var cid = noteCo;
+            var rd = noteRemind;
+            api('/api/note', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company_id: cid, note: noteText.value.trim(), remind_date: rd }) }).then(function (res) {
+              if (res.j && res.j.ok) {
+                closeNote();
+                refreshCard(cid);
+                if (window.__pmSay) window.__pmSay('یادداشتش رو گذاشتم هلیا جان 🐾' + (rd ? ' یادآوریش هم ست شد ⏰' : ''));
+              } else {
+                noteErr.textContent = 'یه مشکلی پیش اومد؛ دوباره بزن 🐾';
+              }
+            }).catch(function () { noteErr.textContent = 'یه مشکلی پیش اومد؛ دوباره بزن 🐾'; });
+          });
+          document.getElementById('noteClear').addEventListener('click', function () {
+            if (noteCo == null) return;
+            var cid = noteCo;
+            api('/api/note', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company_id: cid, note: '', remind_date: '' }) }).then(function () {
+              closeNote();
+              refreshCard(cid);
+              if (window.__pmSay) window.__pmSay('پاکش کردم هلیا جان 🐾');
+            });
+          });
+          cardsEl.addEventListener('click', function (e) {
+            var t = e.target;
+            if (!t.classList || !t.closest) return;
+            var card = t.closest('.card');
+            if (!card) return;
+            var cid = parseInt(card.getAttribute('data-id'), 10);
+            if (t.classList.contains('myphone-btn')) {
+              var wrap = t.closest('.myphone-add');
+              var inp = wrap ? wrap.querySelector('.myphone-in') : null;
+              var val = inp ? inp.value.trim() : '';
+              if (!val) { if (window.__pmSay) window.__pmSay('اول شماره رو بنویس هلیا جان 📞'); return; }
+              t.disabled = true;
+              api('/api/phone', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company_id: cid, action: 'add', phone: val }) }).then(function (res) {
+                t.disabled = false;
+                if (res.j && res.j.ok) {
+                  refreshCard(cid);
+                  if (window.__pmSay) window.__pmSay('شماره‌تو گذاشتم روی کارتش هلیا جان؛ روش زدم «دستی ✋» که معلوم باشه خودت پیداش کردی 🐾');
+                } else if (window.__pmSay) {
+                  window.__pmSay('هلیا جان، این شماره به نظر درست نمیاد؛ یه بار دیگه چک کن 🐾');
+                }
+              }).catch(function () { t.disabled = false; });
+            } else if (t.classList.contains('myphone-del')) {
+              var pid = parseInt(t.getAttribute('data-pid'), 10);
+              api('/api/phone', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company_id: cid, action: 'remove', phone_id: pid }) }).then(function (res) {
+                if (res.j && res.j.ok) refreshCard(cid);
+              });
+            } else if (t.classList.contains('note-open') || t.classList.contains('note-when')) {
+              openNote(cid);
+            }
+          });
+          cardsEl.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('myphone-in')) {
+              e.preventDefault();
+              var wrap = e.target.closest('.myphone-add');
+              var btn = wrap ? wrap.querySelector('.myphone-btn') : null;
+              if (btn) btn.click();
+            }
           });
         })();
         window.__pmAfterLogin = function () {
