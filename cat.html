@@ -20,7 +20,8 @@ header{ text-align:center; padding:26px 16px 2px; }
 header h1{ margin:0; font-size:30px; }
 header p{ margin:6px 0 0; color:#a5b0c6; font-size:14px; }
 .stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; padding:0 16px; }
-.wall-frame{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 16px); right:14px; width:104px; background:#fff; padding:5px 5px 15px; border:5px solid #B07E2E; border-radius:4px; box-shadow:0 10px 24px rgba(60,35,5,.28); transform:rotate(-3deg); z-index:5; }
+.wall-frame{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 108px); left:16px; width:86px; background:#fff; padding:4px 4px 13px; border:4px solid #B07E2E; border-radius:4px; box-shadow:0 10px 24px rgba(60,35,5,.28); transform:rotate(2deg); z-index:5; }
+.wall-frame::before{ content:''; position:absolute; top:-13px; left:50%; margin-left:-3px; width:6px; height:6px; border-radius:50%; background:#D8B25C; box-shadow:0 1px 3px rgba(0,0,0,.5); }
 .wall-frame img{ width:100%; display:block; border-radius:2px; }
 .wall-frame::after{ content:'❤'; position:absolute; bottom:0; left:0; right:0; text-align:center; font-size:9px; color:#D96A8B; }
 /* ---------- پیش‌مشول زنده ---------- */
