@@ -421,6 +421,59 @@ export async function handleHunt(req, db) {
 }
 
 const ACTION_STATUS = { contacted: 'contacted', customer: 'customer', rejected: 'rejected' };
+
+// ---------- ثبت دستی شرکت (هلیا خودش از بیرون پیدا کرده) ----------
+export async function handleAdd(req, db) {
+  const s = requireAuth(req);
+  if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
+  if (req.method !== 'POST') return { status: 405, json: { ok: false } };
+  await ensureInit(db);
+  const b = bodyOf(req);
+  const clean = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
+  const name = clean(b.name, 200);
+  if (!name) return { status: 400, json: { ok: false, error: 'name_required' } };
+  let nid = enDigits(clean(b.national_id, 30)).replace(/[^\d]/g, '');
+  if (nid && nid.length !== 11) return { status: 400, json: { ok: false, error: 'bad_nid' } };
+  const phones = clean(b.phones, 300).split(/[\n,،\/]+/).map((x) => x.trim()).filter(Boolean).join(' / ');
+  const note = clean(b.note, 500);
+  const actMap = { active: 'فعال و سرپا', dormant: 'راکد به نظر می‌رسه' };
+  let actStatus = 'legal';
+  let actReason = 'مبنای برچسب: این شرکت رو خودت از بیرون آوردی هلیا؛ هنوز بررسی نکردم فعاله یا نه.';
+  if (actMap[b.act_status]) {
+    actStatus = String(b.act_status);
+    actReason = 'مبنای برچسب: خودت موقع ثبت گفتی این شرکت «' + actMap[b.act_status] + '»ه.';
+  }
+  const actEvidence = 'این شرکت رو هلیا خودش از بیرون پیدا کرده و دستی توی پنل ثبت کرده؛ اطلاعاتش رو خودش وارد کرده و هنوز راستی‌آزمایی ثبتی نشده.';
+  const reason = 'این یکی رو خودت از بیرون پیدا کردی و آوردی هلیا جان 🐾' + (note ? ' یادداشتت: ' + note : '');
+  try {
+    if (nid) {
+      const ex = await db.query('SELECT id FROM companies WHERE national_id = $1', [nid]);
+      if (ex.length) {
+        const cid = ex[0].id;
+        const link = await db.query('SELECT status FROM user_company WHERE user_id = $1 AND company_id = $2', [s.uid, cid]);
+        if (link.length) return { status: 409, json: { ok: false, error: 'already_have' } };
+        const mb = await db.query('SELECT COALESCE(MAX(batch_no), 1) AS b FROM user_company WHERE user_id = $1', [s.uid]);
+        await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', [s.uid, cid, mb[0].b, 'new']);
+        return { status: 200, json: { ok: true, id: cid, found: true } };
+      }
+    }
+    if (!nid) nid = 'manual-' + s.uid + '-' + Date.now();
+    const so = await db.query('SELECT COALESCE(MIN(sort_order), 1) AS m FROM companies');
+    const mb = await db.query('SELECT COALESCE(MAX(batch_no), 1) AS b FROM user_company WHERE user_id = $1', [s.uid]);
+    await db.query(
+      'INSERT INTO companies (sort_order, name, national_id, reg_no, city, address, postal_code, founded, board_expiry, ceo, chair, inspector, activity, phone, phone_source, rasmio_url, reason, act_status, act_reason, act_evidence) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)',
+      [so[0].m - 1, name, nid, clean(b.reg_no, 30) || null, clean(b.city, 80) || null, clean(b.address, 400) || null, clean(b.postal_code, 20) || null, clean(b.founded, 20) || null, clean(b.board_expiry, 20) || null, clean(b.ceo, 120) || null, clean(b.chair, 120) || null, clean(b.inspector, 120) || null, clean(b.activity, 200) || null, phones, phones ? 'ثبت دستی توسط هلیا' : '', /^\d{11}$/.test(nid) ? 'https://rasmio.com/company/' + nid + '/' : null, reason, actStatus, actReason, actEvidence]
+    );
+    const row = await db.query('SELECT id FROM companies WHERE national_id = $1', [nid]);
+    const cid = row[0].id;
+    await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', [s.uid, cid, mb[0].b, 'new']);
+    return { status: 200, json: { ok: true, id: cid } };
+  } catch (e) {
+    console.error('pm add error:', e);
+    return { status: 500, json: { ok: false, error: 'server_error' } };
+  }
+}
+
 export async function handleAction(req, db) {
   const s = requireAuth(req);
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };

@@ -442,6 +442,9 @@
       }
       .actions-row .act-main { flex: 1 1 100%; }
       .actions-row .btn-chat { flex: 1 1 0; min-width: 0; font-size: .9rem; padding: 10px 2px; }
+      .actions-row .btn-manual { flex: 1 1 100%; }
+      .card.just-added { outline: 3px solid var(--accent); outline-offset: 2px; }
+      .add-err { color: #c0392b; font-weight: 700; font-size: .9rem; min-height: 1.2em; margin: 8px 0 0; }
       body.chat-open { overflow: hidden; }
       .chat-view {
         position: fixed; inset: 0; z-index: 95; overflow-y: auto;
@@ -653,6 +656,7 @@
             <button class="btn-add act-main" type="button">+ شرکت جدید بیار</button>
             <button class="btn-chat" type="button" id="chatOpenBtn">💬 گپ با پیش‌مشول</button>
             <a class="btn-chat" href="/cat">🐱 خونه‌ی پیش‌مشول</a>
+            <button class="btn-chat btn-manual" type="button" id="manualAddBtn">✏️ ثبت شرکت جدید</button>
           </div>
         </div>
       </header>
@@ -753,6 +757,54 @@
           <button class="btn reject" type="button" id="calClearBtn">بدون پیگیری (حذف تاریخ)</button>
         </div>
         <p class="cal-note">یه روز قبلش و همون روز خودم بهت یادآوری می‌کنم هلیا 🐾</p>
+      </div>
+    </div>
+
+    <div class="sheet-backdrop" id="addSheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-kicker">شرکت از بیرون</div>
+            <h4 id="addTitle">شرکت جدید ثبت کن هلیا ✏️</h4>
+            <p class="sheet-sub">شرکتی رو که خودت پیدا کردی بنویس؛ با همه‌ی اپشن‌های بقیه‌ی شرکت‌ها میاد توی لیستت 🐾 فقط اسمش کافیه، بقیه اختیاریه.</p>
+          </div>
+          <button class="sheet-close" type="button" id="addClose" aria-label="بستن فرم ثبت">✕</button>
+        </div>
+        <form class="call-form" id="addForm">
+          <label>اسم شرکت *<input type="text" id="addName" required maxlength="200" placeholder="نام کامل شرکت"></label>
+          <div class="form-row">
+            <label>تلفن شرکت<input type="text" id="addPhones" placeholder="۰۲۱-… ، ۰۹۱۲-… (چندتا با ، جدا کن)"></label>
+            <label>مدیرعامل<input type="text" id="addCeo"></label>
+          </div>
+          <div class="form-row">
+            <label>شهر<input type="text" id="addCity" placeholder="مثلاً تهران"></label>
+            <label>شناسه ملی (اختیاری)<input type="text" id="addNid" inputmode="numeric" placeholder="۱۱ رقم"></label>
+          </div>
+          <div class="form-row">
+            <label>شماره ثبت<input type="text" id="addRegNo"></label>
+            <label>کد پستی<input type="text" id="addPostal"></label>
+          </div>
+          <div class="form-row">
+            <label>رئیس هیئت‌مدیره<input type="text" id="addChair"></label>
+            <label>بازرس<input type="text" id="addInspector"></label>
+          </div>
+          <div class="form-row">
+            <label>تاریخ تأسیس<input type="text" id="addFounded" placeholder="مثلاً ۱۴۰۰/۰۱/۱۶"></label>
+            <label>پایان دوره‌ی هیئت‌مدیره<input type="text" id="addBoardExp" placeholder="مثلاً ۱۴۰۲/۰۱/۱۶"></label>
+          </div>
+          <label>موضوع فعالیت<input type="text" id="addActivity"></label>
+          <label>آدرس<textarea id="addAddress" placeholder="آدرس کامل شرکت"></textarea></label>
+          <label>وضعیت فعالیتش رو می‌دونی؟
+            <select id="addActStatus">
+              <option value="">نمی‌دونم</option>
+              <option value="active">فعال و سرپاه</option>
+              <option value="dormant">راکد به نظر می‌رسه</option>
+            </select>
+          </label>
+          <label>یادداشتت (از کجا پیداش کردی؟ چرا می‌خوایش؟)<textarea id="addNote" placeholder="هر چی دوست داری بنویس…"></textarea></label>
+          <p class="add-err" id="addErr"></p>
+          <button class="btn-save" type="submit" id="addSubmit">ثبتش کن 🐾</button>
+        </form>
       </div>
     </div>
 
@@ -1794,6 +1846,67 @@
             return 0;
           }).catch(function () { return 0; });
         };
+        (function () {
+          var addSheet = document.getElementById('addSheet');
+          if (!addSheet) return;
+          var addErr = document.getElementById('addErr');
+          function openAdd() {
+            addErr.textContent = '';
+            addSheet.hidden = false;
+            if (window.__pmSay) window.__pmSay('شرکتی از بیرون پیدا کردی هلیا جان؟ 😺 بنویسش، با همه‌ی اپشن‌ها میارمش توی لیستت 🐾');
+            var n = document.getElementById('addName');
+            if (n) setTimeout(function () { n.focus(); }, 60);
+          }
+          function closeAdd() { addSheet.hidden = true; }
+          var btn = document.getElementById('manualAddBtn');
+          if (btn) btn.addEventListener('click', openAdd);
+          document.getElementById('addClose').addEventListener('click', closeAdd);
+          addSheet.addEventListener('click', function (e) { if (e.target === addSheet) closeAdd(); });
+          document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !addSheet.hidden) closeAdd(); });
+          document.getElementById('addForm').addEventListener('submit', function (ev) {
+            ev.preventDefault();
+            var v = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            var payload = {
+              name: v('addName'), phones: v('addPhones'), ceo: v('addCeo'), city: v('addCity'),
+              national_id: v('addNid'), reg_no: v('addRegNo'), postal_code: v('addPostal'),
+              chair: v('addChair'), inspector: v('addInspector'), founded: v('addFounded'),
+              board_expiry: v('addBoardExp'), activity: v('addActivity'), address: v('addAddress'),
+              act_status: v('addActStatus'), note: v('addNote')
+            };
+            if (!payload.name) { addErr.textContent = 'اسم شرکت رو بنویس هلیا جان 🐾'; return; }
+            var sub = document.getElementById('addSubmit');
+            sub.disabled = true;
+            api('/api/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(function (res) {
+              sub.disabled = false;
+              if (res.j && res.j.ok) {
+                closeAdd();
+                ev.target.reset();
+                loadState().then(function () {
+                  renderAll();
+                  var idx = -1;
+                  for (var i = 0; i < S.companies.length; i++) if (S.companies[i].id === res.j.id) { idx = i; break; }
+                  var cards = liveCards();
+                  var el = idx >= 0 && cards[idx] ? cards[idx] : null;
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.add('just-added');
+                    setTimeout(function () { el.classList.remove('just-added'); }, 3000);
+                  }
+                  if (window.__pmSay) window.__pmSay(res.j.found ? 'این شرکت رو توی انبار داشتم هلیا جان! آوردمش توی لیستت 🐾' : 'ثبتش کردم هلیا جان! 😺 شرکتت با همه‌ی اپشن‌ها اومد توی لیستت 🐾');
+                });
+                return;
+              }
+              var err = res.j && res.j.error;
+              addErr.textContent = err === 'already_have' ? 'این شرکت رو همین حالا توی لیستت داری هلیا جان 🐾'
+                : err === 'bad_nid' ? 'شناسه ملی باید ۱۱ رقم باشه؛ یا درستش کن یا خالیش بذار 🐾'
+                : err === 'name_required' ? 'اسم شرکت رو بنویس هلیا جان 🐾'
+                : 'یه مشکلی پیش اومد؛ دوباره بزن 🐾';
+            }).catch(function () {
+              sub.disabled = false;
+              addErr.textContent = 'یه مشکلی پیش اومد؛ دوباره بزن 🐾';
+            });
+          });
+        })();
         window.__pmAfterLogin = function () {
           loadState().then(function (st) {
             if (st) renderAll();
