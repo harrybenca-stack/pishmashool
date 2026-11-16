@@ -20,6 +20,9 @@ header{ text-align:center; padding:26px 16px 2px; }
 header h1{ margin:0; font-size:30px; }
 header p{ margin:6px 0 0; color:#a5b0c6; font-size:14px; }
 .stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; padding:0 16px; }
+.wall-frame{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 16px); right:14px; width:104px; background:#fff; padding:5px 5px 15px; border:5px solid #B07E2E; border-radius:4px; box-shadow:0 10px 24px rgba(60,35,5,.28); transform:rotate(-3deg); z-index:5; }
+.wall-frame img{ width:100%; display:block; border-radius:2px; }
+.wall-frame::after{ content:'❤'; position:absolute; bottom:0; left:0; right:0; text-align:center; font-size:9px; color:#D96A8B; }
 /* ---------- پیش‌مشول زنده ---------- */
       .pm { position: fixed; left: 10px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 80; direction: ltr; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; pointer-events: none; }
 .pm.in { transition: opacity .45s ease, transform .55s cubic-bezier(.34, 1.56, .64, 1); }
@@ -175,6 +178,7 @@ body.chatting .pm-bubble{ display:none !important; }
 </style>
 </head>
 <body>
+<div class="wall-frame" aria-hidden="true"><img src="couple.webp" alt=""></div>
 <header>
   <h1>پیش‌مشول</h1>
   <p>گربه‌ی هلیا — همیشه پیشته 🐾</p>
