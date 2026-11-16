@@ -157,16 +157,12 @@ body.chat-open { overflow: hidden; }
 .pm-bubble{ position:relative !important; left:auto !important; bottom:auto !important; transform:none !important; max-width:min(86vw,340px); margin:0 auto 10px; text-align:center; }
 .pm-move{ display:flex; justify-content:center; }
 body.chatting .pm-bubble{ display:none !important; }
-.actions{ display:flex; gap:12px; padding:18px 16px 4px; }
-.actions button{ font-family:inherit; font-size:17px; font-weight:700; border:0; border-radius:999px; padding:13px 26px; cursor:pointer; color:#101a33; background:#ffc94d; box-shadow:0 6px 18px rgba(0,0,0,.35); touch-action:manipulation; }
+.actions{ display:flex; gap:7px; padding:18px 10px 4px; justify-content:center; }
+.actions button, .actions a.act{ font-family:inherit; font-size:14.5px; font-weight:700; border:0; border-radius:999px; padding:11px 15px; white-space:nowrap; cursor:pointer; color:#101a33; background:#ffc94d; box-shadow:0 6px 18px rgba(0,0,0,.35); touch-action:manipulation; text-decoration:none; display:inline-flex; align-items:center; }
 .actions button.blue{ background:#5b8cff; color:#fff; }
-.actions button:active{ transform:scale(.96); }
+.actions a.act.glass{ background:rgba(255,255,255,.08); color:#fff; border:1.5px solid rgba(255,255,255,.5); box-shadow:0 6px 18px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15); backdrop-filter:blur(4px); }
+.actions button:active, .actions a.act:active{ transform:scale(.96); }
 .hint{ color:#a5b0c6; font-size:13px; margin:10px 0 0; }
-.crm-btn{ margin:auto 0 20px; display:inline-flex; align-items:center; gap:9px; padding:13px 32px; border-radius:999px;
-  background:linear-gradient(180deg,#263a6b,#182747); border:1.5px solid rgba(255,201,77,.55); color:#ffd98a;
-  font-size:16.5px; font-weight:800; text-decoration:none; box-shadow:0 10px 24px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.14);
-  touch-action:manipulation; }
-.crm-btn:active{ transform:scale(.96); }
 .fish-fly{ position:fixed; font-size:40px; z-index:96; pointer-events:none; opacity:0; }
 /* گربه بالای پنجره‌ی گپ */
 .chat-view{ z-index:95; }
@@ -379,9 +375,10 @@ body.chatting .pm-bubble{ display:none !important; }
 <div class="actions">
   <button class="blue" id="btnChat" type="button">💬 گپ بزن</button>
   <button id="btnFish" type="button">🐟 ماهی بده</button>
+  <a class="act glass" href="/">💼 پنل کاری</a>
 </div>
 <p class="hint">رو گربه بزن — باهات حرف می‌زنه</p>
-<a class="crm-btn" href="/">💼 ورود به پنل کاری</a>
+
 
 <div class="fish-fly" id="fishFly">🐟</div>
 
