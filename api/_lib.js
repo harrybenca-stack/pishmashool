@@ -185,8 +185,6 @@ async function doInit(db) {
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_evidence TEXT');
-  await db.query("DELETE FROM user_company WHERE company_id IN (SELECT id FROM companies WHERE national_id='11111111111')");
-  await db.query("DELETE FROM companies WHERE national_id='11111111111'");
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
