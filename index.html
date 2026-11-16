@@ -93,7 +93,7 @@
       .btn-add:active { transform: scale(.97); }
       .brand { display: flex; gap: 12px; align-items: center; }
       .logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; flex-shrink: 0; box-shadow: var(--shadow); }
-      .add-wrap { display: flex; flex-direction: column; gap: 6px; }
+      .add-wrap { display: flex; flex-direction: column; gap: 6px; flex: 1 1 100%; }
       .add-help { margin: 0; font-size: .8rem; color: var(--ink-2); max-width: 250px; }
       .stat .cap { font-size: .75rem; color: var(--ink-2); margin-top: 2px; }
 
@@ -435,6 +435,13 @@
         font-size: 1rem; font-weight: 800; padding: 9px 20px; cursor: pointer;
       }
       .btn-chat:active { transform: scale(.97); }
+      .actions-row { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+      .actions-row .btn-add, .actions-row .btn-chat {
+        text-align: center; white-space: nowrap; text-decoration: none;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .actions-row .act-main { flex: 1 1 100%; }
+      .actions-row .btn-chat { flex: 1 1 0; min-width: 0; font-size: .9rem; padding: 10px 2px; }
       body.chat-open { overflow: hidden; }
       .chat-view {
         position: fixed; inset: 0; z-index: 95; overflow-y: auto;
@@ -642,12 +649,11 @@
           </div>
         </div>
         <div class="add-wrap">
-          <button class="btn-add" type="button">+ شرکت جدید بیار</button>
-          <p class="add-help">بزن روش هلیا، میرم شرکت‌های تازه پیدا می‌کنم و میارم توی لیستت.</p>
-          <button class="btn-chat" type="button" id="chatOpenBtn">💬 گپ با پیش‌مشول</button>
-          <p class="add-help">باهام حرف بزن هلیا — درباره‌ی کار یا هر چیز دیگه‌ای 😺</p>
-          <a class="btn-chat" href="/cat" style="display:inline-block; text-decoration:none; margin-top:10px;">🐱 خونه‌ی پیش‌مشول</a>
-          <p class="add-help">خونه‌ی خودمه هلیا — اونجا فقط من و توییم 🐾</p>
+          <div class="actions-row">
+            <button class="btn-add act-main" type="button">+ شرکت جدید بیار</button>
+            <button class="btn-chat" type="button" id="chatOpenBtn">💬 گپ با پیش‌مشول</button>
+            <a class="btn-chat" href="/cat">🐱 خونه‌ی پیش‌مشول</a>
+          </div>
         </div>
       </header>
 
