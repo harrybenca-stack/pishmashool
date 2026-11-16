@@ -219,10 +219,7 @@ async function doInit(db) {
     updated_at TIMESTAMPTZ DEFAULT now()
   )`);
   await db.query("DELETE FROM chat_messages WHERE role = 'assistant' AND body = 'undefined'");
-  // ONE-TIME yellow-tie scrub (Parsa, Nov 16): stored cat text must only know the black tie — remove after run
-  await db.query("UPDATE chat_messages SET body = replace(replace(replace(replace(body, 'کراوات زرد', 'کراوات مشکی'), 'کراواتِ زرد', 'کراواتِ مشکی'), 'کراواتم زرد', 'کراواتم مشکی'), 'کراواتت زرد', 'کراواتت مشکی') WHERE role = 'assistant' AND body LIKE '%زرد%'");
-  await db.query("UPDATE cat_memory SET notes = replace(replace(replace(replace(notes, 'کراوات زرد', 'کراوات مشکی'), 'کراواتِ زرد', 'کراواتِ مشکی'), 'کراواتم زرد', 'کراواتم مشکی'), 'کراواتت زرد', 'کراواتت مشکی') WHERE notes LIKE '%زرد%'");
-  await db.query("UPDATE cat_memory SET panel_lines = replace(replace(replace(replace(panel_lines, 'کراوات زرد', 'کراوات مشکی'), 'کراواتِ زرد', 'کراواتِ مشکی'), 'کراواتم زرد', 'کراواتم مشکی'), 'کراواتت زرد', 'کراواتت مشکی') WHERE panel_lines LIKE '%زرد%'");
+
   const cc = await db.query('SELECT COUNT(*)::int AS c FROM companies');
   if (!cc[0].c) {
     for (const c of seedCompanies) {
