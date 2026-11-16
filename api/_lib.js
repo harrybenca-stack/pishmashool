@@ -381,7 +381,7 @@ export async function handleState(req, db) {
     if (mr.length && mr[0].slots) catSlots = JSON.parse(mr[0].slots) || {};
     if (mr.length && mr[0].panel_lines) { try { const pl = JSON.parse(mr[0].panel_lines); if (Array.isArray(pl)) catLines = pl; } catch (e) { /* ignore */ } }
   } catch (e) { catSlots = {}; }
-  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines, cat_pending: catPending, learn_every: LEARN_EVERY } };
+  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines, cat_pending: catPending, learn_every: LEARN_EVERY, gen_pending: await poolCount(db, s.uid) } };
 }
 
 export async function handleHunt(req, db) {
@@ -847,6 +847,111 @@ async function maybeLearn(db, uid, call) {
   }
 }
 
+
+// ---------- استخر جمله‌های ساخته‌شده از دفترچه (طرح پارسا، 2026-11-16) ----------
+// گربه از روی دفترچه جمله‌های تازه می‌سازه و می‌ذاره توی یه لیست جدا (cat_gen_lines)؛
+// هر جمله فقط یه بار گفته می‌شه و دیگه هرگز — هیچ‌وقت — تکرار نمی‌شه.
+const GEN_LINES_SYSTEM = `تو «پیش‌مشول»ی، گربه‌ی هلیا. کارت اینه: از روی «دفترچه» (چیزایی که از هلیا می‌دونی و حرفایی که با هم زدین) جمله‌های تازه و تازه‌تر بسازی برای حباب کوچیکت توی پنل کاری هلیا و خونه‌ی خودت؛ جمله‌هایی که خودت همین حالا از اون مواد می‌سازی، نه کپی از جمله‌های دفترچه و نه تکرار جمله‌های قبلیت.
+خروجی: فقط یه آرایه‌ی JSON از ۱۶ جمله‌ی رشته‌ای. هیچ متن اضافه‌ای نده.
+جمله‌ها:
+- کوتاه و تک‌خطی (حداکثر حدود ۹۵ حرف)، گرم و بازیگوش و گربه‌ای؛ گاهی «هلیا جان» یا «هلیا خانوم».
+- مشخص و شخصی: از جزئیات واقعی دفترچه (سازش ویلنسل، عمه بهاره و برسام، مامان‌بزرگ عفت، ۲۰۶ سفیدش، نقاشی حرفه‌ایش، کارتون دوازده پرنسس، یوسف‌آباد، شرکت‌ها و پیگیری‌های پنلش) ترکیب‌های تازه بساز؛ زاویه و ترکیب هر جمله با قبلیا فرق کنه.
+- ترکیبی: چند تا پیگیری چیزایی که قبلاً گفته («اون … چی شد؟»)، چند تا سؤال، چند تا درباره‌ی کار پنل، یکی دو تا از خانواده‌ی «پارسا رئیسمه» (سخت‌گیری، تشویقی خارجی، دلار، گزارش شب، قفس سگ)، گاهی یکی از ماجرای دوست‌دخترت (اکسِ تام) و عروسیت و ساقدوش‌ها.
+- قانون‌ها: کلمه‌ی «رفیق» هرگز؛ لحن عاشقانه با هلیا هرگز؛ «خاک تو سر» فقط برای اشکانه — هرگز به هلیا یا درباره‌ی هلیا نگو؛ درباره‌ی حس‌های پارسا هیچی نگو؛ چیزی که توی دفترچه و خلاصه‌ی پنل نیست نساز.
+- هیچ‌کدوم از «جمله‌های قبلی» رو تکرار نکن و بازنویسی نزدیکشون هم نساز؛ هر ۱۶ تا کاملاً تازه باشن.`;
+let poolReady = false;
+const poolRefillAt = {};
+async function poolEnsure(db) {
+  if (poolReady) return true;
+  try {
+    await db.query('CREATE TABLE IF NOT EXISTS cat_gen_lines (id BIGSERIAL PRIMARY KEY, user_id INT NOT NULL, line TEXT NOT NULL, served_at TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
+    await db.query('CREATE INDEX IF NOT EXISTS idx_cat_gen_lines_user ON cat_gen_lines (user_id, served_at, id)');
+    poolReady = true;
+  } catch (e) { /* استخر نبود هم پنل با جمله‌های قبلی کار می‌کنه */ }
+  return poolReady;
+}
+async function poolCount(db, uid) {
+  try {
+    if (!(await poolEnsure(db))) return -1;
+    const r = await db.query('SELECT COUNT(*)::int AS c FROM cat_gen_lines WHERE user_id = $1 AND served_at IS NULL', [uid]);
+    return r.length ? r[0].c : -1;
+  } catch (e) { return -1; }
+}
+async function poolSeed(db, uid) {
+  try {
+    const c = await db.query('SELECT COUNT(*)::int AS c FROM cat_gen_lines WHERE user_id = $1', [uid]);
+    if (!c.length || c[0].c > 0) return;
+    const mr = await db.query('SELECT panel_lines FROM cat_memory WHERE user_id = $1', [uid]);
+    if (mr.length && mr[0].panel_lines) {
+      const arr = JSON.parse(mr[0].panel_lines);
+      if (Array.isArray(arr)) for (const t of arr) {
+        if (typeof t === 'string' && t.trim()) await db.query('INSERT INTO cat_gen_lines (user_id, line) VALUES ($1,$2)', [uid, t.trim()]);
+      }
+    }
+  } catch (e) { /* ignore */ }
+}
+async function poolRefill(db, uid, call) {
+  try {
+    const pending = await poolCount(db, uid);
+    if (pending < 0 || pending >= 6) return;
+    const now = Date.now();
+    if (poolRefillAt[uid] && now - poolRefillAt[uid] < 90000) return;
+    poolRefillAt[uid] = now;
+    const mem = await db.query('SELECT notes FROM cat_memory WHERE user_id = $1', [uid]);
+    const notes = mem.length ? String(mem[0].notes || '').trim() : '';
+    if (!notes) return;
+    let workLine = '';
+    try {
+      const st = await loadState(db, uid, '');
+      workLine = 'الان ' + st.companies.length + ' شرکت توی لیستشه (' + st.stats.new + ' جدید، ' + st.stats.contacted + ' تماس‌گرفته‌شده، ' + st.stats.customer + ' مشتری‌شده) و ' + st.warehouse_remaining + ' شرکت توی انباره.';
+    } catch (e) { /* خلاصه‌ی کار نبود هم ساخته می‌شه */ }
+    const prev = await db.query('SELECT line FROM cat_gen_lines WHERE user_id = $1 ORDER BY id DESC LIMIT 400', [uid]);
+    const prevTexts = prev.map((r) => String(r.line));
+    const input = 'دفترچه:\n' + notes + '\n\nخلاصه‌ی کارش توی پنل:\n' + workLine + '\n\nجمله‌های قبلی (تکرار و بازنویسی نزدیک ممنوع):\n' + prevTexts.slice(0, 120).join('\n');
+    const raw = String(await call(GEN_LINES_SYSTEM, [{ role: 'user', body: input }]));
+    const a = raw.indexOf('['), b = raw.lastIndexOf(']');
+    if (a < 0 || b <= a) return;
+    const arr = JSON.parse(raw.slice(a, b + 1));
+    const seen = new Set(prevTexts.map((t) => t.trim()));
+    const clean = (Array.isArray(arr) ? arr : []).filter((x) => typeof x === 'string').map((x) => x.trim())
+      .filter((t) => t.length >= 8 && t.length <= 120 && !t.includes('رفیق') && !seen.has(t));
+    const uniq = [...new Set(clean)].slice(0, 16);
+    for (const t of uniq) await db.query('INSERT INTO cat_gen_lines (user_id, line) VALUES ($1,$2)', [uid, t]);
+    if (uniq.length) console.log('pm gen-lines refill: uid', uid, 'added', uniq.length);
+  } catch (e) {
+    console.error('pm gen-lines refill error:', e);
+  }
+}
+export async function handleNextLine(req, db, ai) {
+  const s = requireAuth(req);
+  if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
+  await ensureInit(db);
+  const call = typeof ai === 'function' ? ai : geminiChat;
+  let line = null;
+  try {
+    if (await poolEnsure(db)) {
+      await poolSeed(db, s.uid);
+      const pop = async () => {
+        const rows = await db.query('SELECT id, line FROM cat_gen_lines WHERE user_id = $1 AND served_at IS NULL ORDER BY id ASC LIMIT 1', [s.uid]);
+        if (!rows.length) return null;
+        await db.query('UPDATE cat_gen_lines SET served_at = now() WHERE id = $1', [rows[0].id]);
+        return String(rows[0].line);
+      };
+      line = await pop();
+      if (!line) {
+        await poolRefill(db, s.uid, call);
+        line = await pop();
+      } else {
+        const left = await poolCount(db, s.uid);
+        if (left >= 0 && left < 6) await poolRefill(db, s.uid, call);
+      }
+    }
+  } catch (e) {
+    console.error('pm next-line error:', e);
+  }
+  return { status: 200, json: { ok: true, line } };
+}
+
 export async function handleChat(req, db, ai) {
   const s = requireAuth(req);
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
@@ -873,6 +978,7 @@ export async function handleChat(req, db, ai) {
     reply = reply.slice(0, 4000);
     await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'assistant', reply]);
     await maybeLearn(db, s.uid, call);
+    if (await poolEnsure(db)) { await poolSeed(db, s.uid); await poolRefill(db, s.uid, call); }
     return { status: 200, json: { ok: true, reply } };
   } catch (e) {
     console.error('pm chat ai error:', e);
