@@ -1203,22 +1203,22 @@
         // ---------- جمله‌های کیوت وقت بی‌کاری (موتور بی‌کاری پنل) ----------
         var pmIdleLines = ['هلیا چه خبر؟ 🐾', 'هلیا جان، دلم برات تنگ شده بود', 'امروز چقدر قشنگ شدی هلیا خانوم ✨', 'ناخنات چه رنگیه هلیا؟ امروز لاک زدی یا نزدی؟ 💅', 'هلیا {inst}تو تمرین کردی؟ 🎶', 'هلیا جان، {drink} خوردی امروز؟ ☕', 'امروز چه موزیکی گوش دادی هلیا؟', 'هلیا خانوم، یه لبخند بزن ببینم 😊', 'من امروز خیلی خوابم میاد… ولی منتظر تو بودم', 'هلیا جان اگه خسته شدی یه کم استراحت کن، شرکتا فرار نمی‌کنن', 'امروز موهات رو چطوری بستی هلیا؟', 'دلم می‌خواد برام تعریف کنی امروزت چطور بود هلیا', 'هلیا، بیرون چه هواییه؟ دلم پنجره می‌خواد', 'هلیا جان، من اینجام، هر وقت خواستی صدام کن', 'هلیا خانوم، امروز یه چیز خوشمزه خوردی؟ 🍰', 'هلیا جان، یه چرت کوچولو زدم و خواب تو رو دیدم 🐾', 'امروز چه رنگی پوشیدی هلیا؟ حتماً بهت میاد ✨', 'هلیا، می‌دونی الان دلم چی می‌خواد؟ اینکه تو بخندی 😊'];
         var pmLastIdleLine = -1, pmIdleChatTimer = null;
-        var pmLastCatLine = -1;
+        var pmRecentLines = [];
         function pmPickIdleLine() {
           var catLines = window.__pmCatLines || [];
-          if (catLines.length && Math.random() < 0.55) {
-            var j;
-            do { j = Math.floor(Math.random() * catLines.length); } while (catLines.length > 1 && j === pmLastCatLine);
-            pmLastCatLine = j;
-            return catLines[j];
-          }
-          var pool = pmIdleLines.slice();
-          var sl = window.__pmSlots || {};
-          pmUnlockLines.forEach(function (u) { if (sl[u.k]) pool.push(u.t); });
-          var i;
-          do { i = Math.floor(Math.random() * pool.length); } while (pool.length > 1 && i === pmLastIdleLine);
-          pmLastIdleLine = i;
-          return pool[i];
+          var sl0 = window.__pmSlots || {};
+          var fullPool = pmIdleLines.slice();
+          pmUnlockLines.forEach(function (u) { if (sl0[u.k]) fullPool.push(u.t); });
+          var freshCat = catLines.filter(function (t) { return pmRecentLines.indexOf(t) < 0; });
+          var freshPool = fullPool.filter(function (t) { return pmRecentLines.indexOf(pmFill(t)) < 0; });
+          var pick = null;
+          if (freshCat.length && Math.random() < 0.7) pick = freshCat[Math.floor(Math.random() * freshCat.length)];
+          else if (freshPool.length) pick = freshPool[Math.floor(Math.random() * freshPool.length)];
+          else if (freshCat.length) pick = freshCat[Math.floor(Math.random() * freshCat.length)];
+          else if (catLines.length) pick = catLines[Math.floor(Math.random() * catLines.length)];
+          else pick = fullPool[Math.floor(Math.random() * fullPool.length)];
+          if (pick) { pmRecentLines.push(pmFill(pick)); if (pmRecentLines.length > 8) pmRecentLines.shift(); }
+          return pick;
         }
         function pmIdleAct() {
           var acts = ['purr', 'hearts', 'loveblink', 'bigtilt', 'none'];
