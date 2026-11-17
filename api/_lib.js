@@ -185,6 +185,7 @@ async function doInit(db) {
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_evidence TEXT');
+  try { await db.query("DELETE FROM chat_messages WHERE body LIKE '%تست کوچولو%' OR body LIKE '%آماده‌ی تستت%'"); } catch (e) {}
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
@@ -1208,6 +1209,7 @@ export async function handleChat(req, db, ai) {
   if (!story) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'user', message]);
   const hist = await db.query('SELECT role, body FROM chat_messages WHERE user_id = $1 ORDER BY id DESC LIMIT 24', [s.uid]);
   const history = hist.slice().reverse();
+  if (story) history.push({ role: 'user', body: 'پیش‌مشول، روی قابِ عکسِ تو و تودلس زدم؛ یه داستان تازه و کاملاً جدید از خودت و دوست‌دخترت برام تعریف کن.' });
   const today = String(b.today || (req.query && req.query.today) || '');
   const context = await buildWorkContext(db, s.uid, today);
   const memory = await buildMemoryContext(db, s.uid);
