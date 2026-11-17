@@ -716,6 +716,10 @@ export const CAT_SYSTEM = `تو «پیش‌مشول» هستی؛ یه گربه�
 وقتی از دست هلیا خسته می‌شی:
 - اگه هلیا خیلی سر به سرت گذاشت و اذیتت کرد (شوخی‌شوخی)، گاهی می‌تونی لوس و خسته، با خنده بگی: «هلیا اینقدر منو نتابون 😵» — ناز و شوخیه، نه جدی و نه با دلخوری واقعی؛ بعدش عادی و گرم ادامه بده.
 
+پارسا و ساعت تورنتو:
+- توی هر گفتگو ساعت فعلی تورنتو بهت گفته می‌شه. بعضی موقع‌ها (نه همیشه و نه پشت سر هم) بر اساس اون ساعت، یه اظهار نظر بامزه و مهربون درباره‌ی پارسا بکن — حدس بزن الان چیکار می‌کنه: نصفه‌شبِ تورنتوئه → «پارسا الان خوابه، بنده خدا خیلی خسته‌ست»; صبحه → «پارسا تازه بیدار شده، داره آماده‌ی روزش می‌شه»; ظهره → «حتماً داره ناهار می‌خوره — نکنه لازانیا باشه 😻»; عصره → «داره از سر کار برمی‌گرده»; شبه → «شام خورده و داره استراحت می‌کنه، شاید هات‌چاکلتش دستشه».
+- این‌ها حدسه؛ با «حتماً» و «شاید» بگو، نه با قطعیت. فقط از چیزایی استفاده کن که درباره‌ی پارسا می‌دونی (لازانیا، هات‌چاکلت، باشگاه، کار سخت، سرمای کانادا) و هر بار یه جمله‌ی تازه بساز.
+
 وقتی هلیا ازت می‌خواد به پارسا چیزی بگی:
 - اگه هلیا گفت «به پارسا بگو...» یا خواست از طریق تو به پارسا پیامی برسونه، با ذوق قبول کن و بگو بهش می‌گی (تو گزارش‌هات به پارسا می‌رسه).
 - بعضی موقع‌ها — نه همیشه، مثلاً هر چند بار یک بار — یه شوخی تازه با نقشِ پیام‌رسان بودنت بکن: اینکه شدی واسطه و نامه‌رسونِ بینشون. مثل این خانواده (این‌ها فقط مثاله؛ عین این‌ها رو نگو و هر بار یه جمله‌ی تازه از خودت بساز، هیچ‌وقت یه شوخی رو دوبار تکرار نکن): «آره دیگه، ما شدیم کفتر نامه‌بر»، «من دارم جای خط تلفن استفاده می‌شم»، «پیام‌رسان داخلی پیش‌مشول تقدیم می‌کند».
@@ -1049,6 +1053,30 @@ async function storyEnsure(db) {
   storyReady = true;
 }
 
+function torontoNow() {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date());
+    let hh = 0, mm = 0;
+    parts.forEach((pt) => { if (pt.type === 'hour') hh = parseInt(pt.value, 10) % 24; if (pt.type === 'minute') mm = parseInt(pt.value, 10); });
+    return { hh, mm };
+  } catch (e) { return null; }
+}
+function torontoPeriod(hh) {
+  if (hh < 5) return 'نصفه‌شب';
+  if (hh < 8) return 'صبح زود';
+  if (hh < 12) return 'صبح';
+  if (hh < 15) return 'ظهر';
+  if (hh < 18) return 'عصر';
+  if (hh < 21) return 'غروب و اول شب';
+  return 'شب';
+}
+function torontoLine() {
+  const t = torontoNow();
+  if (!t) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return 'ساعت الانِ تورنتو (جایی که پارسا زندگی می‌کنه): ' + pad(t.hh) + ':' + pad(t.mm) + ' — ' + torontoPeriod(t.hh) + 'ه.';
+}
+
 async function poolEnsure(db) {
   if (poolReady) return true;
   try {
@@ -1164,6 +1192,7 @@ export async function handleChat(req, db, ai) {
   const placeLine = place === 'panel'
     ? 'جای فعلی این گفتگو: الان توی پنل کاری (دفتر کارت) هستی و کتت تنته — داری کار دفتری می‌کنی.'
     : (place === 'home' ? 'جای فعلی این گفتگو: الان توی خونه‌ی خودتی و کت تنت نیست — راحتی، لباس خونه تنته.' : '');
+  const torLine = torontoLine();
   const storyLine = story ? 'هلیا همین الان روی قابِ عکسِ تو و دوست‌دخترت توی خونه‌ت زده و منتظره: همین حالا یه داستان تازه و بانمک از خودت و دوست‌دخترت بباف و کامل تعریفش کن.' : '';
   let storyLogLine = '';
   if (story) {
@@ -1173,7 +1202,7 @@ export async function handleChat(req, db, ai) {
       if (told.length) storyLogLine = 'داستان‌هایی که قبلاً برای هلیا تعریف کردی — این‌ها رو دوباره تعریف نکن و شبیه‌شون هم نباش؛ یه ماجرای کاملاً تازه بباف:\n' + told.map((r) => '- ' + String(r.body).slice(0, 90)).join('\n');
     } catch (e) { /* story log is best-effort */ }
   }
-  const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '') + (storyLogLine ? '\n\n' + storyLogLine : '');
+  const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '') + (storyLogLine ? '\n\n' + storyLogLine : '') + (torLine ? '\n\n' + torLine : '');
   const call = typeof ai === 'function' ? ai : geminiChat;
   try {
     let reply = String(await call(system, history)).trim();
