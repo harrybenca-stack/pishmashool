@@ -1144,6 +1144,7 @@ export async function handleChat(req, db, ai) {
   if (req.method !== 'POST') return { status: 405, json: { ok: false } };
   const b = bodyOf(req);
   const story = b.story === true;
+  const storyBubble = story && b.bubble === true;
   const message = String(b.message || '').trim().slice(0, 2000);
   if (!message && !story) return { status: 400, json: { ok: false, error: 'empty_message' } };
   if (!story) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'user', message]);
@@ -1163,7 +1164,7 @@ export async function handleChat(req, db, ai) {
     let reply = String(await call(system, history)).trim();
     if (!reply) throw new Error('empty reply');
     reply = reply.slice(0, 4000);
-    await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'assistant', reply]);
+    if (!storyBubble) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'assistant', reply]);
     await maybeLearn(db, s.uid, call);
     if (await poolEnsure(db)) { await poolSeed(db, s.uid); await poolRefill(db, s.uid, call); }
     return { status: 200, json: { ok: true, reply } };

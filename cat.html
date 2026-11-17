@@ -704,40 +704,31 @@ function closeChat() {
 }
 document.getElementById('btnChat').addEventListener('click', openChat);
 function tellStory() {
-  if (chatBusy) return;
-  chatBusy = true;
-  var typing = chatBubble('assistant', 'پیش‌مشول داره می‌نویسه…');
-  typing.classList.add('typing');
-  var chatCtrl = null, chatTimer = null;
-  if (window.AbortController) {
-    chatCtrl = new AbortController();
-    chatTimer = setTimeout(function () { chatCtrl.abort(); }, 50000);
-  }
+  if (window.__pmStoryBusy) return;
+  window.__pmStoryBusy = true;
+  pmSay('😻 صبر کن هلیا جان، بذار یه داستان از خودم و تودلسم برات تعریف کنم…', 60000);
   api('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ story: true, today: chatToday(), place: 'home' }),
-    signal: chatCtrl ? chatCtrl.signal : undefined
+    body: JSON.stringify({ story: true, bubble: true, today: chatToday(), place: 'home' })
   }).then(function (res) {
-    if (chatTimer) clearTimeout(chatTimer);
-    typing.remove();
-    chatBusy = false;
-    var reply = (res.j && res.j.reply) || 'هلیا جان، الان نمی‌تونم داستان بگم 😿 یه بار دیگه روی قاب بزن 🐾';
-    chatBubble('assistant', reply);
+    window.__pmStoryBusy = false;
+    var reply = (res.j && res.j.reply) || '';
+    if (reply) {
+      var hold = Math.max(14000, Math.min(60000, reply.length * 130));
+      pmSay(reply, hold);
+    } else {
+      pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
+    }
   }).catch(function () {
-    if (chatTimer) clearTimeout(chatTimer);
-    typing.remove();
-    chatBusy = false;
-    chatBubble('assistant', 'هلیا جان، الان نمی‌تونم داستان بگم 😿 یه بار دیگه روی قاب بزن 🐾');
+    window.__pmStoryBusy = false;
+    pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
   });
 }
 document.getElementById('coupleFrame').addEventListener('click', function () {
   pmJump('hop', 520);
-  var wasLoaded = chatLoaded;
-  openChat();
-  setTimeout(tellStory, wasLoaded ? 80 : 1200);
+  tellStory();
 });
-document.getElementById('chatClose').addEventListener('click', closeChat);
 chatForm.addEventListener('submit', function (e) {
   e.preventDefault();
   var text = chatInput.value.trim();
