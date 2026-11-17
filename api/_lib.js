@@ -775,8 +775,8 @@ const CHAT_FALLBACK = 'هلیا جان، الان یه کم گیجم و نمی�
 
 // فراخوانی مدل جمینای (کلید از متغیر محیطی؛ هیچ‌وقت تو کد نیست)
 export async function geminiChat(systemText, history) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY is not set');
+  const keys = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2].filter(Boolean);
+  if (!keys.length) throw new Error('GEMINI_API_KEY is not set');
   const contents = [];
   for (const m of history) {
     const role = m.role === 'assistant' ? 'model' : 'user';
@@ -785,38 +785,37 @@ export async function geminiChat(systemText, history) {
     else contents.push({ role, parts: [{ text: m.body }] });
   }
   if (contents.length && contents[0].role === 'model') contents.shift();
-  // صف تلاش‌ها: فقط gemini-flash-latest برای این کلید جواب می‌ده (بقیه 404) ولی زیر بار سنگینه؛
-  // پس چند بار با مکث برمی‌گردیم سراغش و مدل‌های دیگه هم لابه‌لا امتحان می‌شن. سقف کلی ۵۰ ثانیه.
-  const attempts = [];
-  if (process.env.GEMINI_MODEL) attempts.push(['v1beta', process.env.GEMINI_MODEL, 12000, true]);
-  // فهرست واقعی مدل‌های این کلید از خود گوگل گرفته شد (2026-11-15): 2.0 و 1.5 اصلاً نیستن.
-  // از لاگ 2026-11-15: gemini-2.5-flash روی این کلید 404 می‌ده (مرده، حذف شد)؛
-  // gemini-3.5-flash-lite تنظیم thinkingBudget رو قبول نمی‌کنه (400) — براش خاموشه؛
-  // بقیه‌ی خطاها 429 (سهمیه‌ی دقیقه‌ای رایگان) بودن — بین تلاش‌ها مکث بیشتر وقتی 429 دیدیم.
-  attempts.push(
+  // دو کلید (دو پروژه‌ی جدا = دو سهمیه‌ی جدا): تلاش‌ها بین کلیدها یکی‌درمیان پخش می‌شن؛
+  // کلیدی که 429 (تموم‌شدن سهمیه) بده، برای بقیه‌ی این تماس مرده حساب می‌شه.
+  const baseAttempts = [];
+  if (process.env.GEMINI_MODEL) baseAttempts.push(['v1beta', process.env.GEMINI_MODEL, 12000, true]);
+  baseAttempts.push(
     ['v1beta', 'gemini-3.5-flash', 7000, true],
     ['v1beta', 'gemini-3.5-flash-lite', 7000, false],
     ['v1beta', 'gemini-3.5-flash', 8000, true],
     ['v1beta', 'gemini-3.8-flash', 8000, true],
     ['v1beta', 'gemini-flash-latest', 10000, false]
   );
+  const attempts = [];
+  for (const a of baseAttempts) for (let ki = 0; ki < keys.length; ki++) attempts.push([a[0], a[1], a[2], a[3], ki]);
   const startedAt = Date.now();
   const dead = new Set();
+  const deadKeys = new Set();
   const trail = [];
-  let flashTries = 0;
+  let tries = 0;
   let saw429 = false;
-  for (const [version, model, timeoutMs, useThinking] of attempts) {
+  for (const [version, model, timeoutMs, useThinking, ki] of attempts) {
     const tag = version + '/' + model;
-    if (dead.has(tag)) continue;
+    if (dead.has(tag + '@' + ki) || deadKeys.has(ki)) continue;
     if (Date.now() - startedAt > 55000) break;
-    if (flashTries > 0) await new Promise((r) => setTimeout(r, saw429 ? 2500 : 500));
-    flashTries++;
+    if (tries > 0) await new Promise((r) => setTimeout(r, saw429 ? 2500 : 500));
+    tries++;
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
       const r = await fetch('https://generativelanguage.googleapis.com/' + version + '/models/' + model + ':generateContent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': keys[ki] },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemText }] },
           contents,
@@ -830,23 +829,23 @@ export async function geminiChat(systemText, history) {
           const ej = await r.json();
           detail = ((ej && ej.error && ej.error.message) || '').slice(0, 160);
         } catch (e2) { /* بدنه‌ی خطا خوانا نیست */ }
-        if (r.status === 429) saw429 = true;
-        trail.push(tag + ':' + r.status + (r.status === 400 && detail ? ':' + detail.slice(0, 60) : ''));
-        if (r.status === 404) { dead.add(tag); continue; }
+        if (r.status === 429) { saw429 = true; deadKeys.add(ki); }
+        trail.push(tag + '@k' + (ki + 1) + ':' + r.status + (r.status === 400 && detail ? ':' + detail.slice(0, 60) : ''));
+        if (r.status === 404) { dead.add(tag + '@' + ki); continue; }
         if (r.status === 400 || r.status === 429 || r.status === 503) { continue; }
         throw new Error('gemini http ' + r.status + ' (' + tag + ')' + (detail ? ': ' + detail : '') + ' | trail: ' + trail.join(' '));
       }
       const j = await r.json();
       const parts = (j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
       const text = parts.map((x) => x.text || '').join('').trim();
-      if (!text) { trail.push(tag + ':empty'); continue; }
+      if (!text) { trail.push(tag + '@k' + (ki + 1) + ':empty'); continue; }
       const fr = j && j.candidates && j.candidates[0] ? j.candidates[0].finishReason : null;
-      if (fr === 'MAX_TOKENS') { trail.push(tag + ':maxtokens'); continue; }
-      console.log('pm chat ai ok:', tag, (Date.now() - startedAt) + 'ms', 'trail:', trail.join(' ') || '-');
+      if (fr === 'MAX_TOKENS') { trail.push(tag + '@k' + (ki + 1) + ':maxtokens'); continue; }
+      console.log('pm chat ai ok:', tag, 'key' + (ki + 1), (Date.now() - startedAt) + 'ms', 'trail:', trail.join(' ') || '-');
       return text;
     } catch (e) {
-      if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) { trail.push(tag + ':timeout'); continue; }
-      if (e instanceof TypeError) { trail.push(tag + ':network'); continue; }
+      if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) { trail.push(tag + '@k' + (ki + 1) + ':timeout'); continue; }
+      if (e instanceof TypeError) { trail.push(tag + '@k' + (ki + 1) + ':network'); continue; }
       throw e;
     } finally {
       clearTimeout(timer);
