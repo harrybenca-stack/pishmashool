@@ -176,13 +176,31 @@ body.chatting .pm-bubble{ display:none !important; }
 #chatCatSlot .pm-move{ margin-top:-58px; }
 #chatCatSlot .pm-cat{ width:84px !important; }
 .chat-form input{ font-size:16px; }
+
+.room-floor{ position:fixed; left:0; right:0; bottom:0; height:24%; background:linear-gradient(180deg,#101B31 0%,#0A1120 30%); border-top:2px solid rgba(216,178,92,.14); z-index:0; pointer-events:none; }
+.room-rug-img{ position:fixed; left:50%; bottom:10.5%; transform:translateX(-50%) scaleY(.54); width:308px; height:308px; z-index:0; pointer-events:none; filter:drop-shadow(0 12px 16px rgba(0,0,0,.45)); }
+.room-lamp{ position:fixed; right:16px; bottom:calc(20mm + 52px); width:52px; height:172px; z-index:7; cursor:pointer; }
+.room-lamp .glow{ position:absolute; top:-22px; left:50%; transform:translateX(-50%); width:110px; height:110px; border-radius:50%; background:radial-gradient(circle, rgba(255,206,110,.34) 0%, rgba(255,206,110,0) 68%); transition:all .7s ease; }
+.room-lamp .shade{ position:absolute; top:0; left:50%; transform:translateX(-50%); width:50px; height:40px; background:linear-gradient(180deg,#FFE1A0,#F2A93B); clip-path:polygon(26% 0, 74% 0, 100% 100%, 0 100%); border-radius:4px; }
+.room-lamp .pole{ position:absolute; top:38px; left:50%; transform:translateX(-50%); width:4px; height:122px; background:#31456B; border-radius:2px; }
+.room-lamp .base{ position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:34px; height:8px; border-radius:50%; background:#31456B; }
+.room-clock{ position:fixed; top:calc(env(safe-area-inset-top,0px) + 92px); right:16px; width:78px; height:78px; z-index:4; filter:drop-shadow(0 6px 14px rgba(0,0,0,.4)); pointer-events:none; }
+.room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 78% 60%, rgba(3,6,16,.16) 0%, rgba(3,6,16,.52) 52%, rgba(2,4,12,.82) 100%); }
+body.night .room-dim{ opacity:1; }
+body.night .room-lamp .glow{ width:170px; height:170px; top:-52px; background:radial-gradient(circle, rgba(255,210,120,.55) 0%, rgba(255,210,120,0) 70%); }
+header, .stage, .hint, .actions{ position:relative; z-index:2; }
+.to-clock{ text-align:center; font-size:15.5px; letter-spacing:3px; color:rgba(215,228,255,.62); margin-top:3px; font-variant-numeric:tabular-nums; }
+#pmBubble{ max-height:34dvh; overflow-y:auto; scrollbar-width:none; }
+#pmBubble::-webkit-scrollbar{ display:none; }
 </style>
 </head>
 <body>
+<div class="room-floor"></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-lamp" id="roomLamp" role="button" aria-label="چراغ خواب"><div class="glow"></div><div class="shade"></div><div class="pole"></div><div class="base"></div></div><div class="room-clock" aria-hidden="true"><svg viewBox="0 0 100 100" width="78" height="78"><circle cx="50" cy="50" r="47" fill="#F7EFDD" stroke="#B07E2E" stroke-width="4"/><circle cx="50" cy="50" r="40" fill="none" stroke="#8A6D3B" stroke-width="6" stroke-dasharray="2 18.94" opacity=".65"/><line id="clkH" x1="50" y1="50" x2="50" y2="29" stroke="#20304F" stroke-width="5.5" stroke-linecap="round"/><line id="clkM" x1="50" y1="50" x2="50" y2="19" stroke="#20304F" stroke-width="3.5" stroke-linecap="round"/><line id="clkS" x1="50" y1="57" x2="50" y2="15" stroke="#C0392B" stroke-width="1.6" stroke-linecap="round"/><circle cx="50" cy="50" r="3.6" fill="#B07E2E"/></svg></div><div class="room-dim"></div>
 <div class="wall-frame" id="coupleFrame" role="button" aria-label="عکس پیش‌مشول و دوست‌دخترش"><img src="couple.webp" alt=""></div>
 <header>
   <h1>پیش‌مشول</h1>
   <p>گربه‌ی هلیا — همیشه پیشته 🐾</p>
+  <div class="to-clock" id="toClock">تورنتو --:--</div>
 </header>
 <div class="stage">
 <div class="pm" id="pm">
@@ -468,7 +486,7 @@ function pmSay(text, hold) {
     s.textContent = w;
     pmText.appendChild(s);
     if (i < words.length - 1) pmText.appendChild(document.createTextNode(' '));
-    setTimeout(function () { s.classList.add('on'); }, 60 + i * 70);
+    setTimeout(function () { s.classList.add('on'); if (pmBubble) pmBubble.scrollTop = pmBubble.scrollHeight; }, 60 + i * 70);
   });
   pmBubble.classList.add('show');
   var open = false;
@@ -543,9 +561,48 @@ function pmWake() {
   pmSay('اوه! بیدار شدم هلیا — بگو چیکار کنم؟');
 }
 ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) {
-  document.addEventListener(ev, function () { pmWake(); pmStartIdle(); }, { passive: true });
+  document.addEventListener(ev, function () { if (document.body.classList.contains('night')) return; pmWake(); pmStartIdle(); }, { passive: true });
 });
 pmStartIdle();
+function pmGoSleep() {
+  clearTimeout(pmIdleTimer);
+  pmSleeping = true;
+  pm.classList.add('sleeping');
+  pmBubble.classList.remove('show');
+  pmStopTalk();
+}
+document.getElementById('roomLamp').addEventListener('click', function () {
+  if (document.body.classList.contains('night')) {
+    document.body.classList.remove('night');
+    pmWake();
+    pmStartIdle();
+  } else {
+    document.body.classList.add('night');
+    pmGoSleep();
+  }
+});
+(function () {
+  var H = document.getElementById('clkH'), M = document.getElementById('clkM'), S = document.getElementById('clkS');
+  if (!H) return;
+  function tick() {
+    var d = new Date(), sec = d.getSeconds() + d.getMilliseconds() / 1000, m = d.getMinutes() + sec / 60, h = (d.getHours() % 12) + m / 60;
+    S.setAttribute('transform', 'rotate(' + (sec * 6) + ' 50 50)');
+    M.setAttribute('transform', 'rotate(' + (m * 6) + ' 50 50)');
+    H.setAttribute('transform', 'rotate(' + (h * 30) + ' 50 50)');
+  }
+  tick(); setInterval(tick, 1000);
+})();
+(function () {
+  var el = document.getElementById('toClock');
+  if (!el) return;
+  function upd() {
+    try {
+      var t = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Toronto', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
+      el.textContent = 'تورنتو ' + t;
+    } catch (e) { el.textContent = ''; }
+  }
+  upd(); setInterval(upd, 15000);
+})();
 var pmIdleLines = ['هلیا چه خبر؟ 🐾', 'هلیا جان، دلم برات تنگ شده بود', 'امروز چقدر قشنگ شدی هلیا خانوم ✨', 'ناخنات چه رنگیه هلیا؟ امروز لاک زدی یا نزدی؟ 💅', 'هلیا {inst}تو تمرین کردی؟ 🎶', 'هلیا جان، {drink} خوردی امروز؟ ☕', 'امروز چه موزیکی گوش دادی هلیا؟', 'هلیا خانوم، یه لبخند بزن ببینم 😊', 'من امروز خیلی خوابم میاد… ولی منتظر تو بودم', 'هلیا جان اگه خسته شدی یه کم استراحت کن، شرکتا فرار نمی‌کنن', 'امروز موهات رو چطوری بستی هلیا؟', 'دلم می‌خواد برام تعریف کنی امروزت چطور بود هلیا', 'هلیا، بیرون چه هواییه؟ دلم پنجره می‌خواد', 'هلیا جان، من اینجام، هر وقت خواستی صدام کن', 'هلیا خانوم، امروز یه چیز خوشمزه خوردی؟ 🍰', 'هلیا جان، یه چرت کوچولو زدم و خواب تو رو دیدم 🐾', 'امروز چه رنگی پوشیدی هلیا؟ حتماً بهت میاد ✨', 'هلیا، می‌دونی الان دلم چی می‌خواد؟ اینکه تو بخندی 😊', 'هلیا جونم پاشو زنگ بزن به شرکتا 📞', 'هلیا جون عزیز دلم، حوصله داری یکم با هم زنگ بزنیم؟', 'قربون زاویه فکت برم، میشه بیای یه دو دقیقه بشینی چهارتا تماس بگیریم؟ 😻', 'چرا اون حرومزاده‌ها باید بازخواستت کنن؟ زنگ بزن به شرکتا و برا خودت کلاینت بگیر 💪', 'تو خونه کت نمی‌پوشم، راحتم 🐾', 'کتم سر کاره؛ پارسا برام خریده، خیلی دوسش دارم 😺'];
 var pmLastIdleLine = -1, pmIdleChatTimer = null;
 var pmRecentLines = [];
