@@ -576,9 +576,11 @@ function pmHappy(ms) {
     pmEarLoop();
   }, 4200 + Math.random() * 3800);
 })();
+function pmStoryActive() { return !!window.__pmStoryBusy || (window.__pmStoryUntil && Date.now() < window.__pmStoryUntil); }
 function pmStartIdle() {
   clearTimeout(pmIdleTimer);
   pmIdleTimer = setTimeout(function () {
+    if (pmStoryActive()) { pmStartIdle(); return; }
     pmSleeping = true;
     pm.classList.add('sleeping');
     pmBubble.classList.remove('show');
@@ -694,7 +696,7 @@ var chatView = document.getElementById('chatView');
 function pmScheduleIdleChat(delay) {
   clearTimeout(pmIdleChatTimer);
   pmIdleChatTimer = setTimeout(function () {
-    if (chatView.hidden && pm.classList.contains('in')) {
+    if (chatView.hidden && pm.classList.contains('in') && !pmStoryActive()) {
       if (pmSleeping) { pmSleeping = false; pm.classList.remove('sleeping'); }
       pmIdleAct();
       pmSay(pmPickIdleLine(), 7000);
@@ -819,6 +821,7 @@ function tellStory() {
     var reply = (res.j && res.j.reply) || '';
     if (reply) {
       var hold = Math.max(14000, Math.min(60000, reply.length * 130));
+      window.__pmStoryUntil = Date.now() + reply.length * 95 + 2000;
       pmSay(reply, hold);
     } else {
       pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
