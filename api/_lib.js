@@ -1232,7 +1232,9 @@ export async function handleChat(req, db, ai) {
   const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '') + (storyLogLine ? '\n\n' + storyLogLine : '') + (torLine ? '\n\n' + torLine : '') + (roomLine ? '\n\n' + roomLine : '') + (tehLine ? '\n\n' + tehLine : '');
   const call = typeof ai === 'function' ? ai : geminiChat;
   try {
-    let reply = String(await call(system, history)).trim();
+    let reply = '';
+    try { reply = String(await call(system, history)).trim(); } catch (e1) { reply = ''; }
+    if (!reply && story) { await new Promise((r) => setTimeout(r, 3500)); try { reply = String(await call(system, history)).trim(); } catch (e2) { reply = ''; } }
     if (!reply) throw new Error('empty reply');
     reply = reply.slice(0, 4000);
     if (!storyBubble) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'assistant', reply]);
