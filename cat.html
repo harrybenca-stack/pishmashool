@@ -179,15 +179,17 @@ body.chatting .pm-bubble{ display:none !important; }
 
 .room-floor{ position:fixed; left:0; right:0; bottom:0; height:24%; background:linear-gradient(180deg,#101B31 0%,#0A1120 30%); border-top:2px solid rgba(216,178,92,.14); z-index:0; pointer-events:none; }
 .room-rug-img{ position:fixed; left:50%; bottom:10.5%; transform:translateX(-50%) scaleY(.54); width:308px; height:308px; z-index:0; pointer-events:none; filter:drop-shadow(0 12px 16px rgba(0,0,0,.45)); }
-.room-lamp{ position:fixed; right:16px; bottom:calc(20mm + 52px); width:52px; height:172px; z-index:7; cursor:pointer; }
-.room-lamp .glow{ position:absolute; top:-22px; left:50%; transform:translateX(-50%); width:110px; height:110px; border-radius:50%; background:radial-gradient(circle, rgba(255,206,110,.34) 0%, rgba(255,206,110,0) 68%); transition:all .7s ease; }
-.room-lamp .shade{ position:absolute; top:0; left:50%; transform:translateX(-50%); width:50px; height:40px; background:linear-gradient(180deg,#FFE1A0,#F2A93B); clip-path:polygon(26% 0, 74% 0, 100% 100%, 0 100%); border-radius:4px; }
-.room-lamp .pole{ position:absolute; top:38px; left:50%; transform:translateX(-50%); width:4px; height:122px; background:#31456B; border-radius:2px; }
-.room-lamp .base{ position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:34px; height:8px; border-radius:50%; background:#31456B; }
+.room-switch{ position:fixed; right:14px; top:47%; width:37px; height:62px; z-index:7; cursor:pointer; background:linear-gradient(180deg,#F5EFE0,#E7DCC3); border-radius:9px; box-shadow:0 4px 12px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.7); }
+.room-switch::before, .room-switch::after{ content:''; position:absolute; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:#B07E2E; }
+.room-switch::before{ top:4px; }
+.room-switch::after{ bottom:4px; }
+.switch-rocker{ position:absolute; left:6px; right:6px; top:13px; bottom:17px; border-radius:5px; background:linear-gradient(180deg,#FFFDF6,#EFE6CF); box-shadow:0 2px 5px rgba(0,0,0,.35), inset 0 -3px 5px rgba(120,90,30,.25); transition:all .25s ease; }
+body.night .switch-rocker{ background:linear-gradient(0deg,#FFFDF6,#EFE6CF); box-shadow:0 -2px 5px rgba(0,0,0,.35), inset 0 3px 5px rgba(120,90,30,.28); }
+.switch-dot{ position:absolute; left:50%; transform:translateX(-50%); bottom:6px; width:5px; height:5px; border-radius:50%; background:rgba(120,90,30,.35); transition:all .4s ease; }
+body.night .switch-dot{ background:#FF9D3C; box-shadow:0 0 8px 2px rgba(255,157,60,.75); }
 .room-clock{ position:fixed; top:calc(env(safe-area-inset-top,0px) + 92px); right:16px; width:78px; height:78px; z-index:4; filter:drop-shadow(0 6px 14px rgba(0,0,0,.4)); pointer-events:none; }
-.room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 78% 60%, rgba(3,6,16,.16) 0%, rgba(3,6,16,.52) 52%, rgba(2,4,12,.82) 100%); }
+.room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 50% 45%, rgba(3,6,16,.22) 0%, rgba(3,6,16,.55) 55%, rgba(2,4,12,.84) 100%); }
 body.night .room-dim{ opacity:1; }
-body.night .room-lamp .glow{ width:170px; height:170px; top:-52px; background:radial-gradient(circle, rgba(255,210,120,.55) 0%, rgba(255,210,120,0) 70%); }
 header, .stage, .hint, .actions{ position:relative; z-index:2; }
 .to-clock{ text-align:center; font-size:15.5px; letter-spacing:3px; color:rgba(215,228,255,.62); margin-top:3px; font-variant-numeric:tabular-nums; }
 #pmBubble{ max-height:34dvh; overflow-y:auto; scrollbar-width:none; }
@@ -195,7 +197,7 @@ header, .stage, .hint, .actions{ position:relative; z-index:2; }
 </style>
 </head>
 <body>
-<div class="room-floor"></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-lamp" id="roomLamp" role="button" aria-label="چراغ خواب"><div class="glow"></div><div class="shade"></div><div class="pole"></div><div class="base"></div></div><div class="room-clock" aria-hidden="true"><svg viewBox="0 0 100 100" width="78" height="78"><circle cx="50" cy="50" r="47" fill="#F7EFDD" stroke="#B07E2E" stroke-width="4"/><circle cx="50" cy="50" r="40" fill="none" stroke="#8A6D3B" stroke-width="6" stroke-dasharray="2 18.94" opacity=".65"/><line id="clkH" x1="50" y1="50" x2="50" y2="29" stroke="#20304F" stroke-width="5.5" stroke-linecap="round"/><line id="clkM" x1="50" y1="50" x2="50" y2="19" stroke="#20304F" stroke-width="3.5" stroke-linecap="round"/><line id="clkS" x1="50" y1="57" x2="50" y2="15" stroke="#C0392B" stroke-width="1.6" stroke-linecap="round"/><circle cx="50" cy="50" r="3.6" fill="#B07E2E"/></svg></div><div class="room-dim"></div>
+<div class="room-floor"></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-switch" id="roomLamp" role="button" aria-label="کلید چراغ خواب"><div class="switch-rocker"></div><div class="switch-dot"></div></div><div class="room-clock" aria-hidden="true"><svg viewBox="0 0 100 100" width="78" height="78"><circle cx="50" cy="50" r="47" fill="#F7EFDD" stroke="#B07E2E" stroke-width="4"/><circle cx="50" cy="50" r="40" fill="none" stroke="#8A6D3B" stroke-width="6" stroke-dasharray="2 18.94" opacity=".65"/><line id="clkH" x1="50" y1="50" x2="50" y2="29" stroke="#20304F" stroke-width="5.5" stroke-linecap="round"/><line id="clkM" x1="50" y1="50" x2="50" y2="19" stroke="#20304F" stroke-width="3.5" stroke-linecap="round"/><line id="clkS" x1="50" y1="57" x2="50" y2="15" stroke="#C0392B" stroke-width="1.6" stroke-linecap="round"/><circle cx="50" cy="50" r="3.6" fill="#B07E2E"/></svg></div><div class="room-dim"></div>
 <div class="wall-frame" id="coupleFrame" role="button" aria-label="عکس پیش‌مشول و دوست‌دخترش"><img src="couple.webp" alt=""></div>
 <header>
   <h1>پیش‌مشول</h1>
