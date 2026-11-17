@@ -185,7 +185,6 @@ async function doInit(db) {
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_evidence TEXT');
-  try { await db.query("DELETE FROM chat_messages WHERE body LIKE '%تست کوچولو%' OR body LIKE '%آماده‌ی تستت%'"); } catch (e) {}
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
