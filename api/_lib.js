@@ -1209,7 +1209,7 @@ export async function handleChat(req, db, ai) {
   if (!story) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'user', message]);
   const hist = await db.query('SELECT role, body FROM chat_messages WHERE user_id = $1 ORDER BY id DESC LIMIT 24', [s.uid]);
   const history = hist.slice().reverse();
-  if (story) history.push({ role: 'user', body: 'پیش‌مشول، روی قابِ عکسِ تو و تودلس زدم؛ یه داستان تازه و کاملاً جدید از خودت و دوست‌دخترت برام تعریف کن.' });
+  if (story) history.push({ role: 'user', body: 'پیش‌مشول، روی قابِ عکسِ تو و تودلس زدم؛ یه داستان تازه و کاملاً جدید از خودت و دوست‌دخترت برام تعریف کن — کوتاه و یه‌جمله‌ای نگو؛ یه داستان کامل و چندجمله‌ای با اول و وسط و آخر تعریف کن.' });
   const today = String(b.today || (req.query && req.query.today) || '');
   const context = await buildWorkContext(db, s.uid, today);
   const memory = await buildMemoryContext(db, s.uid);
@@ -1239,8 +1239,10 @@ export async function handleChat(req, db, ai) {
     reply = reply.slice(0, 4000);
     if (!storyBubble) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'assistant', reply]);
   if (storyBubble) { try { await storyEnsure(db); await db.query('INSERT INTO cat_stories (user_id, body) VALUES ($1,$2)', [s.uid, reply.slice(0, 600)]); } catch (e) { /* best-effort */ } }
-    await maybeLearn(db, s.uid, call);
-    if (await poolEnsure(db)) { await poolSeed(db, s.uid); await poolRefill(db, s.uid, call); }
+    if (!story) {
+      await maybeLearn(db, s.uid, call);
+      if (await poolEnsure(db)) { await poolSeed(db, s.uid); await poolRefill(db, s.uid, call); }
+    }
     return { status: 200, json: { ok: true, reply } };
   } catch (e) {
     console.error('pm chat ai error:', e);

@@ -818,24 +818,40 @@ function tellStory() {
   if (window.__pmStoryBusy) return;
   window.__pmStoryBusy = true;
   pmSay('😻 صبر کن هلیا جان، بذار یه داستان از خودم و تودلسم برات تعریف کنم…', 60000);
-  api('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ story: true, bubble: true, today: chatToday(), place: 'home', room: !document.body.classList.contains('bare') })
-  }).then(function (res) {
-    window.__pmStoryBusy = false;
-    var reply = (res.j && res.j.reply) || '';
-    if (reply) {
-      var hold = Math.max(14000, Math.min(60000, reply.length * 130));
-      window.__pmStoryUntil = Date.now() + reply.length * 95 + 2000;
-      pmSay(reply, hold);
-    } else {
+  var watchdog = setTimeout(function () {
+    if (window.__pmStoryBusy) {
+      window.__pmStoryBusy = false;
       pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
     }
-  }).catch(function () {
-    window.__pmStoryBusy = false;
-    pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
-  });
+  }, 90000);
+  function attempt(n) {
+    api('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story: true, bubble: true, today: chatToday(), place: 'home', room: !document.body.classList.contains('bare') })
+    }).then(function (res) {
+      var reply = (res.j && res.j.ok === true && res.j.reply) || '';
+      if (reply) {
+        clearTimeout(watchdog);
+        window.__pmStoryBusy = false;
+        var hold = Math.max(14000, Math.min(60000, reply.length * 130));
+        window.__pmStoryUntil = Date.now() + reply.length * 95 + 2000;
+        pmSay(reply, hold);
+      } else if (n < 1) {
+        setTimeout(function () { attempt(n + 1); }, 4000);
+      } else {
+        clearTimeout(watchdog);
+        window.__pmStoryBusy = false;
+        pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
+      }
+    }).catch(function () {
+      if (n < 1) { setTimeout(function () { attempt(n + 1); }, 4000); return; }
+      clearTimeout(watchdog);
+      window.__pmStoryBusy = false;
+      pmSay('هلیا جان، الان داستانم یادم رفت 😿 یه بار دیگه روی قاب بزن 🐾', 7000);
+    });
+  }
+  attempt(0);
 }
 document.getElementById('coupleFrame').addEventListener('click', function () {
   pmJump('hop', 520);
