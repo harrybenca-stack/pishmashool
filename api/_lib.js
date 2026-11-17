@@ -185,10 +185,6 @@ async function doInit(db) {
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_evidence TEXT');
-  try { await db.query("UPDATE chat_messages SET body = REPLACE(body, 'سارا', 'پارسا') WHERE role = 'assistant' AND body LIKE '%سارا%'"); } catch (e) {}
-  try { await db.query("UPDATE cat_gen_lines SET line = REPLACE(line, 'سارا', 'پارسا') WHERE line LIKE '%سارا%'"); } catch (e) {}
-  try { await db.query("UPDATE cat_memory SET notes = REPLACE(notes, 'سارا', 'پارسا') WHERE notes LIKE '%سارا%'"); } catch (e) {}
-  try { await db.query("UPDATE cat_memory SET panel_lines = REPLACE(panel_lines, 'سارا', 'پارسا') WHERE panel_lines LIKE '%سارا%'"); } catch (e) {}
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
