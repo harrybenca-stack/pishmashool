@@ -1135,7 +1135,7 @@ async function poolRefill(db, uid, call) {
     const pending = await poolCount(db, uid);
     if (pending < 0 || pending >= 6) return;
     const now = Date.now();
-    if (poolRefillAt[uid] && now - poolRefillAt[uid] < 90000) return;
+    if (poolRefillAt[uid] && now - poolRefillAt[uid] < 600000) return;
     poolRefillAt[uid] = now;
     const mem = await db.query('SELECT notes FROM cat_memory WHERE user_id = $1', [uid]);
     const notes = mem.length ? String(mem[0].notes || '').trim() : '';
@@ -1183,7 +1183,7 @@ export async function handleNextLine(req, db, ai) {
         line = await pop();
       } else {
         const left = await poolCount(db, s.uid);
-        if (left >= 0 && left < 6) await poolRefill(db, s.uid, call);
+        if (left >= 0 && left < 3) await poolRefill(db, s.uid, call);
       }
     }
   } catch (e) {
