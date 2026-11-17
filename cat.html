@@ -191,6 +191,7 @@ body.night .switch-dot{ background:#FF9D3C; box-shadow:0 0 8px 2px rgba(255,157,
 .room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 50% 45%, rgba(3,6,16,.22) 0%, rgba(3,6,16,.55) 55%, rgba(2,4,12,.84) 100%); }
 body.night .room-dim{ opacity:1; }
 header, .stage, .hint, .actions{ position:relative; z-index:2; }
+body.bare .room-floor, body.bare .room-rug-img, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
 .to-clock{ text-align:center; font-size:15.5px; letter-spacing:3px; color:rgba(215,228,255,.62); margin-top:3px; font-variant-numeric:tabular-nums; }
 #pmBubble{ max-height:34dvh; overflow-y:auto; scrollbar-width:none; }
 #pmBubble::-webkit-scrollbar{ display:none; }
@@ -396,7 +397,7 @@ header, .stage, .hint, .actions{ position:relative; z-index:2; }
 <p class="hint">رو گربه بزن — باهات حرف می‌زنه</p>
 <div class="actions">
   <button class="blue" id="btnChat" type="button">💬 گپ بزن</button>
-  <button id="btnFish" type="button">🐟 ماهی بده</button>
+  <button id="btnMode" type="button">🧹 حالت خلوت</button>
   <a class="act glass" href="/">💼 پنل کاری</a>
 </div>
 
@@ -685,31 +686,20 @@ document.getElementById('pmBubbleClose').addEventListener('click', function () {
   pmStopTalk();
 });
 
-// ---------- ماهی ----------
-var fishLines = ['ماهی!! 😻 هلیا جان تو بهترینی', 'نوم نوم… ماهی تازه بود، عاشقشم 🐟', 'ماهی دادی، حالا یه راز کوچولو هم می‌گم… 😼'];
-var fishIdx = 0;
-document.getElementById('btnFish').addEventListener('click', function () {
-  var fish = document.getElementById('fishFly');
-  var r = pmCat.getBoundingClientRect();
-  fish.style.transition = 'none';
-  fish.style.left = (window.innerWidth / 2 - 20) + 'px';
-  fish.style.top = (window.innerHeight - 130) + 'px';
-  fish.style.opacity = '1';
-  fish.style.transform = '';
-  requestAnimationFrame(function () {
-    fish.style.transition = 'all .8s cubic-bezier(.3,.7,.4,1)';
-    fish.style.left = (r.left + r.width / 2 - 20) + 'px';
-    fish.style.top = (r.top + 6) + 'px';
-    fish.style.transform = 'rotate(-30deg) scale(.7)';
-  });
-  setTimeout(function () {
-    fish.style.opacity = '0';
-    pmJump('celebrate', 900);
-    pmBurst(['♥', '💗', '♥', '✦']);
-    pmHappy(1500);
-    pmSay(fishLines[fishIdx % fishLines.length], 6000);
-    fishIdx++;
-  }, 850);
+// ---------- حالت خلوت / اتاق ----------
+var btnMode = document.getElementById('btnMode');
+btnMode.addEventListener('click', function () {
+  var bare = document.body.classList.toggle('bare');
+  if (bare) {
+    if (document.body.classList.contains('night')) { document.body.classList.remove('night'); pmWake(); pmStartIdle(); }
+    btnMode.textContent = '🛋️ برگرد به اتاق';
+    pmJump('hop', 450);
+    pmSay('اتاقم خلوت شد… چه ساده و آروم 🐾', 6000);
+  } else {
+    btnMode.textContent = '🧹 حالت خلوت';
+    pmJump('celebrate', 700);
+    pmSay('آخ جون! اتاقم برگشت — فرشم، ساعتم، قابِ تودلسم 😻', 6000);
+  }
 });
 
 // ---------- گپ (واقعی، همون مغز پنل) ----------
@@ -770,7 +760,7 @@ function tellStory() {
   api('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ story: true, bubble: true, today: chatToday(), place: 'home' })
+    body: JSON.stringify({ story: true, bubble: true, today: chatToday(), place: 'home', room: !document.body.classList.contains('bare') })
   }).then(function (res) {
     window.__pmStoryBusy = false;
     var reply = (res.j && res.j.reply) || '';
@@ -806,7 +796,7 @@ chatForm.addEventListener('submit', function (e) {
   api('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: text, today: chatToday(), place: 'home' }),
+    body: JSON.stringify({ message: text, today: chatToday(), place: 'home', room: !document.body.classList.contains('bare') }),
     signal: chatCtrl ? chatCtrl.signal : undefined
   }).then(function (res) {
     if (chatTimer) clearTimeout(chatTimer);
