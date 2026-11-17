@@ -62,6 +62,8 @@ header p{ margin:6px 0 0; color:#a5b0c6; font-size:14px; }
 @keyframes pmHop { 0% { transform: translateY(0); } 40% { transform: translateY(-14px); } 100% { transform: translateY(0); } }
 .pm svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 1.6px rgba(146, 72, 6, .5)) drop-shadow(0 3px 4px rgba(20, 28, 48, .16)); }
 .pm.sleeping #pmHead { transform: rotate(-8deg) translateY(5px); }
+.pm .pm-pj, .pm .pm-cap{ display:none; }
+.pm.sleeping .pm-pj, .pm.sleeping .pm-cap{ display:block; }
 .pm.tilting #pmHead { transform: rotate(7deg); }
 .pm.nodding #pmHead { animation: pmNod .5s ease-in-out 2; }
 @keyframes pmNod { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(3deg) translateY(3px); } }
@@ -369,6 +371,18 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .wall-frame, body.bare
                   <path d="M189 108 Q167 110 147 111" />
                   <path d="M186 122 Q166 119 148 116" />
                 </g>
+                <g class="pm-cap">
+                  <clipPath id="pmCapClip"><path d="M54 60 Q44 34 30 40 Q20 44 24 52 Q27 58 36 55 L52 44 Q100 26 148 44 L146 60 Q100 44 54 60 Z" /></clipPath>
+                  <path d="M54 60 Q44 34 30 40 Q20 44 24 52 Q27 58 36 55 L52 44 Q100 26 148 44 L146 60 Q100 44 54 60 Z" fill="#F6EFDD" />
+                  <g clip-path="url(#pmCapClip)">
+                    <path d="M10 40 L160 30 L160 40 L10 50 Z" fill="#7FB3CE" />
+                    <path d="M10 54 L160 44 L160 52 L10 62 Z" fill="#7FB3CE" />
+                  </g>
+                  <path d="M54 60 Q100 44 146 60 L148 46 Q100 28 52 46 Z" fill="none" stroke="#5B8DB0" stroke-width="2" opacity=".55" />
+                  <circle cx="27" cy="47" r="8" fill="#FFF7E8" />
+                  <circle cx="22" cy="42" r="4.5" fill="#FFF7E8" />
+                  <circle cx="32" cy="42" r="4.5" fill="#FFF7E8" />
+                </g>
               </g>
               <ellipse cx="100" cy="153" rx="30" ry="6" fill="#D97E22" opacity=".22" />
               <polygon points="100,150 73,142 84,169" fill="url(#pmCollar)" />
@@ -386,6 +400,22 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .wall-frame, body.bare
                 <g transform="translate(22 54)"><path class="pm-spark" fill="#FFC93D" d="M0 -8 C1.6 -2.2 2.2 -1.6 8 0 C2.2 1.6 1.6 2.2 0 8 C-1.6 2.2 -2.2 1.6 -8 0 C-2.2 -1.6 -1.6 -2.2 0 -8 Z" /></g>
                 <g transform="translate(180 40) scale(.8)"><path class="pm-spark d2" fill="#F28BB4" d="M0 -8 C1.6 -2.2 2.2 -1.6 8 0 C2.2 1.6 1.6 2.2 0 8 C-1.6 2.2 -2.2 1.6 -8 0 C-2.2 -1.6 -1.6 -2.2 0 -8 Z" /></g>
                 <g transform="translate(188 100) scale(.65)"><path class="pm-spark d3" fill="#FFC93D" d="M0 -8 C1.6 -2.2 2.2 -1.6 8 0 C2.2 1.6 1.6 2.2 0 8 C-1.6 2.2 -2.2 1.6 -8 0 C-2.2 -1.6 -1.6 -2.2 0 -8 Z" /></g>
+              </g>
+              <g class="pm-pj">
+                <clipPath id="pmPjClip"><path d="M64 146 Q100 136 136 146 L141 194 Q139 207 125 208 L75 208 Q61 207 59 194 Z" /></clipPath>
+                <path d="M64 146 Q100 136 136 146 L141 194 Q139 207 125 208 L75 208 Q61 207 59 194 Z" fill="#F6EFDD" />
+                <g clip-path="url(#pmPjClip)">
+                  <rect x="55" y="156" width="90" height="9" fill="#7FB3CE" />
+                  <rect x="55" y="173" width="90" height="9" fill="#7FB3CE" />
+                  <rect x="55" y="190" width="90" height="9" fill="#7FB3CE" />
+                </g>
+                <path d="M64 146 Q100 136 136 146 L141 194 Q139 207 125 208 L75 208 Q61 207 59 194 Z" fill="none" stroke="#5B8DB0" stroke-width="2" opacity=".45" />
+                <polygon points="100,142 82,144 96,160" fill="#A8CCE0" />
+                <polygon points="100,142 118,144 104,160" fill="#A8CCE0" />
+                <line x1="100" y1="158" x2="100" y2="206" stroke="#5B8DB0" stroke-width="2" opacity=".5" />
+                <circle cx="100" cy="168" r="2.4" fill="#5B8DB0" />
+                <circle cx="100" cy="183" r="2.4" fill="#5B8DB0" />
+                <circle cx="100" cy="198" r="2.4" fill="#5B8DB0" />
               </g>
             </svg>
           </span>
