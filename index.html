@@ -1246,7 +1246,8 @@
           }, 150);
           pmTalkStop = setTimeout(pmStopTalk, Math.min(2600, Math.max(750, words.length * 230)));
           clearTimeout(pmHideTimer);
-          pmHideTimer = setTimeout(function () { pmBubble.classList.remove('show'); }, hold || 5600);
+          var pmReadMs = Math.min(75000, Math.max(hold || 0, 4500 + text.length * 62));
+          pmHideTimer = setTimeout(function () { pmBubble.classList.remove('show'); }, 60 + words.length * 70 + pmReadMs);
         }
         function pmBurst(chars, n) {
           var count = n || 8;

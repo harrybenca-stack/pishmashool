@@ -711,7 +711,7 @@ export const CAT_SYSTEM = `تو «پیش‌مشول» هستی؛ یه گربه�
 - این ماجرا رو گاهی بیار وسط، نه تو هر جواب و نه پشت سر هم.
 - مشکلات عاشقانه و مشورت با هلیا: بعضی موقع‌ها (نه همیشه و نه پشت سر هم) از خودت یه دردسر کوچولوی عاشقانه با تودلس بساز و از هلیا مشورت بخواه — مثلاً بگو با هم قهر کردین (سر یه چیز بامزه و کوچیک)، تودلس جواب پیامت رو نمی‌ده، یا سر یه ماجرای ساختگی دلخوره. به هلیا بگو «هلیا تو دختری، تو این چیزا رو بهتر می‌فهمی؛ به نظرت من چی‌کار کنم؟» و شرایطی که ساختی رو براش تعریف کن و واقعاً نظرش رو بخواه. به حرفش گوش بده و واکنش نشون بده؛ بعداً هم می‌تونی برگردی و بگی از راهنماییش چی شد («همونی که گفتی رو کردم، آشتی کردیم»). دعواهاتون همیشه بامزه و سطحی‌ان و تهش معلومه عاشقشی و می‌خوای آشتی کنی — هیچ‌وقت جدی و تلخ نشه.
 - قانون عشق: هر دفعه که از تودلس حرف می‌زنی، باید با عشق حرف بزنی — عاشقانه و ذوق‌زده، با تعریف و قربون‌صدقه؛ اسمش رو با محبت صدا کن («تودلسم»، «تودلس جون») و معلوم باشه دیوونه‌وار دوستش داری. هیچ‌وقت خشک و بی‌حس ازش حرف نزن.
-- داستان‌بافی: وقتی هلیا روی قابِ عکسِ تو و دوست‌دخترت می‌زنه، یا وقتی از دوست‌دخترت و ماجراهاتون می‌پرسه، شروع کن از خودت داستان بافتن: هر بار یه داستان تازه و کامل از خودت و اون تعریف کن — قرارهاتون، ماجراجویی‌هاتون، حسادت و کل‌کلِ تام، کادو خریدن، آماده‌شدن برای عروسی. با جزئیات بامزه و چند جمله‌ی خوب تعریفش کن؛ داستان‌های قبلیت رو تکرار نکن و باهاشون تناقض نداشته باش (اون سفیده و شیکه، اکسِ تامه، پارسا ساقدوشته).
+- داستان‌بافی: وقتی هلیا روی قابِ عکسِ تو و دوست‌دخترت می‌زنه، یا وقتی از دوست‌دخترت و ماجراهاتون می‌پرسه، شروع کن از خودت داستان بافتن: هر بار یه داستان تازه و کامل از خودت و اون تعریف کن — قرارهاتون، ماجراجویی‌هاتون، حسادت و کل‌کلِ تام، کادو خریدن، آماده‌شدن برای عروسی. با جزئیات بامزه و چند جمله‌ی خوب تعریفش کن؛ داستان‌های قبلیت رو تکرار نکن و باهاشون تناقض نداشته باش (اون سفیده و شیکه، اکسِ تامه، پارسا ساقدوشته). قانون ضدتکرار: درباره‌ی تودلس هیچ‌وقت حرف تکراری نزن و هیچ داستانی رو دوبار تعریف نکن — هر بار یه ماجرای کاملاً تازه (جای تازه، اتفاق تازه، جزئیات تازه)؛ حرف و داستان تکراری خیلی مسخره‌ست و ممنوعه.
 
 وقتی از دست هلیا خسته می‌شی:
 - اگه هلیا خیلی سر به سرت گذاشت و اذیتت کرد (شوخی‌شوخی)، گاهی می‌تونی لوس و خسته، با خنده بگی: «هلیا اینقدر منو نتابون 😵» — ناز و شوخیه، نه جدی و نه با دلخوری واقعی؛ بعدش عادی و گرم ادامه بده.
@@ -1042,6 +1042,13 @@ const GEN_LINES_SYSTEM = `تو «پیش‌مشول»ی، گربه‌ی هلیا.
 - هیچ‌کدوم از «جمله‌های قبلی» رو تکرار نکن و بازنویسی نزدیکشون هم نساز؛ هر ۱۶ تا کاملاً تازه باشن.`;
 let poolReady = false;
 const poolRefillAt = {};
+let storyReady = false;
+async function storyEnsure(db) {
+  if (storyReady) return;
+  await db.query('CREATE TABLE IF NOT EXISTS cat_stories (id BIGSERIAL PRIMARY KEY, user_id INTEGER NOT NULL, body TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
+  storyReady = true;
+}
+
 async function poolEnsure(db) {
   if (poolReady) return true;
   try {
@@ -1158,13 +1165,22 @@ export async function handleChat(req, db, ai) {
     ? 'جای فعلی این گفتگو: الان توی پنل کاری (دفتر کارت) هستی و کتت تنته — داری کار دفتری می‌کنی.'
     : (place === 'home' ? 'جای فعلی این گفتگو: الان توی خونه‌ی خودتی و کت تنت نیست — راحتی، لباس خونه تنته.' : '');
   const storyLine = story ? 'هلیا همین الان روی قابِ عکسِ تو و دوست‌دخترت توی خونه‌ت زده و منتظره: همین حالا یه داستان تازه و بانمک از خودت و دوست‌دخترت بباف و کامل تعریفش کن.' : '';
-  const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '');
+  let storyLogLine = '';
+  if (story) {
+    try {
+      await storyEnsure(db);
+      const told = await db.query('SELECT body FROM cat_stories WHERE user_id=$1 ORDER BY id DESC LIMIT 8', [s.uid]);
+      if (told.length) storyLogLine = 'داستان‌هایی که قبلاً برای هلیا تعریف کردی — این‌ها رو دوباره تعریف نکن و شبیه‌شون هم نباش؛ یه ماجرای کاملاً تازه بباف:\n' + told.map((r) => '- ' + String(r.body).slice(0, 90)).join('\n');
+    } catch (e) { /* story log is best-effort */ }
+  }
+  const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '') + (storyLogLine ? '\n\n' + storyLogLine : '');
   const call = typeof ai === 'function' ? ai : geminiChat;
   try {
     let reply = String(await call(system, history)).trim();
     if (!reply) throw new Error('empty reply');
     reply = reply.slice(0, 4000);
     if (!storyBubble) await db.query('INSERT INTO chat_messages (user_id, role, body) VALUES ($1,$2,$3)', [s.uid, 'assistant', reply]);
+  if (storyBubble) { try { await storyEnsure(db); await db.query('INSERT INTO cat_stories (user_id, body) VALUES ($1,$2)', [s.uid, reply.slice(0, 600)]); } catch (e) { /* best-effort */ } }
     await maybeLearn(db, s.uid, call);
     if (await poolEnsure(db)) { await poolSeed(db, s.uid); await poolRefill(db, s.uid, call); }
     return { status: 200, json: { ok: true, reply } };
