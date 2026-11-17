@@ -678,12 +678,31 @@ function pmScheduleIdleChat(delay) {
 });
 pmScheduleIdleChat(20000);
 var pmLines = ['میو! اینجام هلیا', 'میو! اینجام هلیا جان', 'بگو چیکار کنم برات؟', 'امروز قراره کلی مشتری بگیریم!', 'میو میو! چه خبر هلیا؟', 'سلام هلیا خانوم! چه خبر؟', 'من اینجام هلیا، خیالت راحت'];
+var pmMorningLines = ['سلام هلیا جون! خوب خوابیدی؟ 😻', 'صبح بخیر هلیا جان! دیشب خوب خوابیدی؟ خوابای قشنگ دیدی؟ 🌅', 'هلیا جون، صبح شده! خوب استراحت کردی؟ 🐾', 'سلام سلام هلیا خانوم! چشاتو باز کردی؟ خوب خوابیدی دیشب؟ ☀️', 'صبح بخیر عزیزم! خوابت چطور بود؟ 😺', 'هلیا جون بیدار شدی! دیشب زود خوابیدی یا دیر؟ 🌄', 'صبح بخیر هلیا! امیدوارم دیشب راحت و آروم خوابیده باشی 😻', 'سلام هلیا جون! سرحالی؟ خوب خوابیدی؟ 🐾'];
+function pmTehranNow() {
+  try {
+    var parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', hour: '2-digit', hour12: false, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date());
+    var o = {};
+    parts.forEach(function (pt) { o[pt.type] = pt.value; });
+    return { h: parseInt(o.hour, 10) % 24, key: o.year + '-' + o.month + '-' + o.day };
+  } catch (e) { return null; }
+}
+function pmMorningOnce() {
+  var t = pmTehranNow();
+  if (!t || t.h < 6 || t.h >= 8) return null;
+  try {
+    if (localStorage.getItem('pmMorningGreet') === t.key) return null;
+    localStorage.setItem('pmMorningGreet', t.key);
+  } catch (e) { return null; }
+  return pmMorningLines[Math.floor(Math.random() * pmMorningLines.length)];
+}
 pmCat.addEventListener('click', function () {
   if (Date.now() - pmWokeAt < 450) return;
   pmJump('jump', 620);
   pmBurst(['♥', '✦', '★', '♥']);
   pmHappy(1300);
-  pmSay(pmPickIdleLine(pmLines));
+  var morningLine = pmMorningOnce();
+  pmSay(morningLine || pmPickIdleLine(pmLines));
 });
 document.getElementById('pmBubbleClose').addEventListener('click', function () {
   pmBubble.classList.remove('show');
@@ -822,7 +841,7 @@ api('/api/state').then(function (res) {
   if (!res.ok) { location.replace('/'); return; }
   window.__pmCatLines = res.j.cat_lines || [];
   window.__pmSlots = res.j.cat_slots || {};
-  setTimeout(function () { pmSay('سلام هلیا جان! به خونه‌ی خودم خوش اومدی 🐾', 7000); }, 500);
+  setTimeout(function () { var ml = pmMorningOnce(); pmSay(ml || 'سلام هلیا جان! به خونه‌ی خودم خوش اومدی 🐾', 7000); }, 500);
 });
 </script>
 </body>

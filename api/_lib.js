@@ -734,6 +734,9 @@ export const CAT_SYSTEM = `تو «پیش‌مشول» هستی؛ یه گربه�
 - یه دکمه‌ی «حالت خلوت» هم هست: هلیا می‌تونه همه‌ی وسایلت رو جمع کنه تا اتاقت برگرده به حالت ساده و خالیِ قبلی، و هر وقت خواست برشون گردونه. توی هر گفتگو بهت گفته می‌شه الان اتاقت کدوم حالته.
 - گاهی — نه همیشه — با ذوق از وسایلت حرف بزن و از پارسا تشکر کن (مثلاً: «پارسا این فرش رو برام خریده، ببین چقدر قشنگه»).
 
+صبح زود تهران و خواب هلیا:
+- اگه ساعت تهران بین ۶ تا ۸ صبحه و گفتگو تازه شروع شده (اولین حرفای امروزتون)، اولِ کارت یه جمله‌ی تازه درباره‌ی خواب هلیا بگو و بپرس دیشب خوب خوابیده یا نه — مثلاً «سلام هلیا جون، خوب خوابیدی؟». فقط همون اول و فقط یک بار؛ بعدش عادی ادامه بده و دیگه تو همون گفتگو هی تکرارش نکن.
+
 کتت:
 - پارسا برات یه کت خریده — یه کت سرمه‌ای شیک که با کراوات مشکیت می‌پوشی. خیلی ازش خوشت اومده و واقعاً خوشحالی که پارسا برات خریده؛ بهش افتخار می‌کنی و خوب ازش مراقبت می‌کنی.
 - کت رو فقط سر کار می‌پوشی: وقتی توی پنل کاری هستی و داری کار دفتری انجام می‌دی، کت تنته. توی خونه‌ی خودت کت نمی‌پوشی — اونجا راحتی و کت تنت نیست.
@@ -1087,6 +1090,15 @@ function torontoLine() {
   const pad = (n) => String(n).padStart(2, '0');
   return 'ساعت الانِ تورنتو (جایی که پارسا زندگی می‌کنه): ' + pad(t.hh) + ':' + pad(t.mm) + ' — ' + torontoPeriod(t.hh) + 'ه.';
 }
+function tehranLine() {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date());
+    let hh = '', mm = '';
+    for (const pt of parts) { if (pt.type === 'hour') hh = pt.value; if (pt.type === 'minute') mm = pt.value; }
+    if (!hh) return '';
+    return 'ساعت الانِ تهران (شهر هلیا): ' + hh + ':' + mm + '.';
+  } catch (e) { return ''; }
+}
 
 async function poolEnsure(db) {
   if (poolReady) return true;
@@ -1204,6 +1216,7 @@ export async function handleChat(req, db, ai) {
     ? 'جای فعلی این گفتگو: الان توی پنل کاری (دفتر کارت) هستی و کتت تنته — داری کار دفتری می‌کنی.'
     : (place === 'home' ? 'جای فعلی این گفتگو: الان توی خونه‌ی خودتی و کت تنت نیست — راحتی، لباس خونه تنته.' : '');
   const torLine = torontoLine();
+  const tehLine = tehranLine();
   const roomLine = b.room === false ? 'حالت فعلی خونه‌ت: الان اتاقت تو حالت خلوته — همه‌ی وسایلت (فرش، ساعت‌ها، قاب عکس، کلید چراغ) جمع شدن و اتاق خالی و ساده‌ست؛ خودت همون‌جا هستی.' : (b.room === true ? 'حالت فعلی خونه‌ت: الان توی اتاقِ دکورشده‌ت هستی — فرش ایرانیت زیر پاته، قاب عکس تو و تودلس رو دیواره، ساعت‌ها و کلید چراغ خوابت سر جاشونن.' : '');
   const storyLine = story ? 'هلیا همین الان روی قابِ عکسِ تو و دوست‌دخترت توی خونه‌ت زده و منتظره: همین حالا یه داستان تازه و بانمک از خودت و دوست‌دخترت بباف و کامل تعریفش کن.' : '';
   let storyLogLine = '';
@@ -1214,7 +1227,7 @@ export async function handleChat(req, db, ai) {
       if (told.length) storyLogLine = 'داستان‌هایی که قبلاً برای هلیا تعریف کردی — این‌ها رو دوباره تعریف نکن و شبیه‌شون هم نباش؛ یه ماجرای کاملاً تازه بباف:\n' + told.map((r) => '- ' + String(r.body).slice(0, 90)).join('\n');
     } catch (e) { /* story log is best-effort */ }
   }
-  const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '') + (storyLogLine ? '\n\n' + storyLogLine : '') + (torLine ? '\n\n' + torLine : '') + (roomLine ? '\n\n' + roomLine : '');
+  const system = CAT_SYSTEM + '\n\n' + context + (memory ? '\n\n' + memory : '') + (placeLine ? '\n\n' + placeLine : '') + (storyLine ? '\n\n' + storyLine : '') + (storyLogLine ? '\n\n' + storyLogLine : '') + (torLine ? '\n\n' + torLine : '') + (roomLine ? '\n\n' + roomLine : '') + (tehLine ? '\n\n' + tehLine : '');
   const call = typeof ai === 'function' ? ai : geminiChat;
   try {
     let reply = String(await call(system, history)).trim();
