@@ -185,6 +185,7 @@ async function doInit(db) {
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_status TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_reason TEXT');
   await db.query('ALTER TABLE companies ADD COLUMN IF NOT EXISTS act_evidence TEXT');
+    try { await db.query("UPDATE user_company SET source = 'manual' WHERE company_id IN (SELECT id FROM companies WHERE phone_source = 'ثبت دستی توسط هلیا' OR national_id LIKE 'manual-%')"); } catch (e) { /* بک‌فیل پلن B */ }
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS slots TEXT');
   await db.query('ALTER TABLE cat_memory ADD COLUMN IF NOT EXISTS panel_lines TEXT');
   await db.query(`CREATE TABLE IF NOT EXISTS user_company (
