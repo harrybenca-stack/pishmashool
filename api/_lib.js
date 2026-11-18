@@ -286,6 +286,7 @@ function shapeCompany(row, logs) {
     rasmio_url: row.rasmio_url,
     reason: row.reason,
     status: row.status,
+    source: row.source || 'hunt',
     batch_no: row.batch_no,
     reject_reason: row.reject_reason || null,
     released_at: row.released_at,
@@ -300,8 +301,46 @@ const RELEASED_SQL = `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.r
 const LOGS_SQL = `SELECT id, company_id, note, follow_up_date, created_at FROM call_logs
   WHERE user_id = $1 ORDER BY created_at DESC, id DESC`;
 
-async function loadState(db, userId, todayStr) {
-  const rows = await db.query(RELEASED_SQL, [userId]);
+const RELEASED_SQL_MAIN = `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.released_at, uc.source
+  FROM user_company uc JOIN companies c ON c.id = uc.company_id
+  WHERE uc.user_id = $1 AND COALESCE(uc.source, 'hunt') <> 'manual' ORDER BY (CASE WHEN c.phone IS NULL OR c.phone = '' THEN 1 ELSE 0 END), c.sort_order`;
+const RELEASED_SQL_PLANB = `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.released_at, uc.source
+  FROM user_company uc JOIN companies c ON c.id = uc.company_id
+  WHERE uc.user_id = $1 AND COALESCE(uc.source, 'hunt') = 'manual' ORDER BY (CASE WHEN c.phone IS NULL OR c.phone = '' THEN 1 ELSE 0 END), c.sort_order`;
+
+// ---------- پلن B: قفل رمز + جدا بودن شرکت‌های دستی ----------
+let planbReady = false;
+async function ensurePlanB(db) {
+  if (planbReady) return true;
+  try {
+    await db.query('CREATE TABLE IF NOT EXISTS planb_auth (user_id INT PRIMARY KEY, pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
+    await db.query("ALTER TABLE user_company ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'hunt'");
+    planbReady = true;
+  } catch (e) { /* پلن B نبود هم بقیه‌ی پنل کار می‌کنه */ }
+  return planbReady;
+}
+function signPbToken(uid) {
+  const payload = Buffer.from(JSON.stringify({ uid, exp: Date.now() + 12 * 3600 * 1000 })).toString('base64url');
+  const sig = crypto.createHmac('sha256', sessionSecret()).update('pb.' + payload).digest('base64url');
+  return payload + '.' + sig;
+}
+function readPbToken(token, uid) {
+  try {
+    const parts = String(token || '').split('.');
+    if (parts.length !== 2) return false;
+    const expected = crypto.createHmac('sha256', sessionSecret()).update('pb.' + parts[0]).digest('base64url');
+    const a = Buffer.from(parts[1]); const b = Buffer.from(expected);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
+    const data = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
+    return data.uid === uid && data.exp > Date.now();
+  } catch (e) { return false; }
+}
+const pbFails = new Map();
+
+
+async function loadState(db, userId, todayStr, scope) {
+  const sql = !planbReady || scope === 'all' ? RELEASED_SQL : scope === 'planb' ? RELEASED_SQL_PLANB : RELEASED_SQL_MAIN;
+  const rows = await db.query(sql, [userId]);
   const logs = await db.query(LOGS_SQL, [userId]);
   const byCompany = new Map();
   for (const l of logs) {
@@ -367,6 +406,7 @@ export async function handleState(req, db) {
   const s = requireAuth(req);
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
   await ensureInit(db);
+  await ensurePlanB(db);
   const today = (req.query && req.query.today) || '';
   const st = await loadState(db, s.uid, today);
   let catSlots = {};
@@ -381,15 +421,20 @@ export async function handleState(req, db) {
     if (mr.length && mr[0].slots) catSlots = JSON.parse(mr[0].slots) || {};
     if (mr.length && mr[0].panel_lines) { try { const pl = JSON.parse(mr[0].panel_lines); if (Array.isArray(pl)) catLines = pl; } catch (e) { /* ignore */ } }
   } catch (e) { catSlots = {}; }
+  await mergeExtras(db, s.uid, st.companies);
+  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines, cat_pending: catPending, learn_every: LEARN_EVERY, gen_pending: await poolCount(db, s.uid) } };
+}
+
+async function mergeExtras(db, uid, companies) {
   try {
     if (await ensureUserExtras(db)) {
-      const ups = await db.query('SELECT id, company_id, phone FROM user_phones WHERE user_id = $1 ORDER BY id', [s.uid]);
-      const uns = await db.query('SELECT company_id, note, remind_date FROM user_notes WHERE user_id = $1', [s.uid]);
+      const ups = await db.query('SELECT id, company_id, phone FROM user_phones WHERE user_id = $1 ORDER BY id', [uid]);
+      const uns = await db.query('SELECT company_id, note, remind_date FROM user_notes WHERE user_id = $1', [uid]);
       const byCo = {};
       for (const r of ups) (byCo[r.company_id] = byCo[r.company_id] || []).push(r);
       const noteByCo = {};
       for (const r of uns) noteByCo[r.company_id] = r;
-      for (const c of st.companies) {
+      for (const c of companies) {
         const mine = (byCo[c.id] || []).map((r) => {
           const parsed = parsePhones(r.phone);
           return { id: r.id, display: parsed.length ? parsed[0].display : r.phone, tel: parsed.length ? parsed[0].tel : enDigits(String(r.phone)).replace(/[^\d]/g, '') };
@@ -401,7 +446,6 @@ export async function handleState(req, db) {
       }
     }
   } catch (e) { /* امکانات دستی نبود هم استیت کامل برمی‌گرده */ }
-  return { status: 200, json: { ok: true, user: { username: s.username }, ...st, cat_slots: catSlots, cat_lines: catLines, cat_pending: catPending, learn_every: LEARN_EVERY, gen_pending: await poolCount(db, s.uid) } };
 }
 
 export async function handleHunt(req, db) {
@@ -409,9 +453,10 @@ export async function handleHunt(req, db) {
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
   if (req.method !== 'POST') return { status: 405, json: { ok: false } };
   await ensureInit(db);
+  await ensurePlanB(db);
   const unacted = await db.query(
     `SELECT c.name FROM user_company uc JOIN companies c ON c.id = uc.company_id
-     WHERE uc.user_id = $1 AND uc.status = 'new' ORDER BY c.sort_order`,
+     WHERE uc.user_id = $1 AND uc.status = 'new' AND COALESCE(uc.source, 'hunt') <> 'manual' ORDER BY c.sort_order`,
     [s.uid]
   );
   if (unacted.length) {
@@ -448,6 +493,7 @@ export async function handleAdd(req, db) {
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
   if (req.method !== 'POST') return { status: 405, json: { ok: false } };
   await ensureInit(db);
+  const pbReady = await ensurePlanB(db);
   const b = bodyOf(req);
   const clean = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
   const name = clean(b.name, 200);
@@ -473,7 +519,7 @@ export async function handleAdd(req, db) {
         const link = await db.query('SELECT status FROM user_company WHERE user_id = $1 AND company_id = $2', [s.uid, cid]);
         if (link.length) return { status: 409, json: { ok: false, error: 'already_have' } };
         const mb = await db.query('SELECT COALESCE(MAX(batch_no), 1) AS b FROM user_company WHERE user_id = $1', [s.uid]);
-        await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', [s.uid, cid, mb[0].b, 'new']);
+        await db.query(pbReady ? 'INSERT INTO user_company (user_id, company_id, batch_no, status, source) VALUES ($1,$2,$3,$4,$5)' : 'INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', pbReady ? [s.uid, cid, mb[0].b, 'new', 'manual'] : [s.uid, cid, mb[0].b, 'new']);
         return { status: 200, json: { ok: true, id: cid, found: true } };
       }
     }
@@ -486,7 +532,7 @@ export async function handleAdd(req, db) {
     );
     const row = await db.query('SELECT id FROM companies WHERE national_id = $1', [nid]);
     const cid = row[0].id;
-    await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', [s.uid, cid, mb[0].b, 'new']);
+    await db.query(pbReady ? 'INSERT INTO user_company (user_id, company_id, batch_no, status, source) VALUES ($1,$2,$3,$4,$5)' : 'INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', pbReady ? [s.uid, cid, mb[0].b, 'new', 'manual'] : [s.uid, cid, mb[0].b, 'new']);
     return { status: 200, json: { ok: true, id: cid } };
   } catch (e) {
     console.error('pm add error:', e);
@@ -494,6 +540,51 @@ export async function handleAdd(req, db) {
   }
 }
 
+
+// ---------- پلن B: رمز + لیست جدا ----------
+export async function handlePlanB(req, db) {
+  const s = requireAuth(req);
+  if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
+  if (req.method !== 'POST') return { status: 405, json: { ok: false } };
+  await ensureInit(db);
+  if (!(await ensurePlanB(db))) return { status: 500, json: { ok: false, error: 'unavailable' } };
+  const b = bodyOf(req);
+  const mode = String(b.mode || '');
+  if (mode === 'state') {
+    if (!readPbToken(b.token, s.uid)) return { status: 401, json: { ok: false, error: 'locked' } };
+    const today = String(b.today || '');
+    const st = await loadState(db, s.uid, today, 'planb');
+    await mergeExtras(db, s.uid, st.companies);
+    return { status: 200, json: { ok: true, companies: st.companies, stats: st.stats } };
+  }
+  const rows = await db.query('SELECT pass_hash, salt FROM planb_auth WHERE user_id = $1', [s.uid]);
+  const hasPin = rows.length > 0;
+  if (mode === 'status') return { status: 200, json: { ok: true, has_pin: hasPin } };
+  if (mode === 'set') {
+    if (hasPin) return { status: 409, json: { ok: false, error: 'already_set' } };
+    const pin = String(b.pin || '');
+    if (pin.length < 4 || pin.length > 64) return { status: 400, json: { ok: false, error: 'bad_pin' } };
+    const { hash, salt } = hashPassword(pin);
+    await db.query('INSERT INTO planb_auth (user_id, pass_hash, salt) VALUES ($1,$2,$3)', [s.uid, hash, salt]);
+    pbFails.delete(s.uid);
+    return { status: 200, json: { ok: true, token: signPbToken(s.uid) } };
+  }
+  if (mode === 'check') {
+    if (!hasPin) return { status: 400, json: { ok: false, error: 'no_pin' } };
+    const f = pbFails.get(s.uid);
+    if (f && f.until > Date.now()) return { status: 429, json: { ok: false, error: 'too_many' } };
+    const pin = String(b.pin || '');
+    if (verifyPassword(pin, rows[0].salt, rows[0].pass_hash)) {
+      pbFails.delete(s.uid);
+      return { status: 200, json: { ok: true, token: signPbToken(s.uid) } };
+    }
+    const nf = { n: (f ? f.n : 0) + 1, until: 0 };
+    if (nf.n >= 10) { nf.until = Date.now() + 5 * 60 * 1000; nf.n = 0; }
+    pbFails.set(s.uid, nf);
+    return { status: 200, json: { ok: false, error: 'wrong_pin' } };
+  }
+  return { status: 400, json: { ok: false, error: 'bad_mode' } };
+}
 
 // ---------- امکانات دستی هلیا روی کارت‌ها: شماره‌های دستی + یادداشت قبل از تماس ----------
 let extrasReady = false;
@@ -613,7 +704,8 @@ export async function handleExport(req, db) {
   const s = requireAuth(req);
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
   await ensureInit(db);
-  const st = await loadState(db, s.uid, '');
+  await ensurePlanB(db);
+  const st = await loadState(db, s.uid, '', 'all');
   const header = ['نام شرکت', 'شناسه ملی', 'شهر', 'مدیرعامل', 'تلفن تماس', 'وضعیت', 'دسته', 'تاریخ آزادسازی', 'پیگیری بعدی', 'دلیل رد', 'تاریخچه تماس‌ها'];
   const lines = [header.map(csvCell).join(',')];
   for (const c of st.companies) {
@@ -890,6 +982,16 @@ async function buildWorkContext(db, userId, todayStrIn) {
   } else {
     lines.push('- لیستش هنوز خالیه؛ هنوز «شرکت جدید بیار» رو نزده.');
   }
+  try {
+    if (await ensurePlanB(db)) {
+      const pb = await loadState(db, userId, todayStrIn || '', 'planb');
+      if (pb.companies.length) {
+        lines.push('- پلن B (یه بخش قفل‌دار و جدا توی پنله که شرکت‌هایی رو نگه می‌داره که هلیا خودش از بیرون پیدا کرده و دستی وارد کرده؛ اینا با لیست اصلی قاطی نیستن): ' + faDigits(pb.companies.length) + ' شرکت داره: ' + pb.companies.map((c) => c.name + ' (' + (STATUS_FA_CHAT[c.status] || c.status) + (c.due ? '، پیگیری: ' + c.due : '') + ')').join('، '));
+      } else {
+        lines.push('- پلن B (بخش قفل‌دار و جدا برای شرکت‌هایی که خودش پیدا می‌کنه): هنوز خالیه، چیزی توش ثبت نکرده.');
+      }
+    }
+  } catch (e) { /* ignore */ }
   return lines.join('\n');
 }
 

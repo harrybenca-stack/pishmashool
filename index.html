@@ -649,7 +649,26 @@
       .call-link .num { font-weight: 900; letter-spacing: .2px; }
       footer { margin-top: 26px; text-align: center; color: var(--ink-2); font-size: .82rem; }
       @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-    </style>
+    
+      /* ===== پلن B ===== */
+      .btn-planb { flex: 1 1 100%; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; border-color: #5b21b6; font-weight: 800; }
+      .planb-ico { width: 24px; height: 24px; border-radius: 7px; vertical-align: -7px; }
+      .planb-ico.lg { width: 30px; height: 30px; border-radius: 9px; vertical-align: -9px; }
+      .planb-view { position: fixed; inset: 0; z-index: 55; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 40px; }
+      .planb-back { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1.5px solid var(--line); color: var(--ink); border-radius: 999px; padding: 7px 14px; font: inherit; font-weight: 700; font-size: .85rem; margin-bottom: 10px; cursor: pointer; }
+      .planb-cat { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0; }
+      .planb-cat img { width: 52px; height: 52px; border-radius: 14px; flex: 0 0 auto; }
+      .planb-bubble { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; border-start-start-radius: 4px; padding: 10px 12px; font-size: .92rem; line-height: 1.9; box-shadow: 0 2px 8px rgba(28,35,51,.06); }
+      .manual-badge { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 999px; padding: 2px 9px; font-size: .72rem; font-weight: 800; }
+      .pin-wrap { text-align: center; padding: 18px 8px 8px; }
+      .pin-img { width: 100px; height: 100px; border-radius: 24px; }
+      .pin-wrap h2 { margin: 12px 0 6px; font-size: 1.2rem; font-weight: 800; }
+      .pin-input { width: 72%; max-width: 250px; text-align: center; font: inherit; font-size: 1.25rem; letter-spacing: 6px; border: 1.5px solid var(--line); border-radius: 14px; padding: 11px; background: var(--surface); color: var(--ink); margin-top: 10px; }
+      .pin-go { display: block; width: 72%; max-width: 250px; margin: 14px auto 0; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; border: none; border-radius: 14px; padding: 13px; font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
+      .pin-err { color: #dc2626; font-weight: 700; font-size: .9rem; min-height: 1.4em; margin-top: 10px; }
+      @keyframes pbShake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
+      .pin-shake { animation: pbShake .45s ease; }
+</style>
   </head>
   <body class="locked">
     <div class="wrap">
@@ -669,6 +688,7 @@
             <button class="btn-chat" type="button" id="chatOpenBtn">💬 گپ با پیش‌مشول</button>
             <a class="btn-chat" href="/cat">🐱 خونه‌ی پیش‌مشول</a>
             <button class="btn-chat btn-manual" type="button" id="manualAddBtn">✏️ ثبت شرکت جدید</button>
+            <button class="btn-chat btn-planb" type="button" id="planbBtn"><img class="planb-ico" src="planb-safe.webp" alt=""> پلن B</button>
           </div>
         </div>
       </header>
@@ -1102,6 +1122,62 @@
         </form>
         <p class="login-note">این ورود شخصی هلیاست؛ نام کاربری و رمزت رو فقط خودت داری، به کسی نده 🐾</p>
       </div>
+    </div>
+
+    <!-- قفل پلن B -->
+    <div class="planb-view" id="pinView" hidden>
+      <button class="planb-back" type="button" id="pinBack">→ برگرد به پنل اصلی</button>
+      <div class="planb-cat">
+        <img src="icon-192.png" alt="پیش‌مشول">
+        <div class="planb-bubble" id="pinBubble">هلیا جان، پلن B دفتر خصوصیه خودته 🔐 یه رمز انتخاب کن که فقط خودت بدونی؛ از این به بعد هر بار خواستی بیای اینجا، همین رمز رو ازت می‌پرسم 🐾</div>
+      </div>
+      <div class="pin-wrap">
+        <img class="pin-img" src="planb-safe.webp" alt="">
+        <h2 id="pinTitle">یه رمز برای پلن B بساز</h2>
+        <input class="pin-input" id="pinInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="رمز پلن B">
+        <button class="pin-go" type="button" id="pinGo">بساز و وارد شو</button>
+        <p class="pin-err" id="pinErr"></p>
+      </div>
+    </div>
+
+    <!-- صفحه‌ی پلن B -->
+    <div class="planb-view" id="planbView" hidden>
+      <button class="planb-back" type="button" id="planbBack">→ برگرد به پنل اصلی</button>
+      <header class="topbar">
+        <div class="brand">
+          <img class="logo" src="icon-192.png" alt="">
+          <div>
+            <h1><img class="planb-ico lg" src="planb-safe.webp" alt=""> پلن B</h1>
+            <p class="sub">دفتر شرکت‌های خودت — اونایی که خودت پیدا کردی و وارد می‌کنی.</p>
+          </div>
+        </div>
+      </header>
+      <div class="planb-cat">
+        <img src="icon-192.png" alt="پیش‌مشول">
+        <div class="planb-bubble">هلیا جان، اینجا دفتر خودته 🐾 هر شرکتی رو از هرجا پیدا کردی — آشنا، اینستا، سرچ — اینجا ثبتش کن؛ منم دقیقاً مثل شرکت‌های خودم کمکت می‌کنم زنگ بزنی و پیگیریش کنی.</div>
+      </div>
+      <button class="btn-add act-main" type="button" id="pbAddBtn" style="width:100%">+ ثبت شرکت جدید</button>
+      <section class="stats" aria-label="آمار پلن B" style="margin-top:12px">
+        <div class="stat s-new"><div class="num" id="pbStatNew">۰</div><div class="lbl">شرکت جدید</div><div class="cap">خودت وارد کردی!</div></div>
+        <div class="stat s-call"><div class="num" id="pbStatCall">۰</div><div class="lbl">تماس گرفته‌شده</div><div class="cap">به اینا زنگ زدیم</div></div>
+        <div class="stat s-win"><div class="num" id="pbStatWin">۰</div><div class="lbl">مشتری‌شده</div><div class="cap">این‌ها دیگه مشتری خودمونن!</div></div>
+        <div class="stat s-today"><div class="num" id="pbStatToday">۰</div><div class="lbl">پیگیری امروز</div><div class="cap">اینا منتظر زنگ امروزن!</div></div>
+      </section>
+      <section class="strip" id="pbStripToday" hidden aria-label="پیگیری‌های امروز پلن B">
+        <h2><span class="today-dot">●</span> پیگیری‌های امروز — <span id="pbTodayLbl"></span></h2>
+        <p class="pm-line">هلیا، از شرکت‌های خودت امروز نوبت اینه 🐾</p>
+        <div class="fu-list" id="pbFuToday"></div>
+      </section>
+      <section class="strip tomorrow" id="pbStripTomorrow" hidden aria-label="پیگیری‌های فردای پلن B">
+        <h2><span class="tmr-dot">●</span> پیگیری‌های فردا — <span id="pbTomorrowLbl"></span></h2>
+        <p class="pm-line">هلیا، از شرکت‌های خودت فردا باید به اینا زنگ بزنی 🐾</p>
+        <div class="fu-list" id="pbFuTomorrow"></div>
+      </section>
+      <div class="empty-state" id="pbEmpty" hidden>
+        <p class="empty-title">هنوز هیچ شرکتی اینجا نداری هلیا جان 🐾</p>
+        <p class="empty-sub">هر شرکتی رو خودت از بیرون پیدا کردی، با «ثبت شرکت جدید» بیارش اینجا؛ منم مثل بقیه کمکت می‌کنم پیگیریش کنی.</p>
+      </div>
+      <section class="cards" id="pbCards" aria-label="شرکت‌های پلن B"></section>
     </div>
 
     <!-- گپ با پیش‌مشول -->
@@ -1695,6 +1771,7 @@ function pmMorningOnce() {
           if (c.act_status === 'active') h += '<span class="act-chip on">فعال و سرپا</span>';
           else if (c.act_status === 'legal') h += '<span class="act-chip mid">کارش نامشخص</span>';
           else if (c.act_status === 'dormant') h += '<span class="act-chip off">راکد به نظر می‌رسه</span>';
+          if (c.source === 'manual') h += '<span class="manual-badge">ثبت دستی ✋</span>';
           if (c.phones && c.phones.length) h += '<a class="call-fab" href="tel:' + esc(c.phones[0].tel) + '" onclick="event.stopPropagation()" aria-label="زنگ بزن" title="زنگ بزن">📞</a>';
           h += '</div>';
           if (c.act_reason) h += '<div class="act-reason">' + esc(c.act_reason) + '</div>';
@@ -1851,7 +1928,12 @@ function pmMorningOnce() {
             var idx = S.companies.indexOf(item);
             S.companies[idx] = c;
           }
+          if (window.__pmPbCompanies) {
+            var pbs = window.__pmPbCompanies();
+            for (var pi = 0; pi < pbs.length; pi++) if (pbs[pi].id === c.id) { pbs[pi] = c; break; }
+          }
           var card = cardsEl.querySelector('.card[data-id="' + c.id + '"]');
+          if (!card) card = document.querySelector('#pbCards .card[data-id="' + c.id + '"]');
           if (!card) return;
           var st = UI_STATUS[c.status] || 'new';
           card.setAttribute('data-status', st);
@@ -1871,6 +1953,7 @@ function pmMorningOnce() {
           if (window.__pmRenderStrips) window.__pmRenderStrips();
           refreshBanner();
           updateStats();
+          if (window.__pmPbSync) window.__pmPbSync();
         }
         function postAction(id, action, extra) {
           var body = { company_id: id, action: action };
@@ -1996,16 +2079,7 @@ function pmMorningOnce() {
                 ev.target.reset();
                 loadState().then(function () {
                   renderAll();
-                  var idx = -1;
-                  for (var i = 0; i < S.companies.length; i++) if (S.companies[i].id === res.j.id) { idx = i; break; }
-                  var cards = liveCards();
-                  var el = idx >= 0 && cards[idx] ? cards[idx] : null;
-                  if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.classList.add('just-added');
-                    setTimeout(function () { el.classList.remove('just-added'); }, 3000);
-                  }
-                  if (window.__pmSay) window.__pmSay(res.j.found ? 'این شرکت رو توی انبار داشتم هلیا جان! آوردمش توی لیستت 🐾' : 'ثبتش کردم هلیا جان! 😺 شرکتت با همه‌ی اپشن‌ها اومد توی لیستت 🐾');
+                  if (window.__pmPbAfterAdd) window.__pmPbAfterAdd(res.j.id, res.j.found);
                 });
                 return;
               }
@@ -2053,6 +2127,7 @@ function pmMorningOnce() {
           function openNote(cid) {
             var c = null;
             S.companies.forEach(function (x) { if (x.id === cid) c = x; });
+            if (!c && window.__pmPbCompanies) window.__pmPbCompanies().forEach(function (x) { if (x.id === cid) c = x; });
             if (!c) return;
             noteCo = cid;
             document.getElementById('noteTitle').textContent = 'یادداشت — ' + c.name;
@@ -2062,6 +2137,7 @@ function pmMorningOnce() {
             noteSheet.hidden = false;
             if (window.__pmSay) window.__pmSay('این یادداشت فقط مال قبل از تماسه هلیا جان؛ با یادداشت‌های تماس‌هات قاطی نمی‌شه 🐾');
           }
+          window.__pmOpenNote = openNote;
           function closeNote() { noteSheet.hidden = true; noteCo = null; }
           document.getElementById('noteClose').addEventListener('click', closeNote);
           noteSheet.addEventListener('click', function (e) { if (e.target === noteSheet) closeNote(); });
@@ -2074,6 +2150,8 @@ function pmMorningOnce() {
             });
           });
           function refreshCard(cid) {
+            var pbEl0 = document.querySelector('#pbCards [data-id="' + cid + '"]');
+            if (pbEl0 && window.__pmPbRefreshCard) return window.__pmPbRefreshCard(cid);
             return loadState().then(function () {
               var c = null;
               S.companies.forEach(function (x) { if (x.id === cid) c = x; });
@@ -2155,6 +2233,222 @@ function pmMorningOnce() {
             if (window.__pmGreet) window.__pmGreet();
           });
         };
+        // ---------- پلن B: قفل رمز + لیست جدا ----------
+        var PB = { token: '', companies: [] };
+        window.__pmPbCompanies = function () { return PB.companies; };
+        var pinView = document.getElementById('pinView');
+        var planbView = document.getElementById('planbView');
+        var pbCardsEl = document.getElementById('pbCards');
+        var pinMode = 'enter';
+        function pbPost(body) {
+          return api('/api/planb', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        }
+        function pbJalaliStr(d) {
+          try {
+            var parts = new Intl.DateTimeFormat('fa-IR', { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(d);
+            var y = '', m = '', dd = '';
+            parts.forEach(function (x) { if (x.type === 'year') y = x.value; if (x.type === 'month') m = x.value; if (x.type === 'day') dd = x.value; });
+            var en = function (t) { return String(t).replace(/[۰-۹]/g, function (c) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(c); }); };
+            return en(y) + '-' + en(m) + '-' + en(dd);
+          } catch (e) { return ''; }
+        }
+        function pbLongLbl(d) {
+          try { return new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(d); } catch (e) { return ''; }
+        }
+        function pbUpdateStats() {
+          var n = { new: 0, progress: 0, won: 0, today: 0 };
+          var ts = todayStr();
+          Array.prototype.forEach.call(pbCardsEl.querySelectorAll('.card'), function (el) {
+            var st = el.getAttribute('data-status');
+            if (n[st] !== undefined) n[st]++;
+            if (ts && el.getAttribute('data-due') === ts) n.today++;
+          });
+          var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = faNum(v); };
+          set('pbStatNew', n.new); set('pbStatCall', n.progress); set('pbStatWin', n.won); set('pbStatToday', n.today);
+        }
+        function pbRenderStrips() {
+          var fill = function (listId, stripId, lblId, lbl, want) {
+            var list = document.getElementById(listId);
+            var strip = document.getElementById(stripId);
+            if (!list || !strip) return;
+            list.innerHTML = '';
+            var n = 0;
+            Array.prototype.forEach.call(pbCardsEl.querySelectorAll('.card'), function (el) {
+              if (el.getAttribute('data-due') !== want) return;
+              n++;
+              var h = el.querySelector('h3');
+              var item = document.createElement('div');
+              item.className = 'fu';
+              var nm = document.createElement('span');
+              nm.className = 'fu-name';
+              nm.textContent = h ? h.textContent : '';
+              item.appendChild(nm);
+              item.addEventListener('click', function () { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('just-added'); setTimeout(function () { el.classList.remove('just-added'); }, 2500); });
+              list.appendChild(item);
+            });
+            strip.hidden = n === 0;
+            var l = document.getElementById(lblId); if (l) l.textContent = lbl;
+          };
+          fill('pbFuToday', 'pbStripToday', 'pbTodayLbl', pbLongLbl(new Date()), todayStr());
+          fill('pbFuTomorrow', 'pbStripTomorrow', 'pbTomorrowLbl', pbLongLbl(new Date(Date.now() + 86400000)), pbJalaliStr(new Date(Date.now() + 86400000)));
+        }
+        window.__pmPbSync = function () { pbUpdateStats(); pbRenderStrips(); };
+        function pbRender() {
+          Array.prototype.slice.call(pbCardsEl.querySelectorAll('.card')).forEach(function (el) { el.remove(); });
+          PB.companies.forEach(function (c) {
+            var el = buildCard(c);
+            pbCardsEl.appendChild(el);
+            if (window.__pmCloseCard) window.__pmCloseCard(el);
+          });
+          var emp = document.getElementById('pbEmpty');
+          if (emp) emp.hidden = PB.companies.length > 0;
+          pbUpdateStats();
+          pbRenderStrips();
+        }
+        function pbLoad() {
+          return pbPost({ mode: 'state', token: PB.token, today: todayStr() }).then(function (res) {
+            if (res.j && res.j.ok) { PB.companies = res.j.companies || []; pbRender(); return true; }
+            return false;
+          }).catch(function () { return false; });
+        }
+        window.__pmPbRefreshCard = function (cid) {
+          return pbLoad().then(function () {
+            var oldEl = pbCardsEl.querySelector('[data-id="' + cid + '"]');
+            var c = null;
+            PB.companies.forEach(function (x) { if (x.id === cid) c = x; });
+            if (!c || !oldEl) { pbRender(); return; }
+            var wasOpen = oldEl.classList.contains('open');
+            var el = buildCard(c);
+            oldEl.replaceWith(el);
+            if (wasOpen) { if (window.__pmOpenCard) window.__pmOpenCard(el); }
+            else if (window.__pmCloseCard) window.__pmCloseCard(el);
+            pbUpdateStats(); pbRenderStrips();
+          });
+        };
+        window.__pmPbAfterAdd = function (id, found) {
+          var line = found ? 'این شرکت رو توی انبار داشتم هلیا جان! گذاشتمش توی پلن B 🐾' : 'ثبتش کردم هلیا جان! 😺 شرکتت رفت توی گاوصندوق پلن B 🐾';
+          if (!planbView.hidden && PB.token) {
+            pbLoad().then(function () {
+              var el = pbCardsEl.querySelector('[data-id="' + id + '"]');
+              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('just-added'); setTimeout(function () { el.classList.remove('just-added'); }, 3000); }
+              if (window.__pmSay) window.__pmSay(line);
+            });
+          } else if (window.__pmSay) window.__pmSay(line);
+        };
+        function showPin(mode) {
+          pinMode = mode;
+          var t = document.getElementById('pinTitle');
+          var g = document.getElementById('pinGo');
+          var b = document.getElementById('pinBubble');
+          var inp = document.getElementById('pinInput');
+          var err = document.getElementById('pinErr');
+          if (err) err.textContent = '';
+          if (inp) inp.value = '';
+          if (mode === 'set') {
+            if (t) t.textContent = 'یه رمز برای پلن B بساز';
+            if (g) g.textContent = 'بساز و وارد شو';
+            if (b) b.textContent = 'هلیا جان، پلن B دفتر خصوصیه خودته 🔐 یه رمز انتخاب کن که فقط خودت بدونی؛ از این به بعد هر بار خواستی بیای اینجا، همین رمز رو ازت می‌پرسم 🐾';
+          } else {
+            if (t) t.textContent = 'رمز پلن B رو بزن';
+            if (g) g.textContent = 'باز کن';
+            if (b) b.textContent = 'هلیا جان، اول رمز پلن B رو بزن تا درو برات باز کنم 🐾';
+          }
+          planbView.hidden = true;
+          pinView.hidden = false;
+          setTimeout(function () { if (inp) inp.focus(); }, 80);
+        }
+        function enterPlanB() {
+          pinView.hidden = true;
+          planbView.hidden = false;
+          pbLoad();
+        }
+        function submitPin() {
+          var inp = document.getElementById('pinInput');
+          var err = document.getElementById('pinErr');
+          var pin = inp ? inp.value : '';
+          if (!pin) { if (err) err.textContent = 'رمز رو بنویس هلیا جان 🐾'; return; }
+          var go = document.getElementById('pinGo');
+          if (go) go.disabled = true;
+          pbPost({ mode: pinMode === 'set' ? 'set' : 'check', pin: pin }).then(function (res) {
+            if (go) go.disabled = false;
+            if (res.j && res.j.ok && res.j.token) { PB.token = res.j.token; if (inp) inp.value = ''; enterPlanB(); return; }
+            var e = res.j && res.j.error;
+            if (inp) { inp.classList.remove('pin-shake'); void inp.offsetWidth; inp.classList.add('pin-shake'); try { inp.select(); } catch (e2) {} }
+            if (err) err.textContent = e === 'wrong_pin' ? 'رمز اشتباهه هلیا جان، دوباره بزن 🐾'
+              : e === 'bad_pin' ? 'رمز باید حداقل ۴ حرف باشه هلیا جان 🐾'
+              : e === 'already_set' ? 'رمزت از قبل ساخته شده؛ همونو بزن 🐾'
+              : e === 'too_many' ? 'چند بار اشتباه زدی هلیا جان؛ یه کم صبر کن و دوباره بزن 🐾'
+              : 'یه مشکلی پیش اومد؛ دوباره بزن 🐾';
+            if (e === 'already_set') showPin('enter');
+          }).catch(function () { if (go) go.disabled = false; if (err) err.textContent = 'یه مشکلی پیش اومد؛ دوباره بزن 🐾'; });
+        }
+        var planbBtn = document.getElementById('planbBtn');
+        if (planbBtn) planbBtn.addEventListener('click', function () {
+          pbPost({ mode: 'status' }).then(function (res) {
+            showPin(res.j && res.j.has_pin ? 'enter' : 'set');
+          }).catch(function () { showPin('enter'); });
+        });
+        var pinGoBtn = document.getElementById('pinGo');
+        if (pinGoBtn) pinGoBtn.addEventListener('click', submitPin);
+        var pinInputEl = document.getElementById('pinInput');
+        if (pinInputEl) pinInputEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitPin(); });
+        var pinBack = document.getElementById('pinBack');
+        if (pinBack) pinBack.addEventListener('click', function () { pinView.hidden = true; });
+        var planbBack = document.getElementById('planbBack');
+        if (planbBack) planbBack.addEventListener('click', function () {
+          planbView.hidden = true;
+          PB.token = '';
+          PB.companies = [];
+          pbCardsEl.innerHTML = '';
+        });
+        var pbAddBtn = document.getElementById('pbAddBtn');
+        if (pbAddBtn) pbAddBtn.addEventListener('click', function () { var mb = document.getElementById('manualAddBtn'); if (mb) mb.click(); });
+        pbCardsEl.addEventListener('click', function (e) {
+          var b = e.target.closest ? e.target.closest('button') : null;
+          if (!b) return;
+          var card = b.closest ? b.closest('.card') : null;
+          if (!card || !pbCardsEl.contains(card)) return;
+          var t = b.textContent.trim();
+          var id = +card.getAttribute('data-id');
+          if (t === 'تماس گرفتم') { markActed(card, 'call'); postAction(id, 'contacted'); }
+          else if (t === 'رد کردن') { markActed(card, 'reject'); postAction(id, 'rejected'); }
+          else if (t === 'مشتری شد') { markActed(card, 'win'); postAction(id, 'customer'); }
+        });
+        pbCardsEl.addEventListener('click', function (e) {
+          var t = e.target;
+          if (!t.classList || !t.closest) return;
+          var card = t.closest('.card');
+          if (!card || !pbCardsEl.contains(card)) return;
+          var cid = parseInt(card.getAttribute('data-id'), 10);
+          if (t.classList.contains('myphone-btn')) {
+            var wrap = t.closest('.myphone-add');
+            var inp2 = wrap ? wrap.querySelector('.myphone-in') : null;
+            var val = inp2 ? inp2.value.trim() : '';
+            if (!val) { if (window.__pmSay) window.__pmSay('اول شماره رو بنویس هلیا جان 📞'); return; }
+            t.disabled = true;
+            api('/api/phone', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company_id: cid, action: 'add', phone: val }) }).then(function (res) {
+              t.disabled = false;
+              if (res.j && res.j.ok) { window.__pmPbRefreshCard(cid); if (window.__pmSay) window.__pmSay('شماره‌تو گذاشتم روی کارتش هلیا جان؛ روش زدم «دستی ✋» که معلوم باشه خودت پیداش کردی 🐾'); }
+              else if (window.__pmSay) window.__pmSay('هلیا جان، این شماره به نظر درست نمیاد؛ یه بار دیگه چک کن 🐾');
+            }).catch(function () { t.disabled = false; });
+          } else if (t.classList.contains('myphone-del')) {
+            var pid = parseInt(t.getAttribute('data-pid'), 10);
+            api('/api/phone', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company_id: cid, action: 'remove', phone_id: pid }) }).then(function (res) {
+              if (res.j && res.j.ok) window.__pmPbRefreshCard(cid);
+            });
+          } else if (t.classList.contains('note-open') || t.classList.contains('note-when')) {
+            if (window.__pmOpenNote) window.__pmOpenNote(cid);
+          }
+        });
+        pbCardsEl.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('myphone-in')) {
+            e.preventDefault();
+            var wrap2 = e.target.closest('.myphone-add');
+            var btn2 = wrap2 ? wrap2.querySelector('.myphone-btn') : null;
+            if (btn2) btn2.click();
+          }
+        });
+
         window.__pmBoot = function () {
           loadState().then(function (st) {
             if (!st) return; // نشست نداره — صفحه‌ی ورود می‌مونه
