@@ -181,6 +181,15 @@ body.chatting .pm-bubble{ display:none !important; }
 
 .room-floor{ position:fixed; left:0; right:0; bottom:0; height:24%; background:linear-gradient(180deg,#101B31 0%,#0A1120 30%); border-top:2px solid rgba(216,178,92,.14); z-index:0; pointer-events:none; }
 .room-rug-img{ position:fixed; left:50%; bottom:10.5%; transform:translateX(-50%) scaleY(.54); width:308px; height:308px; z-index:0; pointer-events:none; filter:drop-shadow(0 12px 16px rgba(0,0,0,.45)); }
+.room-window{ position:fixed; left:53.8%; top:25.5%; transform:translateX(-50%); width:216px; z-index:0; pointer-events:none; }
+#winSkyTop,#winSkyMid,#winSkyBot,#winHillFT,#winHillFB,#winHillNT,#winHillNB,#winGlowA,#winGlowB{transition:stop-color 3.2s ease}
+#winTint{transition:fill 3.2s ease,opacity 3.2s ease}
+#winStarsG{transition:opacity 2.8s ease}
+#winCloud1,#winCloud2{transition:fill 3.2s ease,opacity 3.2s ease}
+#winSunCore{transition:fill 3.2s ease}
+#winSunGlowC{transition:opacity 3.2s ease}
+#winMoonG{transition:opacity 2.8s ease}
+.win-noanim *{transition:none !important}
 .room-orchid{ position:fixed; left:2%; bottom:17.5%; width:118px; z-index:1; pointer-events:none; filter:drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
 .room-switch{ position:fixed; right:14px; top:47%; width:37px; height:62px; z-index:7; cursor:pointer; background:linear-gradient(180deg,#F5EFE0,#E7DCC3); border-radius:9px; box-shadow:0 4px 12px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.7); }
 .room-switch::before, .room-switch::after{ content:''; position:absolute; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:#B07E2E; }
@@ -194,14 +203,69 @@ body.night .switch-dot{ background:#FF9D3C; box-shadow:0 0 8px 2px rgba(255,157,
 .room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 50% 45%, rgba(3,6,16,.22) 0%, rgba(3,6,16,.55) 55%, rgba(2,4,12,.84) 100%); }
 body.night .room-dim{ opacity:1; }
 header, .stage, .hint, .actions{ position:relative; z-index:2; }
-body.bare .room-floor, body.bare .room-rug-img, body.bare .room-orchid, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
+body.bare .room-floor, body.bare .room-rug-img, body.bare .room-orchid, body.bare .room-window, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
 .to-clock{ text-align:center; font-size:15.5px; letter-spacing:3px; color:rgba(215,228,255,.62); margin-top:3px; font-variant-numeric:tabular-nums; }
 #pmBubble{ max-height:34dvh; overflow-y:auto; scrollbar-width:none; }
 #pmBubble::-webkit-scrollbar{ display:none; }
 </style>
 </head>
 <body>
-<div class="room-floor"></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-orchid" aria-hidden="true"><svg viewBox="0 0 140 200" width="100%">
+<div class="room-floor"></div><div class="room-window" id="roomWindow" aria-hidden="true"><svg viewBox="0 0 280 204" width="100%">
+<defs>
+<linearGradient id="winWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BC8557"/><stop offset=".5" stop-color="#9C6B3D"/><stop offset="1" stop-color="#86592F"/></linearGradient>
+<linearGradient id="winWoodV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#BC8557"/><stop offset=".5" stop-color="#9C6B3D"/><stop offset="1" stop-color="#86592F"/></linearGradient>
+<linearGradient id="winSkyG" x1="0" y1="0" x2="0" y2="1"><stop id="winSkyTop" offset="0" stop-color="#081A38"/><stop id="winSkyMid" offset=".55" stop-color="#10294F"/><stop id="winSkyBot" offset="1" stop-color="#1B3A5F"/></linearGradient>
+<radialGradient id="winSunGlowG" cx=".5" cy=".5" r=".5"><stop id="winGlowA" offset="0" stop-color="#FFE9A3"/><stop id="winGlowB" offset=".55" stop-color="#FFE9A3" stop-opacity=".55"/><stop offset="1" stop-color="#FFE9A3" stop-opacity="0"/></radialGradient>
+<linearGradient id="winHillFG" x1="0" y1="0" x2="0" y2="1"><stop id="winHillFT" offset="0" stop-color="#2A5A3C"/><stop id="winHillFB" offset="1" stop-color="#1E4630"/></linearGradient>
+<linearGradient id="winHillNG" x1="0" y1="0" x2="0" y2="1"><stop id="winHillNT" offset="0" stop-color="#1A3D27"/><stop id="winHillNB" offset="1" stop-color="#122B1C"/></linearGradient>
+<clipPath id="winClip5"><rect x="24" y="24" width="232" height="148"/></clipPath>
+<clipPath id="winStarClip"><rect x="24" y="24" width="232" height="80"/></clipPath>
+<mask id="winMoonMask"><circle cx="0" cy="0" r="10.5" fill="#FFFFFF"/><circle cx="4.5" cy="-3.5" r="9" fill="#000000"/></mask>
+</defs>
+<rect x="8" y="10" width="264" height="182" rx="7" fill="#000000" opacity=".18"/>
+<rect x="6" y="6" width="268" height="184" rx="7" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="2"/>
+<path d="M6 34 L34 6 M246 6 L274 34 M274 162 L246 190 M34 190 L6 162" stroke="#5F3D1E" stroke-width="1.2" opacity=".45"/>
+<circle cx="15" cy="15" r="2.2" fill="#6E4525" opacity=".65"/><circle cx="265" cy="15" r="2.2" fill="#6E4525" opacity=".65"/>
+<circle cx="15" cy="181" r="2.2" fill="#6E4525" opacity=".65"/><circle cx="265" cy="181" r="2.2" fill="#6E4525" opacity=".65"/>
+<path d="M10 13 Q90 8 150 11 Q220 14 270 12" fill="none" stroke="#6E4525" stroke-width="1.1" opacity=".2"/>
+<path d="M10 20 Q120 15 268 19" fill="none" stroke="#D9A066" stroke-width="1" opacity=".3"/>
+<path d="M10 183 Q140 189 270 182" fill="none" stroke="#6E4525" stroke-width="1.1" opacity=".2"/>
+<rect x="13.5" y="13.5" width="253" height="169" fill="none" stroke="#6E4525" stroke-width="1.4" opacity=".5"/>
+<rect x="17" y="17" width="246" height="162" fill="none" stroke="#5F3D1E" stroke-width="2" opacity=".55"/>
+<rect x="20.5" y="20.5" width="239" height="155" fill="none" stroke="#D9A066" stroke-width="1" opacity=".5"/>
+<g clip-path="url(#winClip5)">
+<rect x="24" y="24" width="232" height="148" fill="url(#winSkyG)"/>
+<g id="winStarsG" clip-path="url(#winStarClip)" opacity="1"><circle cx="101" cy="38" r="1.3" fill="#FFFFFF"/><circle cx="46" cy="64" r="1.0" fill="#FFFFFF"/><circle cx="43" cy="63" r="0.7" fill="#FFFFFF"/><circle cx="125" cy="33" r="0.8" fill="#FFFFFF"/><circle cx="123" cy="84" r="0.8" fill="#FFFFFF"/><circle cx="79" cy="71" r="1.6" fill="#FFFFFF"/><circle cx="157" cy="55" r="1.6" fill="#FFFFFF"/><circle cx="40" cy="86" r="1.0" fill="#FFFFFF"/><circle cx="62" cy="36" r="1.0" fill="#FFFFFF"/><circle cx="210" cy="40" r="1.2" fill="#FFFFFF"/><circle cx="171" cy="53" r="1.2" fill="#FFFFFF"/><circle cx="44" cy="32" r="0.9" fill="#FFFFFF"/><circle cx="180" cy="57" r="1.0" fill="#FFFFFF"/><circle cx="159" cy="59" r="1.0" fill="#FFFFFF"/><circle cx="205" cy="76" r="0.9" fill="#FFFFFF"/><circle cx="156" cy="64" r="1.5" fill="#FFFFFF"/><circle cx="190" cy="48" r="1.6" fill="#FFFFFF"/><circle cx="56" cy="56" r="1.4" fill="#FFFFFF"/><circle cx="63" cy="61" r="0.7" fill="#FFFFFF"/><circle cx="177" cy="80" r="1.2" fill="#FFFFFF"/><circle cx="223" cy="49" r="1.3" fill="#FFFFFF"/><circle cx="161" cy="67" r="1.1" fill="#FFFFFF"/><path d="M66 44 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6 Z" fill="#FFFFFF"/><path d="M196 74 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2 Z" fill="#FFFFFF"/></g>
+<g id="winSunG" transform="translate(150 198)"><circle id="winSunGlowC" r="30" fill="url(#winSunGlowG)" opacity=".6"/><circle id="winSunCore" r="12" fill="#FFEFA8" stroke="#F7CE68" stroke-width="1.8"/></g>
+<g id="winCloud1" fill="#8FA8C8" opacity=".18"><ellipse cx="74" cy="54" rx="17" ry="7"/><ellipse cx="86" cy="49" rx="11" ry="6"/><ellipse cx="62" cy="50" rx="9" ry="5"/></g>
+<path d="M57 55 Q74 61 91 55 L91 58 Q74 63 57 58 Z" fill="#B9D4E8" opacity=".35"/>
+<g id="winCloud2" fill="#8FA8C8" opacity=".15"><ellipse cx="138" cy="40" rx="11" ry="5"/><ellipse cx="146" cy="36.5" rx="7" ry="4"/></g>
+<path d="M102 72 q3.5 -3.5 7 0 q3.5 -3.5 7 0" fill="none" stroke="#47617B" stroke-width="1.4" stroke-linecap="round" id="winBird1"/>
+<path id="winHillF" d="M24 116 Q84 94 140 108 Q198 122 256 102 L256 172 L24 172 Z" fill="url(#winHillFG)"/>
+<path d="M50 130 L55.5 108 L61 130 Z" fill="#5E8F57"/>
+<circle cx="55.5" cy="102" r="10.5" fill="#6FA562"/><circle cx="46" cy="109" r="7" fill="#7FB56F"/><circle cx="65" cy="109" r="7" fill="#63975A"/>
+<circle cx="52" cy="97" r="1.6" fill="#F28BB4"/><circle cx="60" cy="104" r="1.5" fill="#F6A5C0"/>
+<path id="winHillN" d="M24 140 Q90 120 150 134 Q206 146 256 130 L256 172 L24 172 Z" fill="url(#winHillNG)"/>
+<g stroke="#F7EFDA" stroke-width="1.6" opacity=".85"><path d="M96 148 L96 156 M108 146.6 L108 154.6 M120 145.6 L120 153.6 M132 145 L132 153"/><path d="M92 151 Q116 147.4 136 150" fill="none" stroke-width="1.3"/></g>
+<g><circle cx="66" cy="152" r="2.1" fill="#F28BB4"/><circle cx="82" cy="159" r="2" fill="#FFD94D"/><circle cx="168" cy="156" r="2.1" fill="#FFFFFF"/><circle cx="228" cy="150" r="2" fill="#F28BB4"/><circle cx="186" cy="162" r="2" fill="#FFD94D"/></g>
+<g stroke="#4E7D43" stroke-width="1.3" stroke-linecap="round"><path d="M44 166 L42 160 M48 166 L48 159 M52 166 L54 160"/><path d="M206 168 L204 162 M210 168 L210 161 M214 168 L216 162"/></g>
+<g transform="translate(196 128)"><path d="M0 0 C-5 -6 -11 -5 -11 0 C-11 4 -5 5 0 1 C5 5 11 4 11 0 C11 -5 5 -6 0 0 Z" fill="#F28C4A"/><circle cx="0" cy="0.6" r="1.1" fill="#7A4A21"/><path d="M0 1 L-1.5 6" stroke="#7A4A21" stroke-width=".9"/></g>
+<path d="M30 24 L74 24 L44 110 L30 110 Z" fill="#FFFFFF" opacity=".05"/>
+<path d="M120 24 L142 24 L112 172 L98 172 Z" fill="#FFFFFF" opacity=".03"/>
+<rect id="winTint" x="24" y="24" width="232" height="148" fill="#0A1C3F" opacity=".3"/>
+<g id="winMoonG" transform="translate(206 50)" opacity="1"><circle r="17" fill="#F6F1DC" opacity=".16"/><g mask="url(#winMoonMask)"><circle r="10.5" fill="#F6F1DC"/></g></g>
+</g>
+<rect x="24" y="24" width="232" height="148" fill="none" stroke="#5F3D1E" stroke-width="1.6" opacity=".5"/>
+<rect x="136" y="24" width="8" height="148" fill="url(#winWoodV)" stroke="#5F3D1E" stroke-width="1"/>
+<path d="M139.5 28 L139.5 168" stroke="#D9A066" stroke-width="1" opacity=".35"/>
+<rect x="24" y="94" width="232" height="8" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="1"/>
+<path d="M28 97.5 L252 97.5" stroke="#D9A066" stroke-width="1" opacity=".3"/>
+<path d="M30 190 L44 178 L44 190 Z" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="1.2"/>
+<path d="M250 190 L236 178 L236 190 Z" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="1.2"/>
+<rect x="0" y="188" width="280" height="10" rx="3" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="1.4"/>
+<path d="M6 191.5 L274 191.5" stroke="#D9A066" stroke-width="1" opacity=".35"/>
+<rect x="8" y="198" width="264" height="4" rx="2" fill="#000000" opacity=".18"/>
+</svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-orchid" aria-hidden="true"><svg viewBox="0 0 140 200" width="100%">
 <defs>
 <linearGradient id="orPotG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FDF8EC"/><stop offset=".55" stop-color="#F0E1C0"/><stop offset="1" stop-color="#DEC69C"/></linearGradient>
 <linearGradient id="orLeafG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#71C184"/><stop offset="1" stop-color="#3E7D4E"/></linearGradient>
@@ -1007,5 +1071,95 @@ api('/api/state').then(function (res) {
   setTimeout(function () { var ml = pmMorningOnce(); pmSay(ml || 'سلام هلیا جان! به خونه‌ی خودم خوش اومدی 🐾', 7000); }, 500);
 });
 </script>
-</body>
+<script>(function(){
+  var WIN_STATES = {
+    morning:{ sky:['#A8D4F0','#E6F2F7','#FFE4B8'], sun:{x:86,y:100,s:1,c:'#FFDF8A',g:.5,glow:'#FFE9A3'}, moon:0, stars:0, hillFT:'#B7D69E', hillFB:'#A9C795', hillNT:'#8FBC74', hillNB:'#7FAE66', cloud:'#FFFFFF', cloudOp:.95, tint:['#FF9E5E',.05] },
+    noon:{ sky:['#7FC4F2','#C9EDFB','#EAF9FF'], sun:{x:150,y:46,s:1,c:'#FFF3B0',g:.65,glow:'#FFF3B0'}, moon:0, stars:0, hillFT:'#C2E2AE', hillFB:'#B5D8A4', hillNT:'#93C278', hillNB:'#84B96B', cloud:'#FFFFFF', cloudOp:1, tint:['#FFFFFF',0] },
+    sunset:{ sky:['#6E4A8E','#D95D43','#FFB35C'], sun:{x:192,y:124,s:1.3,c:'#FF9A3C',g:.85,glow:'#FF9A3C'}, moon:0, stars:.3, hillFT:'#9A6A78', hillFB:'#8A5A6B', hillNT:'#6E4456', hillNB:'#5E3A4A', cloud:'#F6B08A', cloudOp:.9, tint:['#FF7A2A',.12] },
+    night:{ sky:['#081A38','#10294F','#1B3A5F'], sun:{x:150,y:198,s:1,c:'#FFEFA8',g:.6,glow:'#FFE9A3'}, moon:1, stars:1, hillFT:'#2A5A3C', hillFB:'#1E4630', hillNT:'#1A3D27', hillNB:'#122B1C', cloud:'#8FA8C8', cloudOp:.18, tint:['#0A1C3F',.3] }
+  };
+  var MOON_ON = {x:206,y:50,s:1}, MOON_OFF = {x:206,y:118,s:1};
+  function $(id){ return document.getElementById(id); }
+  var box = $('roomWindow'); if (!box) return;
+  var sunG = $('winSunG'), moonG = $('winMoonG');
+  var current = null;
+  function setColors(S){
+    $('winSkyTop').style.stopColor = S.sky[0];
+    $('winSkyMid').style.stopColor = S.sky[1];
+    $('winSkyBot').style.stopColor = S.sky[2];
+    $('winHillFT').style.stopColor = S.hillFT;
+    $('winHillFB').style.stopColor = S.hillFB;
+    $('winHillNT').style.stopColor = S.hillNT;
+    $('winHillNB').style.stopColor = S.hillNB;
+    $('winGlowA').style.stopColor = S.sun.glow;
+    $('winGlowB').style.stopColor = S.sun.glow;
+    $('winSunCore').style.fill = S.sun.c;
+    $('winSunGlowC').style.opacity = S.sun.g;
+    $('winStarsG').style.opacity = S.stars;
+    var c1 = $('winCloud1'), c2 = $('winCloud2');
+    c1.style.fill = S.cloud; c1.style.opacity = S.cloudOp;
+    c2.style.fill = S.cloud; c2.style.opacity = Math.max(0, S.cloudOp - .12);
+    var t = $('winTint'); t.style.fill = S.tint[0]; t.style.opacity = S.tint[1];
+  }
+  function place(el, p){ el.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ') scale(' + p.s + ')'); }
+  function arcAnim(el, from, to){
+    var lift = (from.y < 170 && to.y < 170) ? 54 : 24;
+    var cx = (from.x + to.x) / 2, cy = Math.min(from.y, to.y) - lift;
+    var frames = [];
+    for (var i = 0; i <= 12; i++){
+      var t = i / 12, u = 1 - t;
+      var x = u*u*from.x + 2*u*t*cx + t*t*to.x;
+      var y = u*u*from.y + 2*u*t*cy + t*t*to.y;
+      var s = from.s + (to.s - from.s) * t;
+      frames.push({ transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')', offset: t });
+    }
+    var anim = el.animate(frames, { duration: 3200, easing: 'ease-in-out', fill: 'forwards' });
+    anim.onfinish = function(){ place(el, to); try{ anim.cancel(); }catch(e){} };
+  }
+  function applyInstant(name){
+    var S = WIN_STATES[name]; if (!S) return;
+    box.classList.add('win-noanim');
+    setColors(S);
+    place(sunG, S.sun);
+    place(moonG, S.moon ? MOON_ON : MOON_OFF);
+    moonG.style.opacity = S.moon ? 1 : 0;
+    void box.offsetWidth;
+    box.classList.remove('win-noanim');
+    current = name;
+  }
+  function transitionTo(name){
+    var S = WIN_STATES[name]; if (!S || name === current) return;
+    var F = WIN_STATES[current] || S;
+    setColors(S);
+    arcAnim(sunG, F.sun, S.sun);
+    if (S.moon && !F.moon){ place(moonG, MOON_OFF); arcAnim(moonG, MOON_OFF, MOON_ON); moonG.style.opacity = 1; }
+    else if (!S.moon && F.moon){ arcAnim(moonG, MOON_ON, MOON_OFF); moonG.style.opacity = 0; }
+    current = name;
+  }
+  function tehranPeriod(){
+    try{
+      var h = parseInt(new Intl.DateTimeFormat('en-US',{ timeZone:'Asia/Tehran', hour:'numeric', hour12:false }).format(new Date()), 10) % 24;
+      if (h >= 6 && h < 11) return 'morning';
+      if (h >= 11 && h < 16) return 'noon';
+      if (h >= 16 && h < 19) return 'sunset';
+      return 'night';
+    }catch(e){ return 'night'; }
+  }
+  var now = tehranPeriod();
+  var seen = null;
+  try{ seen = localStorage.getItem('pmWinSeen'); }catch(e){}
+  if (seen && seen !== now && WIN_STATES[seen]){
+    applyInstant(seen);
+    try{ localStorage.setItem('pmWinSeen', now); }catch(e){}
+    setTimeout(function(){ transitionTo(now); }, 600);
+  } else {
+    applyInstant(now);
+    try{ localStorage.setItem('pmWinSeen', now); }catch(e){}
+  }
+  setInterval(function(){
+    var p = tehranPeriod();
+    if (p !== current){ transitionTo(p); try{ localStorage.setItem('pmWinSeen', p); }catch(e){} }
+  }, 60000);
+})();
+</script></body>
 </html>
