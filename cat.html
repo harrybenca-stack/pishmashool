@@ -191,6 +191,12 @@ body.chatting .pm-bubble{ display:none !important; }
 #winMoonG{transition:opacity 2.8s ease}
 .win-noanim *{transition:none !important}
 
+
+.win-curtain-l, .win-curtain-r{ transform-box:fill-box; }
+.win-curtain-l{ transform:scaleX(.30); transform-origin:left center; }
+.win-curtain-r{ transform:scaleX(.30); transform-origin:right center; }
+.pm .pm-zpj{ display:none; }
+.pm.sleeping .pm-zpj{ display:block; }
 .room-rack{ position:fixed; right:0%; bottom:12%; width:102px; z-index:6; cursor:pointer; pointer-events:auto; filter:drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
 .pm-outfit{ display:none; }
 .pm[data-outfit="cream"] .pm-outfit[data-o="cream"]{ display:block; }
@@ -287,7 +293,24 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare 
 <rect x="0" y="188" width="280" height="10" rx="3" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="1.4"/>
 <path d="M6 191.5 L274 191.5" stroke="#D9A066" stroke-width="1" opacity=".35"/>
 <rect x="8" y="198" width="264" height="4" rx="2" fill="#000000" opacity=".18"/>
-</svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-rack" id="roomRack" role="button" aria-label="جارختی پیش‌مشول"><svg viewBox="0 0 120 215" width="100%" aria-hidden="true">
+<g id="winCurtains">
+<rect x="4" y="4.5" width="272" height="5" rx="2.5" fill="#86592F"/>
+<rect x="4" y="4.5" width="272" height="2" rx="1" fill="#D9A066" opacity=".85"/>
+<circle cx="5" cy="7" r="5" fill="#9C6B3D"/><circle cx="275" cy="7" r="5" fill="#9C6B3D"/>
+<circle cx="3.5" cy="5.5" r="1.8" fill="#D9A066"/><circle cx="273.5" cy="5.5" r="1.8" fill="#D9A066"/>
+<clipPath id="winCurtClipL"><path d="M16 12 L143 12 L143 168 Q129 178 79 172 Q32 178 16 166 Z"/></clipPath>
+<g class="win-curtain-l">
+<path d="M16 12 L143 12 L143 168 Q129 178 79 172 Q32 178 16 166 Z" fill="#F1E7D3"/>
+<g clip-path="url(#winCurtClipL)"><rect x="30" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="51" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="72" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="93" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="114" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="135" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="38" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="59" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="80" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="101" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="122" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="16" y="156" width="127" height="16" fill="#D9A1A1" opacity=".8"/><rect x="16" y="152" width="127" height="3" fill="#C48B8B" opacity=".8"/></g>
+<path d="M16 12 L143 12 L143 168 Q129 178 79 172 Q32 178 16 166 Z" fill="none" stroke="#C9B48C" stroke-width="1.6"/>
+<g class="win-tie"><rect x="20" y="102" width="118" height="8" rx="4" fill="#D9A1A1"/><circle cx="31" cy="106" r="4.6" fill="#C48B8B"/></g>
+</g><clipPath id="winCurtClipR"><path d="M137 12 L264 12 L264 168 Q250 178 200 172 Q153 178 137 166 Z"/></clipPath>
+<g class="win-curtain-r">
+<path d="M137 12 L264 12 L264 168 Q250 178 200 172 Q153 178 137 166 Z" fill="#F1E7D3"/>
+<g clip-path="url(#winCurtClipR)"><rect x="148" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="169" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="190" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="211" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="232" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="253" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="156" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="177" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="198" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="219" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="240" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="137" y="156" width="127" height="16" fill="#D9A1A1" opacity=".8"/><rect x="137" y="152" width="127" height="3" fill="#C48B8B" opacity=".8"/></g>
+<path d="M137 12 L264 12 L264 168 Q250 178 200 172 Q153 178 137 166 Z" fill="none" stroke="#C9B48C" stroke-width="1.6"/>
+<g class="win-tie"><rect x="142" y="102" width="118" height="8" rx="4" fill="#D9A1A1"/><circle cx="249" cy="106" r="4.6" fill="#C48B8B"/></g>
+</g></g></svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-rack" id="roomRack" role="button" aria-label="جارختی پیش‌مشول"><svg viewBox="0 0 120 215" width="100%" aria-hidden="true">
 <ellipse cx="60" cy="207" rx="48" ry="6" fill="#000" opacity=".20"/>
 <path d="M18 36 Q60 28 102 36" fill="none" stroke="#8A5A2E" stroke-width="6" stroke-linecap="round"/>
 <path d="M18 34.5 Q60 26.5 102 34.5" fill="none" stroke="#C89B62" stroke-width="2" stroke-linecap="round" opacity=".8"/>
@@ -637,22 +660,20 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare 
                 <g transform="translate(180 40) scale(.8)"><path class="pm-spark d2" fill="#F28BB4" d="M0 -8 C1.6 -2.2 2.2 -1.6 8 0 C2.2 1.6 1.6 2.2 0 8 C-1.6 2.2 -2.2 1.6 -8 0 C-2.2 -1.6 -1.6 -2.2 0 -8 Z" /></g>
                 <g transform="translate(188 100) scale(.65)"><path class="pm-spark d3" fill="#FFC93D" d="M0 -8 C1.6 -2.2 2.2 -1.6 8 0 C2.2 1.6 1.6 2.2 0 8 C-1.6 2.2 -2.2 1.6 -8 0 C-2.2 -1.6 -1.6 -2.2 0 -8 Z" /></g>
               </g>
-              <g class="pm-pj">
-                <clipPath id="pmPjClip"><path d="M64 146 Q100 136 136 146 L141 194 Q139 207 125 208 L75 208 Q61 207 59 194 Z" /></clipPath>
-                <path d="M64 146 Q100 136 136 146 L141 194 Q139 207 125 208 L75 208 Q61 207 59 194 Z" fill="#F6EFDD" />
-                <g clip-path="url(#pmPjClip)">
-                  <rect x="55" y="156" width="90" height="9" fill="#7FB3CE" />
-                  <rect x="55" y="173" width="90" height="9" fill="#7FB3CE" />
-                  <rect x="55" y="190" width="90" height="9" fill="#7FB3CE" />
-                </g>
-                <path d="M64 146 Q100 136 136 146 L141 194 Q139 207 125 208 L75 208 Q61 207 59 194 Z" fill="none" stroke="#5B8DB0" stroke-width="2" opacity=".45" />
-                <polygon points="100,142 82,144 96,160" fill="#A8CCE0" />
-                <polygon points="100,142 118,144 104,160" fill="#A8CCE0" />
-                <line x1="100" y1="158" x2="100" y2="206" stroke="#5B8DB0" stroke-width="2" opacity=".5" />
-                <circle cx="100" cy="168" r="2.4" fill="#5B8DB0" />
-                <circle cx="100" cy="183" r="2.4" fill="#5B8DB0" />
-                <circle cx="100" cy="198" r="2.4" fill="#5B8DB0" />
-              </g>
+              <g class="pm-zpj">
+<defs><clipPath id="pmZpjClip"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#8FA8C8"/>
+<g clip-path="url(#pmZpjClip)"><rect x="62" y="140" width="3" height="72" fill="#FFFFFF" opacity=".30"/><rect x="76" y="140" width="3" height="72" fill="#FFFFFF" opacity=".30"/><rect x="90" y="140" width="3" height="72" fill="#FFFFFF" opacity=".30"/><rect x="104" y="140" width="3" height="72" fill="#FFFFFF" opacity=".30"/><rect x="118" y="140" width="3" height="72" fill="#FFFFFF" opacity=".30"/><rect x="132" y="140" width="3" height="72" fill="#FFFFFF" opacity=".30"/><rect x="55" y="199" width="90" height="12" fill="#7C96BE"/></g>
+<path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#8FA8C8"/>
+<polygon points="88,149 112,149 100,167" fill="#FFE3C2"/>
+<polygon points="100,150 74,143 86,169" fill="#7C96BE" stroke="#EAF0F8" stroke-width="1.4"/>
+<polygon points="100,150 126,143 114,169" fill="#7C96BE" stroke="#EAF0F8" stroke-width="1.4"/>
+<path d="M97.5 160 L97.5 211 M102.5 160 L102.5 211" stroke="#EAF0F8" stroke-width="1.5" opacity=".8"/>
+<circle cx="100" cy="172" r="2.3" fill="#F4F1E6" stroke="#B9C6DE" stroke-width=".7"/>
+<circle cx="100" cy="186" r="2.3" fill="#F4F1E6" stroke="#B9C6DE" stroke-width=".7"/>
+<path d="M69 172 L87 172 L87 185.5 L69 185.5 Z" fill="#7C96BE" stroke="#EAF0F8" stroke-width="1.2"/>
+<g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+</g>
             </svg>
           </span>
         </button>
@@ -1341,5 +1362,34 @@ api('/api/state').then(function (res) {
 <rect x="97.4" y="166" width="5.2" height="8.5" rx="1.6" fill="#8A8F98"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#FFFFFF" stroke="#C9C2B4" stroke-width=".6"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#111111">ZARA</text></g>
 
 </g></svg><span>پافر مشکی</span><em></em></button><button class="wb-tile" type="button" data-o=""><svg viewBox="55 125 90 95"><polygon points="100,150 73,142 84,169" fill="#FFFFFF" stroke="#D8D2C4"/><polygon points="100,150 127,142 116,169" fill="#FFFFFF" stroke="#D8D2C4"/><polygon points="92,143 108,143 105,158 95,158" fill="#23232A"/><polygon points="95,158 105,158 108.5,186 100,196.5 91.5,186" fill="#23232A"/></svg><span>کراوات کلاسیک</span><em></em></button></div>
-</div></div></body>
+</div></div>
+<script>
+(function () {
+  var L = document.querySelector('.win-curtain-l'), R = document.querySelector('.win-curtain-r');
+  if (!L || !R) return;
+  var ties = document.querySelectorAll('.win-tie');
+  var x = .30, v = 0, target = .30, running = false, last = 0;
+  function apply() {
+    L.style.transform = 'scaleX(' + x + ')';
+    R.style.transform = 'scaleX(' + x + ')';
+    var op = Math.max(0, Math.min(1, (0.72 - x) / 0.42));
+    for (var i = 0; i < ties.length; i++) ties[i].style.opacity = op;
+  }
+  function frame(ts) {
+    if (!last) last = ts;
+    var dt = Math.min(0.033, (ts - last) / 1000); last = ts;
+    var a = (target - x) * 78 - v * 10;
+    v += a * dt; x += v * dt;
+    if (Math.abs(v) < 0.002 && Math.abs(target - x) < 0.002) { x = target; v = 0; apply(); running = false; last = 0; return; }
+    apply();
+    requestAnimationFrame(frame);
+  }
+  function go() { if (!running) { running = true; last = 0; requestAnimationFrame(frame); } }
+  apply();
+  new MutationObserver(function () {
+    target = document.body.classList.contains('night') ? 1 : .30;
+    go();
+  }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script></body>
 </html>
