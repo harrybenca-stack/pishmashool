@@ -190,6 +190,28 @@ body.chatting .pm-bubble{ display:none !important; }
 #winSunGlowC{transition:opacity 3.2s ease}
 #winMoonG{transition:opacity 2.8s ease}
 .win-noanim *{transition:none !important}
+
+.room-rack{ position:fixed; right:0%; bottom:12%; width:102px; z-index:6; cursor:pointer; pointer-events:auto; filter:drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
+.pm-outfit{ display:none; }
+.pm[data-outfit="cream"] .pm-outfit[data-o="cream"]{ display:block; }
+.pm[data-outfit="navy"] .pm-outfit[data-o="navy"]{ display:block; }
+.pm[data-outfit="hoodie"] .pm-outfit[data-o="hoodie"]{ display:block; }
+.pm[data-outfit="plaid"] .pm-outfit[data-o="plaid"]{ display:block; }
+.pm[data-outfit="denim"] .pm-outfit[data-o="denim"]{ display:block; }
+.pm[data-outfit="puffer"] .pm-outfit[data-o="puffer"]{ display:block; }
+.wardrobe-view{ position:fixed; inset:0; z-index:56; background:rgba(8,14,28,.55); display:none; align-items:flex-end; justify-content:center; }
+.wardrobe-view.open{ display:flex; }
+.wb-sheet{ background:#F7F3EC; width:100%; max-height:84dvh; overflow:auto; border-radius:22px 22px 0 0; padding:14px 14px 20px; box-sizing:border-box; }
+.wb-head{ display:flex; align-items:center; justify-content:space-between; font-weight:800; color:#26314B; font-size:17px; }
+.wb-x{ border:none; background:#E7DFCE; width:30px; height:30px; border-radius:50%; font-size:14px; color:#26314B; cursor:pointer; }
+.wb-sub{ color:#6B7280; font-size:13px; margin:6px 0 12px; }
+.wb-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.wb-tile{ background:#FFFFFF; border:2px solid #E3DCCB; border-radius:16px; padding:8px 6px 9px; display:flex; flex-direction:column; align-items:center; gap:2px; font-family:inherit; cursor:pointer; }
+.wb-tile svg{ width:86px; height:64px; }
+.wb-tile span{ font-size:13.5px; font-weight:700; color:#26314B; }
+.wb-tile em{ font-style:normal; font-size:11px; color:#9A8F77; min-height:14px; }
+.wb-tile.sel{ border-color:#C9A227; background:#FDF6E0; }
+.wb-tile.sel em{ color:#A07E14; font-weight:700; }
 .room-orchid{ position:fixed; left:2%; bottom:17.5%; width:118px; z-index:1; pointer-events:none; filter:drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
 .room-switch{ position:fixed; right:14px; top:47%; width:37px; height:62px; z-index:7; cursor:pointer; background:linear-gradient(180deg,#F5EFE0,#E7DCC3); border-radius:9px; box-shadow:0 4px 12px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.7); }
 .room-switch::before, .room-switch::after{ content:''; position:absolute; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:#B07E2E; }
@@ -203,7 +225,7 @@ body.night .switch-dot{ background:#FF9D3C; box-shadow:0 0 8px 2px rgba(255,157,
 .room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 50% 45%, rgba(3,6,16,.22) 0%, rgba(3,6,16,.55) 55%, rgba(2,4,12,.84) 100%); }
 body.night .room-dim{ opacity:1; }
 header, .stage, .hint, .actions{ position:relative; z-index:2; }
-body.bare .room-floor, body.bare .room-rug-img, body.bare .room-orchid, body.bare .room-window, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
+body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare .room-window, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
 .to-clock{ text-align:center; font-size:15.5px; letter-spacing:3px; color:rgba(215,228,255,.62); margin-top:3px; font-variant-numeric:tabular-nums; }
 #pmBubble{ max-height:34dvh; overflow-y:auto; scrollbar-width:none; }
 #pmBubble::-webkit-scrollbar{ display:none; }
@@ -265,117 +287,24 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-orchid, body.bar
 <rect x="0" y="188" width="280" height="10" rx="3" fill="url(#winWood)" stroke="#5F3D1E" stroke-width="1.4"/>
 <path d="M6 191.5 L274 191.5" stroke="#D9A066" stroke-width="1" opacity=".35"/>
 <rect x="8" y="198" width="264" height="4" rx="2" fill="#000000" opacity=".18"/>
-</svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-orchid" aria-hidden="true"><svg viewBox="0 0 140 200" width="100%">
-<defs>
-<linearGradient id="orPotG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FDF8EC"/><stop offset=".55" stop-color="#F0E1C0"/><stop offset="1" stop-color="#DEC69C"/></linearGradient>
-<linearGradient id="orLeafG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#71C184"/><stop offset="1" stop-color="#3E7D4E"/></linearGradient>
-<linearGradient id="orLeafG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8BD098"/><stop offset="1" stop-color="#4C915F"/></linearGradient>
-<linearGradient id="orStemG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#3F7A4C"/><stop offset="1" stop-color="#5DA168"/></linearGradient>
-<radialGradient id="orPetalG" cx=".5" cy=".32" r=".95"><stop offset="0" stop-color="#FCE7F2"/><stop offset=".62" stop-color="#F5ACCD"/><stop offset="1" stop-color="#E87FA9"/></radialGradient>
-<radialGradient id="orSepalG" cx=".5" cy=".35" r=".95"><stop offset="0" stop-color="#F8C8DE"/><stop offset="1" stop-color="#E58AB4"/></radialGradient>
-<radialGradient id="orLipG" cx=".5" cy=".3" r=".9"><stop offset="0" stop-color="#D94F8A"/><stop offset="1" stop-color="#A8235C"/></radialGradient>
-<clipPath id="orPotClip"><path d="M45 147 L95 147 L90.5 176 Q70 182.5 49.5 176 Z"/></clipPath>
-</defs>
-<ellipse cx="70" cy="187" rx="36" ry="5.5" fill="#000000" opacity=".25"/>
-<ellipse cx="70" cy="186" rx="25" ry="4" fill="#000000" opacity=".18"/>
-<path d="M68 142 C58 118 56 94 64 72 C74 94 76 120 70 142 Z" fill="url(#orLeafG)" opacity=".9"/>
-<path d="M67 136 C62 116 61 96 64 78" fill="none" stroke="#2F5D3A" stroke-width="1.2" opacity=".5"/>
-<path d="M68 142 C44 142 22 130 12 108 C34 108 56 122 66 136 C68 139 68 140 68 142 Z" fill="url(#orLeafG)"/>
-<path d="M66 137 C48 128 32 118 18 110" fill="none" stroke="#2F5D3A" stroke-width="1.3" opacity=".55"/>
-<path d="M30 116 C40 122 50 129 58 136" fill="none" stroke="#FFFFFF" stroke-width="2" opacity=".14"/>
-<path d="M72 142 C96 142 118 130 128 108 C106 108 84 122 74 136 C72 139 72 140 72 142 Z" fill="url(#orLeafG)"/>
-<path d="M74 137 C92 128 108 118 122 110" fill="none" stroke="#2F5D3A" stroke-width="1.3" opacity=".55"/>
-<path d="M72 144 C88 140 100 130 104 116 C88 118 76 130 72 140 Z" fill="url(#orLeafG2)"/>
-<path d="M74 139 C86 132 96 124 101 118" fill="none" stroke="#2F5D3A" stroke-width="1.1" opacity=".5"/>
-<line x1="66" y1="140" x2="52" y2="52" stroke="#A87F4C" stroke-width="3" stroke-linecap="round"/>
-<line x1="67.5" y1="138" x2="54" y2="56" stroke="#C49A5E" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>
-<path d="M70 140 C67 106 60 82 45 63 C35 51 25 45 15 47" fill="none" stroke="url(#orStemG)" stroke-width="3.6" stroke-linecap="round"/>
-<ellipse cx="68" cy="112" rx="2" ry="3" fill="#4C915F"/>
-<ellipse cx="60" cy="84" rx="1.9" ry="2.8" fill="#4C915F"/>
-<g transform="translate(61 94)"><ellipse cx="-3" cy="0" rx="3" ry="4.6" transform="rotate(-24)" fill="#F28BB4"/>
-<ellipse cx="3" cy="0" rx="3" ry="4.6" transform="rotate(24)" fill="#F28BB4"/>
-<circle cx="0" cy="0" r="1.6" fill="#D96A8B"/></g>
-<g transform="translate(51 66)"><ellipse cx="-3" cy="0" rx="3" ry="4.6" transform="rotate(-24)" fill="#F28BB4"/>
-<ellipse cx="3" cy="0" rx="3" ry="4.6" transform="rotate(24)" fill="#F28BB4"/>
-<circle cx="0" cy="0" r="1.6" fill="#D96A8B"/></g>
-<g transform="translate(43 57) rotate(-10)"><ellipse cx="0" cy="-11" rx="5.5" ry="11" fill="url(#orSepalG)"/>
-<ellipse cx="-9" cy="7" rx="5.5" ry="10.5" transform="rotate(38 -9 7)" fill="url(#orSepalG)"/>
-<ellipse cx="9" cy="7" rx="5.5" ry="10.5" transform="rotate(-38 9 7)" fill="url(#orSepalG)"/>
-<ellipse cx="-10" cy="-5" rx="9.5" ry="13" transform="rotate(-26 -10 -5)" fill="url(#orPetalG)"/>
-<ellipse cx="10" cy="-5" rx="9.5" ry="13" transform="rotate(26 10 -5)" fill="url(#orPetalG)"/>
-<path d="M-3 -2 Q-10 -8 -14 -14" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".5"/>
-<path d="M-2 1 Q-9 -3 -15 -5" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".45"/>
-<path d="M3 -2 Q10 -8 14 -14" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".5"/>
-<path d="M2 1 Q9 -3 15 -5" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".45"/>
-<circle cx="-6" cy="-1" r="1.1" fill="#C2437F" opacity=".5"/><circle cx="-9" cy="2" r=".9" fill="#C2437F" opacity=".5"/>
-<circle cx="6" cy="-1" r="1.1" fill="#C2437F" opacity=".5"/><circle cx="9" cy="2" r=".9" fill="#C2437F" opacity=".5"/>
-<circle cx="0" cy="-6" r=".8" fill="#C2437F" opacity=".45"/>
-<path d="M-5 2 C-5 7 -3 9.5 0 12.5 C3 9.5 5 7 5 2 C3 4.5 1.5 5.2 0 5.2 C-1.5 5.2 -3 4.5 -5 2 Z" fill="url(#orLipG)"/>
-<circle cx="-1.6" cy="3.4" r="1" fill="#FFD94D"/><circle cx="1.6" cy="3.4" r="1" fill="#FFD94D"/>
-<ellipse cx="0" cy="0.5" rx="1.7" ry="2.6" fill="#FFF6EC" stroke="#E3B7CC" stroke-width=".5"/></g>
-<g transform="translate(28 43) scale(.95) rotate(-20)"><ellipse cx="0" cy="-11" rx="5.5" ry="11" fill="url(#orSepalG)"/>
-<ellipse cx="-9" cy="7" rx="5.5" ry="10.5" transform="rotate(38 -9 7)" fill="url(#orSepalG)"/>
-<ellipse cx="9" cy="7" rx="5.5" ry="10.5" transform="rotate(-38 9 7)" fill="url(#orSepalG)"/>
-<ellipse cx="-10" cy="-5" rx="9.5" ry="13" transform="rotate(-26 -10 -5)" fill="url(#orPetalG)"/>
-<ellipse cx="10" cy="-5" rx="9.5" ry="13" transform="rotate(26 10 -5)" fill="url(#orPetalG)"/>
-<path d="M-3 -2 Q-10 -8 -14 -14" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".5"/>
-<path d="M-2 1 Q-9 -3 -15 -5" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".45"/>
-<path d="M3 -2 Q10 -8 14 -14" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".5"/>
-<path d="M2 1 Q9 -3 15 -5" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".45"/>
-<circle cx="-6" cy="-1" r="1.1" fill="#C2437F" opacity=".5"/><circle cx="-9" cy="2" r=".9" fill="#C2437F" opacity=".5"/>
-<circle cx="6" cy="-1" r="1.1" fill="#C2437F" opacity=".5"/><circle cx="9" cy="2" r=".9" fill="#C2437F" opacity=".5"/>
-<circle cx="0" cy="-6" r=".8" fill="#C2437F" opacity=".45"/>
-<path d="M-5 2 C-5 7 -3 9.5 0 12.5 C3 9.5 5 7 5 2 C3 4.5 1.5 5.2 0 5.2 C-1.5 5.2 -3 4.5 -5 2 Z" fill="url(#orLipG)"/>
-<circle cx="-1.6" cy="3.4" r="1" fill="#FFD94D"/><circle cx="1.6" cy="3.4" r="1" fill="#FFD94D"/>
-<ellipse cx="0" cy="0.5" rx="1.7" ry="2.6" fill="#FFF6EC" stroke="#E3B7CC" stroke-width=".5"/></g>
-<g transform="translate(16 55) scale(.8) rotate(-32)"><ellipse cx="0" cy="-11" rx="5.5" ry="11" fill="url(#orSepalG)"/>
-<ellipse cx="-9" cy="7" rx="5.5" ry="10.5" transform="rotate(38 -9 7)" fill="url(#orSepalG)"/>
-<ellipse cx="9" cy="7" rx="5.5" ry="10.5" transform="rotate(-38 9 7)" fill="url(#orSepalG)"/>
-<ellipse cx="-10" cy="-5" rx="9.5" ry="13" transform="rotate(-26 -10 -5)" fill="url(#orPetalG)"/>
-<ellipse cx="10" cy="-5" rx="9.5" ry="13" transform="rotate(26 10 -5)" fill="url(#orPetalG)"/>
-<path d="M-3 -2 Q-10 -8 -14 -14" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".5"/>
-<path d="M-2 1 Q-9 -3 -15 -5" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".45"/>
-<path d="M3 -2 Q10 -8 14 -14" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".5"/>
-<path d="M2 1 Q9 -3 15 -5" fill="none" stroke="#D96A9B" stroke-width=".9" opacity=".45"/>
-<circle cx="-6" cy="-1" r="1.1" fill="#C2437F" opacity=".5"/><circle cx="-9" cy="2" r=".9" fill="#C2437F" opacity=".5"/>
-<circle cx="6" cy="-1" r="1.1" fill="#C2437F" opacity=".5"/><circle cx="9" cy="2" r=".9" fill="#C2437F" opacity=".5"/>
-<circle cx="0" cy="-6" r=".8" fill="#C2437F" opacity=".45"/>
-<path d="M-5 2 C-5 7 -3 9.5 0 12.5 C3 9.5 5 7 5 2 C3 4.5 1.5 5.2 0 5.2 C-1.5 5.2 -3 4.5 -5 2 Z" fill="url(#orLipG)"/>
-<circle cx="-1.6" cy="3.4" r="1" fill="#FFD94D"/><circle cx="1.6" cy="3.4" r="1" fill="#FFD94D"/>
-<ellipse cx="0" cy="0.5" rx="1.7" ry="2.6" fill="#FFF6EC" stroke="#E3B7CC" stroke-width=".5"/></g>
-<g transform="translate(9 40) scale(.55)"><ellipse cx="0" cy="0" rx="5" ry="8.5" fill="url(#orSepalG)"/>
-<path d="M0 -8 C-2.2 -3 -2.2 3 0 8" fill="none" stroke="#D96A9B" stroke-width=".8" opacity=".5"/>
-<path d="M0 -8 C2.2 -3 2.2 3 0 8" fill="none" stroke="#D96A9B" stroke-width=".8" opacity=".4"/>
-<ellipse cx="0" cy="-8" rx="2" ry="2.6" fill="#7BAF6E"/>
-<path d="M-4 7 L0 3.5 L4 7 L2.5 10 L-2.5 10 Z" fill="#5E9C6B"/></g>
-<g transform="translate(13 30) scale(.45)"><ellipse cx="0" cy="0" rx="5" ry="8.5" fill="url(#orSepalG)"/>
-<path d="M0 -8 C-2.2 -3 -2.2 3 0 8" fill="none" stroke="#D96A9B" stroke-width=".8" opacity=".5"/>
-<path d="M0 -8 C2.2 -3 2.2 3 0 8" fill="none" stroke="#D96A9B" stroke-width=".8" opacity=".4"/>
-<ellipse cx="0" cy="-8" rx="2" ry="2.6" fill="#7BAF6E"/>
-<path d="M-4 7 L0 3.5 L4 7 L2.5 10 L-2.5 10 Z" fill="#5E9C6B"/></g>
-<ellipse cx="70" cy="181" rx="31" ry="7" fill="#EBDCBC" stroke="#C9A959" stroke-width="1.2"/>
-<ellipse cx="70" cy="179" rx="24" ry="5.2" fill="#DECCA3"/>
-<path d="M45 147 L95 147 L90.5 176 Q70 182.5 49.5 176 Z" fill="url(#orPotG)"/>
-<g clip-path="url(#orPotClip)">
-<rect x="40" y="158" width="60" height="9" fill="#C9A959" opacity=".26"/>
-<path d="M50 160 l3 3.4 -3 3.4 -3 -3.4 Z" fill="#B8892F" opacity=".85"/>
-<path d="M62 160 l3 3.4 -3 3.4 -3 -3.4 Z" fill="#B8892F" opacity=".85"/>
-<path d="M74 160 l3 3.4 -3 3.4 -3 -3.4 Z" fill="#B8892F" opacity=".85"/>
-<path d="M86 160 l3 3.4 -3 3.4 -3 -3.4 Z" fill="#B8892F" opacity=".85"/>
-<path d="M51 150 L55 172" stroke="#FFFFFF" stroke-width="5" opacity=".3" stroke-linecap="round"/>
-<rect x="84" y="147" width="14" height="36" fill="#8A6D3B" opacity=".12"/>
-</g>
-<path d="M45 147 L95 147 L90.5 176 Q70 182.5 49.5 176 Z" fill="none" stroke="#C9A959" stroke-width="1.3" opacity=".8"/>
-<rect x="41" y="136" width="58" height="11" rx="4" fill="#FCF4E0" stroke="#C9A959" stroke-width="1.4"/>
-<path d="M45 139.5 L95 139.5" stroke="#FFFFFF" stroke-width="1.6" opacity=".7" stroke-linecap="round"/>
-<ellipse cx="70" cy="140" rx="26" ry="5.5" fill="#4A3524"/>
-<ellipse cx="56" cy="139" rx="3.4" ry="1.8" fill="#7D5F40"/><ellipse cx="66" cy="141" rx="2.6" ry="1.5" fill="#6B4E33"/>
-<ellipse cx="78" cy="139" rx="3" ry="1.7" fill="#86664A"/><ellipse cx="86" cy="140" rx="2.2" ry="1.3" fill="#7D5F40"/>
-<rect x="59" y="136.8" width="5" height="2.4" rx="1" transform="rotate(18 61.5 138)" fill="#8A6844"/>
-<rect x="73" y="137.2" width="4.4" height="2.2" rx="1" transform="rotate(-14 75.2 138.3)" fill="#75552F"/>
-<path d="M86 141 C98 145 102 153 96 163" fill="none" stroke="#B9C4B0" stroke-width="3" stroke-linecap="round"/>
-<circle cx="96" cy="163" r="1.8" fill="#8FA287"/>
-<path d="M56 141 C48 145 46 152 50 158" fill="none" stroke="#B9C4B0" stroke-width="2.4" stroke-linecap="round"/>
+</svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-rack" id="roomRack" role="button" aria-label="جارختی پیش‌مشول"><svg viewBox="0 0 120 215" width="100%" aria-hidden="true">
+<ellipse cx="60" cy="207" rx="48" ry="6" fill="#000" opacity=".20"/>
+<path d="M18 36 Q60 28 102 36" fill="none" stroke="#8A5A2E" stroke-width="6" stroke-linecap="round"/>
+<path d="M18 34.5 Q60 26.5 102 34.5" fill="none" stroke="#C89B62" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+<rect x="15.5" y="36" width="5" height="152" rx="2.4" fill="#9A6A3C"/>
+<rect x="99.5" y="36" width="5" height="152" rx="2.4" fill="#9A6A3C"/>
+<rect x="14" y="52" width="8" height="3.4" rx="1.6" fill="#C9A227"/>
+<rect x="98" y="52" width="8" height="3.4" rx="1.6" fill="#C9A227"/>
+<circle cx="18" cy="31" r="5" fill="#C9A227"/><circle cx="102" cy="31" r="5" fill="#C9A227"/>
+<circle cx="18" cy="31" r="2" fill="#E8CD7A"/><circle cx="102" cy="31" r="2" fill="#E8CD7A"/>
+<rect x="18" y="168" width="84" height="4.6" rx="2.3" fill="#8A5A2E"/>
+<path d="M8 190 Q18 184 30 190 L30 196 L8 196 Z" fill="#7C5228"/>
+<path d="M90 190 Q102 184 112 190 L112 196 L90 196 Z" fill="#7C5228"/>
+<circle cx="15" cy="201" r="4.6" fill="#4A3826"/><circle cx="105" cy="201" r="4.6" fill="#4A3826"/>
+<circle cx="15" cy="201" r="1.8" fill="#8A8F98"/><circle cx="105" cy="201" r="1.8" fill="#8A8F98"/>
+<path d="M25.5 47 Q28 41.5 30.5 47" fill="none" stroke="#8A8F98" stroke-width="1.7"/><path d="M16 62 L28 49 L40 62" fill="none" stroke="#B08954" stroke-width="2.2" stroke-linejoin="round"/><path d="M17 60 L24 57.5 L32 57.5 L39 60 L43.5 71 L38 73 L38 96 Q28 99 18 96 L18 73 L12.5 71 Z" fill="#DFCFA9" stroke="#00000026" stroke-width="1"/><path d="M41.5 47 Q44 41.5 46.5 47" fill="none" stroke="#8A8F98" stroke-width="1.7"/><path d="M32 62 L44 49 L56 62" fill="none" stroke="#B08954" stroke-width="2.2" stroke-linejoin="round"/><path d="M33 60 L40 57.5 L48 57.5 L55 60 L59.5 71 L54 73 L54 96 Q44 99 34 96 L34 73 L28.5 71 Z" fill="#31456B" stroke="#00000026" stroke-width="1"/><path d="M41 58 L47 58 L44 66 Z" fill="#F7F5F0"/><path d="M57.5 47 Q60 41.5 62.5 47" fill="none" stroke="#8A8F98" stroke-width="1.7"/><path d="M48 62 L60 49 L72 62" fill="none" stroke="#B08954" stroke-width="2.2" stroke-linejoin="round"/><path d="M49 60 L56 57.5 L64 57.5 L71 60 L75.5 71 L70 73 L70 96 Q60 99 50 96 L50 73 L44.5 71 Z" fill="#B7BBC2" stroke="#00000026" stroke-width="1"/><path d="M53 84 L67 84 L69 94 L51 94 Z" fill="#AEB2BA" stroke="#9AA0A9" stroke-width="1"/><path d="M73.5 47 Q76 41.5 78.5 47" fill="none" stroke="#8A8F98" stroke-width="1.7"/><path d="M64 62 L76 49 L88 62" fill="none" stroke="#B08954" stroke-width="2.2" stroke-linejoin="round"/><path d="M65 60 L72 57.5 L80 57.5 L87 60 L91.5 71 L86 73 L86 96 Q76 99 66 96 L66 73 L60.5 71 Z" fill="#9E3B3B" stroke="#00000026" stroke-width="1"/><path d="M70 57 L71.5 97 M81 57 L82.5 97 M65 70 L87 70 M65 84 L87 84" stroke="#7E2E35" stroke-width="2" opacity=".55"/><path d="M89.5 47 Q92 41.5 94.5 47" fill="none" stroke="#8A8F98" stroke-width="1.7"/><path d="M80 62 L92 49 L104 62" fill="none" stroke="#B08954" stroke-width="2.2" stroke-linejoin="round"/><path d="M81 60 L88 57.5 L96 57.5 L103 60 L107.5 71 L102 73 L102 96 Q92 99 82 96 L82 73 L76.5 71 Z" fill="#52779F" stroke="#00000026" stroke-width="1"/><path d="M86 62 L86 96 M98 62 L98 96" stroke="#E8A33D" stroke-width="1" stroke-dasharray="2.2 1.8" opacity=".85"/><path d="M103 60 Q112 62 111 72 L110 96 L98 96 L99 72 Q98 62 103 60 Z" fill="#FFFFFF" stroke="#D8D2C4" stroke-width="1"/>
+<path d="M99 72 L111 72" stroke="#D8D2C4" stroke-width="1"/>
+<text x="105" y="86" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.4" letter-spacing=".6" fill="#161513">ZARA</text>
 </svg></div><div class="room-switch" id="roomLamp" role="button" aria-label="کلید چراغ خواب"><div class="switch-rocker"></div><div class="switch-dot"></div></div><div class="room-dim"></div>
 <div class="wall-frame" id="coupleFrame" role="button" aria-label="عکس پیش‌مشول و دوست‌دخترش"><img src="couple.webp" alt=""></div>
 <header>
@@ -566,7 +495,136 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-orchid, body.bar
               <polygon points="100,150 73,142 84,169" fill="url(#pmCollar)" />
               <polygon points="100,150 127,142 116,169" fill="url(#pmCollar)" />
               <polygon points="92,143 108,143 105,158 95,158" fill="url(#pmTie)" />
-              <polygon points="95,158 105,158 108.5,186 100,196.5 91.5,186" fill="url(#pmTie)" />
+              <polygon points="95,158 105,158 108.5,186 100,196.5 91.5,186" fill="url(#pmTie)" /><g class="pm-outfit" data-o="cream">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#DFCFA9"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#C9B184"/>
+<g stroke="#B39B78" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="55" y="168" width="90" height="2.6" fill="#B39B78" opacity=".10"/><rect x="55" y="178" width="90" height="2.6" fill="#B39B78" opacity=".10"/><rect x="55" y="188" width="90" height="2.6" fill="#B39B78" opacity=".10"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#DFCFA9"/>
+<path d="M72 152.5 Q100 143 128 152.5 L125.5 160 Q100 167.5 74.5 160 Z" fill="#C9B184"/>
+<g stroke="#00000022" stroke-width="1"><path d="M84 149.5 L85 157"/><path d="M92 147.8 L92.5 155.5"/><path d="M100 147.2 L100 155"/><path d="M108 147.8 L107.5 155.5"/><path d="M116 149.5 L115 157"/></g>
+<ellipse cx="100" cy="146" rx="24" ry="3.2" fill="#000000" opacity=".07"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+<g transform="rotate(-8 66 182)">
+<rect x="47" y="167" width="36" height="27" rx="3.5" fill="#5B7DB1"/>
+<rect x="51" y="170.5" width="28" height="20" rx="2" fill="#FFF8EA"/>
+<rect x="55" y="175" width="20" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<rect x="55" y="180" width="16" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<circle cx="50.5" cy="174" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="180.5" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="187" r="1.1" fill="#3E5A85"/>
+</g>
+<ellipse cx="82" cy="169" rx="10" ry="7.5" fill="url(#pmFurHead)"/>
+<path d="M77 165 Q82 162 87 165" fill="none" stroke="#DE7E20" stroke-width="2" opacity=".4" stroke-linecap="round"/>
+</g><g class="pm-outfit" data-o="navy">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#31456B"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#26355A"/>
+<g stroke="#1D2A47" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="55" y="168" width="90" height="2.6" fill="#22345C" opacity=".35"/><rect x="55" y="178" width="90" height="2.6" fill="#22345C" opacity=".35"/><rect x="55" y="188" width="90" height="2.6" fill="#22345C" opacity=".35"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#31456B"/>
+<path d="M85 146 L115 146 L100 171 Z" fill="#F7F5F0"/>
+<path d="M85 146 L100 171 L115 146" fill="none" stroke="#26355A" stroke-width="4.4" stroke-linejoin="round"/>
+<ellipse cx="100" cy="145" rx="24" ry="3" fill="#000000" opacity=".07"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#FFFFFF" stroke="#C9C2B4" stroke-width=".6"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#111111">ZARA</text></g>
+<g transform="rotate(-8 66 182)">
+<rect x="47" y="167" width="36" height="27" rx="3.5" fill="#5B7DB1"/>
+<rect x="51" y="170.5" width="28" height="20" rx="2" fill="#FFF8EA"/>
+<rect x="55" y="175" width="20" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<rect x="55" y="180" width="16" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<circle cx="50.5" cy="174" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="180.5" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="187" r="1.1" fill="#3E5A85"/>
+</g>
+<ellipse cx="82" cy="169" rx="10" ry="7.5" fill="url(#pmFurHead)"/>
+<path d="M77 165 Q82 162 87 165" fill="none" stroke="#DE7E20" stroke-width="2" opacity=".4" stroke-linecap="round"/>
+</g><g class="pm-outfit" data-o="hoodie">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#B7BBC2"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#A6ABB4"/>
+<g stroke="#8F959F" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="55" y="168" width="90" height="2.6" fill="#9AA0A9" opacity=".18"/><rect x="55" y="178" width="90" height="2.6" fill="#9AA0A9" opacity=".18"/><rect x="55" y="188" width="90" height="2.6" fill="#9AA0A9" opacity=".18"/></g><ellipse cx="65" cy="159" rx="10.5" ry="8" fill="#A6ABB4"/>
+<ellipse cx="135" cy="159" rx="10.5" ry="8" fill="#A6ABB4"/><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#B7BBC2"/>
+<path d="M72 152.5 Q100 143 128 152.5 L125.5 160 Q100 167.5 74.5 160 Z" fill="#A6ABB4"/>
+<g stroke="#00000022" stroke-width="1"><path d="M84 149.5 L85 157"/><path d="M92 147.8 L92.5 155.5"/><path d="M100 147.2 L100 155"/><path d="M108 147.8 L107.5 155.5"/><path d="M116 149.5 L115 157"/></g>
+<ellipse cx="100" cy="146" rx="24" ry="3.2" fill="#000000" opacity=".07"/><path d="M78 184 L122 184 L128 205 L72 205 Z" fill="#AEB2BA" stroke="#9AA0A9" stroke-width="1.4"/>
+<path d="M78 184 L86 193 M122 184 L114 193" stroke="#9AA0A9" stroke-width="1.6" fill="none"/>
+<path d="M94 161 Q93 169 94 176" fill="none" stroke="#F2F3F5" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M106 161 Q107 169 106 176" fill="none" stroke="#F2F3F5" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="94" cy="177.5" r="1.7" fill="#D8DBE0"/><circle cx="106" cy="177.5" r="1.7" fill="#D8DBE0"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+<g transform="rotate(-8 66 182)">
+<rect x="47" y="167" width="36" height="27" rx="3.5" fill="#5B7DB1"/>
+<rect x="51" y="170.5" width="28" height="20" rx="2" fill="#FFF8EA"/>
+<rect x="55" y="175" width="20" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<rect x="55" y="180" width="16" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<circle cx="50.5" cy="174" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="180.5" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="187" r="1.1" fill="#3E5A85"/>
+</g>
+<ellipse cx="82" cy="169" rx="10" ry="7.5" fill="url(#pmFurHead)"/>
+<path d="M77 165 Q82 162 87 165" fill="none" stroke="#DE7E20" stroke-width="2" opacity=".4" stroke-linecap="round"/>
+</g><g class="pm-outfit" data-o="plaid">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#9E3B3B"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#7E2E35"/>
+<g stroke="#5F2126" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="58" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="80" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="102" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="124" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="55" y="152" width="90" height="11" fill="#7E2E35" opacity=".5"/><rect x="55" y="174" width="90" height="11" fill="#7E2E35" opacity=".5"/><rect x="55" y="196" width="90" height="11" fill="#7E2E35" opacity=".5"/><rect x="66" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/><rect x="88" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/><rect x="110" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/><rect x="132" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#9E3B3B"/>
+<polygon points="100,150 73,142 84,169" fill="#7E2E35"/>
+<polygon points="100,150 127,142 116,169" fill="#7E2E35"/>
+<path d="M100 160 L100 211" stroke="#7E2E35" stroke-width="5"/>
+<circle cx="100" cy="170" r="2.2" fill="#E8DCC8"/><circle cx="100" cy="184" r="2.2" fill="#E8DCC8"/><circle cx="100" cy="197" r="2.2" fill="#E8DCC8"/>
+<path d="M70 172 L87 172 L87 185 L70 185 Z" fill="#8E3434" stroke="#7E2E35" stroke-width="1.2"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+<g transform="rotate(-8 66 182)">
+<rect x="47" y="167" width="36" height="27" rx="3.5" fill="#5B7DB1"/>
+<rect x="51" y="170.5" width="28" height="20" rx="2" fill="#FFF8EA"/>
+<rect x="55" y="175" width="20" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<rect x="55" y="180" width="16" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<circle cx="50.5" cy="174" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="180.5" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="187" r="1.1" fill="#3E5A85"/>
+</g>
+<ellipse cx="82" cy="169" rx="10" ry="7.5" fill="url(#pmFurHead)"/>
+<path d="M77 165 Q82 162 87 165" fill="none" stroke="#DE7E20" stroke-width="2" opacity=".4" stroke-linecap="round"/>
+</g><g class="pm-outfit" data-o="denim">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#52779F"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#42648A"/>
+<g stroke="#33506E" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g>
+<path d="M78 150 L78 211 M122 150 L122 211" stroke="#E8A33D" stroke-width="1.3" stroke-dasharray="3 2.4" opacity=".8"/>
+<path d="M97 156 L97 211 M103 156 L103 211" stroke="#E8A33D" stroke-width="1.1" stroke-dasharray="3 2.4" opacity=".7"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#52779F"/>
+<polygon points="100,150 73,142 84,169" fill="#42648A"/>
+<polygon points="100,150 127,142 116,169" fill="#42648A"/>
+<circle cx="100" cy="168" r="2.4" fill="#D9DEE4"/><circle cx="100" cy="182" r="2.4" fill="#D9DEE4"/><circle cx="100" cy="195" r="2.4" fill="#D9DEE4"/>
+<path d="M64 166 L82 166 L82 178 L64 178 Z" fill="#4A6C91" stroke="#E8A33D" stroke-width="1" stroke-dasharray="2.4 2"/>
+<path d="M118 166 L136 166 L136 178 L118 178 Z" fill="#4A6C91" stroke="#E8A33D" stroke-width="1" stroke-dasharray="2.4 2"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+<g transform="rotate(-8 66 182)">
+<rect x="47" y="167" width="36" height="27" rx="3.5" fill="#5B7DB1"/>
+<rect x="51" y="170.5" width="28" height="20" rx="2" fill="#FFF8EA"/>
+<rect x="55" y="175" width="20" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<rect x="55" y="180" width="16" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<circle cx="50.5" cy="174" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="180.5" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="187" r="1.1" fill="#3E5A85"/>
+</g>
+<ellipse cx="82" cy="169" rx="10" ry="7.5" fill="url(#pmFurHead)"/>
+<path d="M77 165 Q82 162 87 165" fill="none" stroke="#DE7E20" stroke-width="2" opacity=".4" stroke-linecap="round"/>
+</g><g class="pm-outfit" data-o="puffer">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#2E2E33"/>
+<g clip-path="url(#pmZaraClip2)">
+<rect x="55" y="164" width="90" height="3" fill="#17171A"/><rect x="55" y="167" width="90" height="1.4" fill="#4A4A52" opacity=".7"/>
+<rect x="55" y="181" width="90" height="3" fill="#17171A"/><rect x="55" y="184" width="90" height="1.4" fill="#4A4A52" opacity=".7"/>
+<rect x="55" y="197" width="90" height="3" fill="#17171A"/><rect x="55" y="200" width="90" height="1.4" fill="#4A4A52" opacity=".7"/>
+<rect x="55" y="202" width="90" height="9" fill="#26262B"/></g><path d="M68 156 Q100 140 132 156 L132 163 Q100 173 68 163 Z" fill="#26262B"/>
+<path d="M74 158 Q100 148 126 158 L124 147 Q100 139 76 147 Z" fill="#33333A"/>
+<path d="M76 147 Q100 139 124 147" fill="none" stroke="#17171A" stroke-width="1.6"/>
+<path d="M100 160 L100 211" stroke="#101013" stroke-width="2.6"/>
+<rect x="97.4" y="166" width="5.2" height="8.5" rx="1.6" fill="#8A8F98"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#FFFFFF" stroke="#C9C2B4" stroke-width=".6"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#111111">ZARA</text></g>
+<g transform="rotate(-8 66 182)">
+<rect x="47" y="167" width="36" height="27" rx="3.5" fill="#5B7DB1"/>
+<rect x="51" y="170.5" width="28" height="20" rx="2" fill="#FFF8EA"/>
+<rect x="55" y="175" width="20" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<rect x="55" y="180" width="16" height="2.4" rx="1.2" fill="#B9C6DE"/>
+<circle cx="50.5" cy="174" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="180.5" r="1.1" fill="#3E5A85"/>
+<circle cx="50.5" cy="187" r="1.1" fill="#3E5A85"/>
+</g>
+<ellipse cx="82" cy="169" rx="10" ry="7.5" fill="url(#pmFurHead)"/>
+<path d="M77 165 Q82 162 87 165" fill="none" stroke="#DE7E20" stroke-width="2" opacity=".4" stroke-linecap="round"/>
+</g>
               <polygon points="97.3,160 100.3,160 102.2,184 99.2,190.5" fill="#ffffff" opacity=".32" />
               <ellipse cx="72" cy="206" rx="14" ry="7" fill="url(#pmFurBody)" />
               <ellipse cx="128" cy="206" rx="14" ry="7" fill="url(#pmFurBody)" />
@@ -1070,6 +1128,55 @@ api('/api/state').then(function (res) {
   window.__pmSlots = res.j.cat_slots || {};
   setTimeout(function () { var ml = pmMorningOnce(); pmSay(ml || 'سلام هلیا جان! به خونه‌ی خودم خوش اومدی 🐾', 7000); }, 500);
 });
+
+  // ===== wardrobe (جارختی) =====
+  window.addEventListener('DOMContentLoaded', function () {
+    var pmEl = document.getElementById('pm');
+    var view = document.getElementById('wardrobeView');
+    var rack = document.getElementById('roomRack');
+    if (!pmEl || !view || !rack) return;
+    var LINES = {
+      cream: 'بافت کرمم رو تنم کردی! نرم و گرمه، مرسی هلیا جان 🐾',
+      navy: 'پلیور سرمه‌ایم! چه خوش‌تیپ و رسمی شدم، نه هلیا جان؟ 😼',
+      hoodie: 'هودی طوسیم! راحتِ راحتم، مرسی که اینو انتخاب کردی هلیا جان 🐾',
+      plaid: 'چهارخونه قرمزم! وای چه خوش‌رنگه، دوسش دارم هلیا جان 😻',
+      denim: 'کت جینم! چه خفن شدم هلیا جان، نه؟ 😼',
+      puffer: 'پافرم! دیگه از سرما نمی‌ترسم، مرسی هلیا جان 🐾',
+      '': 'برگشتم به کراوات کلاسیکم! همیشگی و شیک 🐾'
+    };
+    function markSel(cur) {
+      var tiles = view.querySelectorAll('.wb-tile');
+      for (var i = 0; i < tiles.length; i++) {
+        var on = (tiles[i].getAttribute('data-o') || '') === (cur || '');
+        tiles[i].classList.toggle('sel', on);
+        tiles[i].querySelector('em').textContent = on ? 'الان تنشه ✓' : '';
+      }
+    }
+    function applyOutfit(name, silent) {
+      if (name) { pmEl.setAttribute('data-outfit', name); try { localStorage.setItem('pmOutfit', name); } catch (e) {} }
+      else { pmEl.removeAttribute('data-outfit'); try { localStorage.removeItem('pmOutfit'); } catch (e) {} }
+      markSel(name || '');
+      if (!silent && typeof pmSay === 'function') pmSay(LINES[name || ''] || LINES[''], 6000);
+    }
+    var saved = '';
+    try { saved = localStorage.getItem('pmOutfit') || ''; } catch (e) {}
+    if (saved) applyOutfit(saved, true); else markSel('');
+    rack.addEventListener('click', function () {
+      view.classList.add('open');
+      if (typeof pmSay === 'function') pmSay('هلیا جان، این جارختی‌مه! کدوم لباس رو تنم می‌کنی؟ 🐾', 5000);
+    });
+    document.getElementById('wbClose').addEventListener('click', function () { view.classList.remove('open'); });
+    view.addEventListener('click', function (ev) { if (ev.target === view) view.classList.remove('open'); });
+    var tiles = view.querySelectorAll('.wb-tile');
+    for (var i = 0; i < tiles.length; i++) {
+      tiles[i].addEventListener('click', function () {
+        var name = this.getAttribute('data-o') || '';
+        applyOutfit(name, false);
+        var v = view;
+        setTimeout(function () { v.classList.remove('open'); }, 380);
+      });
+    }
+  });
 </script>
 <script>(function(){
   var WIN_STATES = {
@@ -1161,5 +1268,78 @@ api('/api/state').then(function (res) {
     if (p !== current){ transitionTo(p); try{ localStorage.setItem('pmWinSeen', p); }catch(e){} }
   }, 60000);
 })();
-</script></body>
+</script><div class="wardrobe-view" id="wardrobeView"><div class="wb-sheet">
+<div class="wb-head"><span>👗 جارختی پیش‌مشول</span><button class="wb-x" type="button" id="wbClose">✕</button></div>
+<p class="wb-sub">هلیا جان، کدوم رو تنم کنم؟ 🐾</p>
+<div class="wb-grid"><button class="wb-tile" type="button" data-o="cream"><svg viewBox="40 130 120 95"><g class="pm-zara">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#DFCFA9"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#C9B184"/>
+<g stroke="#B39B78" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="55" y="168" width="90" height="2.6" fill="#B39B78" opacity=".10"/><rect x="55" y="178" width="90" height="2.6" fill="#B39B78" opacity=".10"/><rect x="55" y="188" width="90" height="2.6" fill="#B39B78" opacity=".10"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#DFCFA9"/>
+<path d="M72 152.5 Q100 143 128 152.5 L125.5 160 Q100 167.5 74.5 160 Z" fill="#C9B184"/>
+<g stroke="#00000022" stroke-width="1"><path d="M84 149.5 L85 157"/><path d="M92 147.8 L92.5 155.5"/><path d="M100 147.2 L100 155"/><path d="M108 147.8 L107.5 155.5"/><path d="M116 149.5 L115 157"/></g>
+<ellipse cx="100" cy="146" rx="24" ry="3.2" fill="#000000" opacity=".07"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+
+</g></svg><span>بافت کرم</span><em></em></button><button class="wb-tile" type="button" data-o="navy"><svg viewBox="40 130 120 95"><g class="pm-zara">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#31456B"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#26355A"/>
+<g stroke="#1D2A47" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="55" y="168" width="90" height="2.6" fill="#22345C" opacity=".35"/><rect x="55" y="178" width="90" height="2.6" fill="#22345C" opacity=".35"/><rect x="55" y="188" width="90" height="2.6" fill="#22345C" opacity=".35"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#31456B"/>
+<path d="M85 146 L115 146 L100 171 Z" fill="#F7F5F0"/>
+<path d="M85 146 L100 171 L115 146" fill="none" stroke="#26355A" stroke-width="4.4" stroke-linejoin="round"/>
+<ellipse cx="100" cy="145" rx="24" ry="3" fill="#000000" opacity=".07"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#FFFFFF" stroke="#C9C2B4" stroke-width=".6"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#111111">ZARA</text></g>
+
+</g></svg><span>پلیور سرمه‌ای</span><em></em></button><button class="wb-tile" type="button" data-o="hoodie"><svg viewBox="40 130 120 95"><g class="pm-zara">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#B7BBC2"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#A6ABB4"/>
+<g stroke="#8F959F" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="55" y="168" width="90" height="2.6" fill="#9AA0A9" opacity=".18"/><rect x="55" y="178" width="90" height="2.6" fill="#9AA0A9" opacity=".18"/><rect x="55" y="188" width="90" height="2.6" fill="#9AA0A9" opacity=".18"/></g><ellipse cx="65" cy="159" rx="10.5" ry="8" fill="#A6ABB4"/>
+<ellipse cx="135" cy="159" rx="10.5" ry="8" fill="#A6ABB4"/><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#B7BBC2"/>
+<path d="M72 152.5 Q100 143 128 152.5 L125.5 160 Q100 167.5 74.5 160 Z" fill="#A6ABB4"/>
+<g stroke="#00000022" stroke-width="1"><path d="M84 149.5 L85 157"/><path d="M92 147.8 L92.5 155.5"/><path d="M100 147.2 L100 155"/><path d="M108 147.8 L107.5 155.5"/><path d="M116 149.5 L115 157"/></g>
+<ellipse cx="100" cy="146" rx="24" ry="3.2" fill="#000000" opacity=".07"/><path d="M78 184 L122 184 L128 205 L72 205 Z" fill="#AEB2BA" stroke="#9AA0A9" stroke-width="1.4"/>
+<path d="M78 184 L86 193 M122 184 L114 193" stroke="#9AA0A9" stroke-width="1.6" fill="none"/>
+<path d="M94 161 Q93 169 94 176" fill="none" stroke="#F2F3F5" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M106 161 Q107 169 106 176" fill="none" stroke="#F2F3F5" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="94" cy="177.5" r="1.7" fill="#D8DBE0"/><circle cx="106" cy="177.5" r="1.7" fill="#D8DBE0"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+
+</g></svg><span>هودی طوسی</span><em></em></button><button class="wb-tile" type="button" data-o="plaid"><svg viewBox="40 130 120 95"><g class="pm-zara">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#9E3B3B"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#7E2E35"/>
+<g stroke="#5F2126" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g><rect x="58" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="80" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="102" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="124" y="140" width="11" height="72" fill="#7E2E35" opacity=".5"/><rect x="55" y="152" width="90" height="11" fill="#7E2E35" opacity=".5"/><rect x="55" y="174" width="90" height="11" fill="#7E2E35" opacity=".5"/><rect x="55" y="196" width="90" height="11" fill="#7E2E35" opacity=".5"/><rect x="66" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/><rect x="88" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/><rect x="110" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/><rect x="132" y="140" width="2" height="72" fill="#E8DCC8" opacity=".35"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#9E3B3B"/>
+<polygon points="100,150 73,142 84,169" fill="#7E2E35"/>
+<polygon points="100,150 127,142 116,169" fill="#7E2E35"/>
+<path d="M100 160 L100 211" stroke="#7E2E35" stroke-width="5"/>
+<circle cx="100" cy="170" r="2.2" fill="#E8DCC8"/><circle cx="100" cy="184" r="2.2" fill="#E8DCC8"/><circle cx="100" cy="197" r="2.2" fill="#E8DCC8"/>
+<path d="M70 172 L87 172 L87 185 L70 185 Z" fill="#8E3434" stroke="#7E2E35" stroke-width="1.2"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+
+</g></svg><span>چهارخونه قرمز</span><em></em></button><button class="wb-tile" type="button" data-o="denim"><svg viewBox="40 130 120 95"><g class="pm-zara">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#52779F"/>
+<g clip-path="url(#pmZaraClip2)"><rect x="55" y="199" width="90" height="12" fill="#42648A"/>
+<g stroke="#33506E" stroke-width="1" opacity=".5"><path d="M64 200 L64 211"/><path d="M72 200 L72 211"/><path d="M80 200 L80 211"/><path d="M88 200 L88 211"/><path d="M96 200 L96 211"/><path d="M104 200 L104 211"/><path d="M112 200 L112 211"/><path d="M120 200 L120 211"/><path d="M128 200 L128 211"/><path d="M136 200 L136 211"/></g>
+<path d="M78 150 L78 211 M122 150 L122 211" stroke="#E8A33D" stroke-width="1.3" stroke-dasharray="3 2.4" opacity=".8"/>
+<path d="M97 156 L97 211 M103 156 L103 211" stroke="#E8A33D" stroke-width="1.1" stroke-dasharray="3 2.4" opacity=".7"/></g><path d="M68 154 Q100 138 132 154 L132 162 Q100 172 68 162 Z" fill="#52779F"/>
+<polygon points="100,150 73,142 84,169" fill="#42648A"/>
+<polygon points="100,150 127,142 116,169" fill="#42648A"/>
+<circle cx="100" cy="168" r="2.4" fill="#D9DEE4"/><circle cx="100" cy="182" r="2.4" fill="#D9DEE4"/><circle cx="100" cy="195" r="2.4" fill="#D9DEE4"/>
+<path d="M64 166 L82 166 L82 178 L64 178 Z" fill="#4A6C91" stroke="#E8A33D" stroke-width="1" stroke-dasharray="2.4 2"/>
+<path d="M118 166 L136 166 L136 178 L118 178 Z" fill="#4A6C91" stroke="#E8A33D" stroke-width="1" stroke-dasharray="2.4 2"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#161513"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#FFFFFF">ZARA</text></g>
+
+</g></svg><span>کت جین</span><em></em></button><button class="wb-tile" type="button" data-o="puffer"><svg viewBox="40 130 120 95"><g class="pm-zara">
+<defs><clipPath id="pmZaraClip2"><path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z"/></clipPath></defs>
+<path d="M100 146 C127 146 145 165 145 186 C145 202 125 211 100 211 C75 211 55 202 55 186 C55 165 73 146 100 146 Z" fill="#2E2E33"/>
+<g clip-path="url(#pmZaraClip2)">
+<rect x="55" y="164" width="90" height="3" fill="#17171A"/><rect x="55" y="167" width="90" height="1.4" fill="#4A4A52" opacity=".7"/>
+<rect x="55" y="181" width="90" height="3" fill="#17171A"/><rect x="55" y="184" width="90" height="1.4" fill="#4A4A52" opacity=".7"/>
+<rect x="55" y="197" width="90" height="3" fill="#17171A"/><rect x="55" y="200" width="90" height="1.4" fill="#4A4A52" opacity=".7"/>
+<rect x="55" y="202" width="90" height="9" fill="#26262B"/></g><path d="M68 156 Q100 140 132 156 L132 163 Q100 173 68 163 Z" fill="#26262B"/>
+<path d="M74 158 Q100 148 126 158 L124 147 Q100 139 76 147 Z" fill="#33333A"/>
+<path d="M76 147 Q100 139 124 147" fill="none" stroke="#17171A" stroke-width="1.6"/>
+<path d="M100 160 L100 211" stroke="#101013" stroke-width="2.6"/>
+<rect x="97.4" y="166" width="5.2" height="8.5" rx="1.6" fill="#8A8F98"/><g><rect x="88" y="198.5" width="24" height="8.5" rx="1" fill="#FFFFFF" stroke="#C9C2B4" stroke-width=".6"/><text x="100.5" y="205.2" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.2" letter-spacing="1.2" fill="#111111">ZARA</text></g>
+
+</g></svg><span>پافر مشکی</span><em></em></button><button class="wb-tile" type="button" data-o=""><svg viewBox="55 125 90 95"><polygon points="100,150 73,142 84,169" fill="#FFFFFF" stroke="#D8D2C4"/><polygon points="100,150 127,142 116,169" fill="#FFFFFF" stroke="#D8D2C4"/><polygon points="92,143 108,143 105,158 95,158" fill="#23232A"/><polygon points="95,158 105,158 108.5,186 100,196.5 91.5,186" fill="#23232A"/></svg><span>کراوات کلاسیک</span><em></em></button></div>
+</div></div></body>
 </html>
