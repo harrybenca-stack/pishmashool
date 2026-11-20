@@ -775,7 +775,7 @@ export async function handleExport(req, db) {
 
 // ---------- شکار تازه: سید کردن شرکت‌های جدید توسط شکارچی + وضعیت درخواست شکار ----------
 function sha256hex(s) { return crypto.createHash('sha256').update(String(s)).digest('hex'); }
-const HUNT_KEY_INIT = 'pmhunt-7fbdd1d9fd90107f02c5f958';
+const HUNT_KEY_INIT = ''; // کلید شکارچی ساخته و تو دیتابیس ثبت شده؛ مقداردهی اولیه تمام شد
 export async function handleAdminSeed(req, db) {
   if (req.method !== 'POST') return { status: 405, json: { ok: false } };
   await ensureInit(db);
