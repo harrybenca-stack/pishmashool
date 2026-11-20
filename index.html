@@ -526,6 +526,11 @@
       .btn-login:active { transform: scale(.98); }
       .login-note { margin: 14px 0 0; font-size: .8rem; color: var(--ink-2); }
 
+      .callflag-row { margin-top: 8px; }
+      .callflag-btn { width: 100%; padding: 9px 12px; border-radius: 12px; border: 1.5px dashed var(--line); background: var(--surface-2); color: var(--ink-2); font: inherit; font-weight: 800; font-size: .92rem; cursor: pointer; }
+      .callflag-btn.on { border-style: solid; border-color: #E8590C; background: #FFF1E6; color: #C24E02; }
+      .actions-row.call-row { margin-top: 8px; }
+      .btn-tocall.active { background: #E8590C; color: #fff; border-color: #E8590C; }
       .gate-banner {
         margin-top: 14px; background: var(--amber-soft); border: 2px solid var(--amber);
         border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow);
@@ -689,6 +694,10 @@
             <a class="btn-chat" href="/cat">🐱 خونه‌ی پیش‌مشول</a>
             <button class="btn-chat btn-manual" type="button" id="manualAddBtn">✏️ ثبت شرکت جدید</button>
             <button class="btn-chat btn-planb" type="button" id="planbBtn"><img class="planb-ico" src="planb-safe.webp" alt=""> پلن B</button>
+          </div>
+          <div class="actions-row call-row">
+            <button class="btn-chat btn-tocall" type="button" id="toCallBtn">📞 باید زنگ بزنم (<span id="toCallCount">۰</span>)</button>
+            <a class="btn-chat btn-tocall-x" id="toCallExport" href="/api/export?scope=call">📥 اکسل «باید زنگ بزنم»</a>
           </div>
         </div>
       </header>
@@ -1528,15 +1537,8 @@ function pmMorningOnce() {
         function pmFaNum(n) { return String(n).replace(/[0-9]/g, function (c) { return PM_FA[+c]; }); }
         if (pmAdd) pmAdd.addEventListener('click', function () {
           if (pmDashing) return;
-          if (window.__pmGateCheck && !window.__pmGateCheck()) return;
-          if (window.__pmWarehouseCount && !window.__pmWarehouseCount()) {
-            pmJump('hop', 520);
-            pmSay('هلیا جان، دارم می‌گردم، یکم دیگه دوباره بزن 🐾');
-            return;
-          }
           pmDashing = true;
-          // اول جلو چشم هلیا اعلام می‌کنه، بعد می‌دوئه می‌ره شکار
-          pmSay('هلیا جان، ۱۰ تا شرکت جدید دارم، میرم برات بیارمشون 🐾', 2600);
+          pmSay('هلیا جان، میرم هر چی شرکت تو انبار مونده رو برات بیارم 🐾', 2600);
           setTimeout(function () {
             pmBubble.classList.remove('show');
             pmStopTalk();
@@ -1547,6 +1549,8 @@ function pmMorningOnce() {
               Promise.resolve(window.__pmReleaseBatch ? window.__pmReleaseBatch() : 0).then(function (n) {
                 if (n > 0) {
                   pmSay('رفتم گشتم هلیا! ' + pmFaNum(n) + ' شرکت تازه اومد تو لیستت 🎉');
+                } else if (n === -1) {
+                  pmSay('انبار خالیه هلیا جان! رفتم شکار شرکتای تازه 🐾 یه کم طول می‌کشه؛ وقتی برگردم خودشون میان تو لیستت');
                 } else {
                   pmSay('هلیا جان، دارم می‌گردم، یکم دیگه دوباره بزن 🐾');
                 }
@@ -1803,6 +1807,7 @@ function pmMorningOnce() {
             '<span class="pm-voice">هلیا اینو ببین!</span> <b>چرا فکر می‌کنم الان به تو نیاز داره:</b> ' + esc(c.reason) + '</div>';
           h += '<a class="reg-src" href="' + esc(c.rasmio_url) + '" target="_blank" rel="noopener">پروفایل رسمیو</a>';
           h += '<div class="actions"><button class="btn primary" type="button">تماس گرفتم</button><button class="btn win" type="button">مشتری شد</button><button class="btn reject" type="button">رد کردن</button></div>';
+          h += '<div class="callflag-row"><button class="callflag-btn' + (c.call_flag ? ' on' : '') + '" type="button">' + (c.call_flag ? '✓ باید زنگ بزنم' : '📞 باید زنگ بزنم') + '</button></div>';
           h += '<div class="note-row"><button class="note-open" type="button">📝 یادداشت قبل از تماس + یادآوری</button>' + noteWhenHTML(c) + '</div>';
           h += '<div class="history"><h4>تاریخچه تماس‌ها</h4><ul class="tl"></ul>' + formHTML() + '</div>';
           return h;
@@ -1859,6 +1864,7 @@ function pmMorningOnce() {
           el = document.getElementById('statCall'); if (el) el.textContent = faNum(nProg);
           el = document.getElementById('statWin'); if (el) el.textContent = faNum(nWon);
           el = document.getElementById('statToday'); if (el) el.textContent = faNum(nToday);
+          el = document.getElementById('toCallCount'); if (el) el.textContent = faNum(S.companies.filter(function (x) { return x.call_flag; }).length);
           var es = document.getElementById('emptyState');
           if (es) es.style.display = list.length ? 'none' : '';
           var sub = document.getElementById('topSub');
@@ -1873,30 +1879,8 @@ function pmMorningOnce() {
             return c.getAttribute('data-status') === 'new' && !c.dataset.acted;
           });
         }
-        function refreshBanner() {
-          var un = untouchedCards();
-          if (!un.length) { gateBanner.hidden = true; return un; }
-          gateList.innerHTML = '';
-          un.forEach(function (c) {
-            var li = document.createElement('li');
-            li.textContent = 'این شرکت رو پیگیری نکردی: ' + cardName(c);
-            gateList.appendChild(li);
-          });
-          gateBanner.hidden = false;
-          return un;
-        }
-        window.__pmGateCheck = function () {
-          var un = untouchedCards();
-          if (!un.length) { gateBanner.hidden = true; return true; }
-          refreshBanner();
-          if (window.__pmSay) window.__pmSay('هلیا! هنوز اینا رو پیگیری نکردی 🐾 اول رو اینا یه کاری بکن — یا زنگ بزن یا ردشون کن — بعد برات ۱۰ تای تازه میارم', 8000);
-          var first = un[0];
-          liveCards().forEach(function (c) { c.classList.remove('gate-highlight'); });
-          first.classList.add('gate-highlight');
-          if (window.__pmOpenCard) window.__pmOpenCard(first);
-          setTimeout(function () { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 140);
-          return false;
-        };
+        function refreshBanner() { gateBanner.hidden = true; return []; }
+        window.__pmGateCheck = function () { gateBanner.hidden = true; return true; };
         window.__pmWarehouseCount = function () { return S.warehouse; };
 
         // ---------- هم‌گام‌سازی یک شرکت با پاسخ سرور ----------
@@ -1980,6 +1964,7 @@ function pmMorningOnce() {
           if (!card || !cardsEl.contains(card)) return;
           var t = b.textContent.trim();
           var id = +card.getAttribute('data-id');
+          if (b.classList.contains('callflag-btn')) { if (window.__pmToggleFlag) window.__pmToggleFlag(id, b); return; }
           if (t === 'تماس گرفتم') { markActed(card, 'call'); postAction(id, 'contacted'); }
           else if (t === 'رد کردن') { markActed(card, 'reject'); postAction(id, 'rejected'); }
           else if (t === 'مشتری شد') { markActed(card, 'win'); postAction(id, 'customer'); }
@@ -1993,6 +1978,7 @@ function pmMorningOnce() {
             window.__pmSlots = res.j.cat_slots || {};
             window.__pmCatLines = res.j.cat_lines || [];
             S.warehouse = res.j.warehouse_remaining || 0;
+            S.hunting = !!res.j.hunting;
             S.loaded = true;
             return res.j;
           }).catch(function () { return null; });
@@ -2000,11 +1986,17 @@ function pmMorningOnce() {
         function renderAll() {
           liveCards().forEach(function (el) { el.remove(); });
           var noRes = document.getElementById('noResults');
-          S.companies.forEach(function (c) {
+          (S.onlyCall ? S.companies.filter(function (x) { return x.call_flag; }) : S.companies).forEach(function (c) {
             var el = buildCard(c);
             cardsEl.insertBefore(el, noRes);
             if (window.__pmCloseCard) window.__pmCloseCard(el);
           });
+          if (S.onlyCall) {
+            var nr = document.getElementById('noResults');
+            var anyFlag = S.companies.some(function (x) { return x.call_flag; });
+            nr.textContent = anyFlag ? 'هلیا، همچین شرکتی پیدا نکردم! یه اسم دیگه امتحان کن 🐾' : 'هلیا جان، هنوز هیچ شرکتی رو علامت نزدی که باید زنگ بزنی 🐾';
+            nr.style.display = anyFlag ? '' : 'block';
+          }
           if (window.__pmRenderStrips) window.__pmRenderStrips();
           refreshBanner();
           updateStats();
@@ -2015,6 +2007,12 @@ function pmMorningOnce() {
             headers: { 'Content-Type': 'application/json' },
             body: '{}'
           }).then(function (res) {
+            if (res.j && res.j.ok && res.j.hunting) {
+              S.hunting = true;
+              S.warehouse = 0;
+              updateStats();
+              return -1;
+            }
             if (res.j && res.j.ok) {
               var noRes = document.getElementById('noResults');
               var n = 0;
@@ -2026,22 +2024,46 @@ function pmMorningOnce() {
                 n++;
               });
               S.warehouse = res.j.warehouse_remaining || 0;
+              S.hunting = false;
               refreshBanner();
               updateStats();
               return n;
-            }
-            if (res.j && res.j.unacted) {
-              return loadState().then(function () {
-                renderAll();
-                if (window.__pmGateCheck) window.__pmGateCheck();
-                return 0;
-              });
             }
             S.warehouse = 0;
             updateStats();
             return 0;
           }).catch(function () { return 0; });
         };
+        window.__pmToggleFlag = function (id, btn) {
+          var c = findItem(id);
+          if (!c) return;
+          var on = !c.call_flag;
+          c.call_flag = on;
+          if (btn) { btn.classList.toggle('on', on); btn.textContent = on ? '✓ باید زنگ بزنم' : '📞 باید زنگ بزنم'; }
+          updateStats();
+          api('/api/action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ company_id: id, action: 'flag_call', on: on })
+          }).then(function (res) {
+            if (res.j && res.j.ok && res.j.company) {
+              var i = S.companies.indexOf(c);
+              if (i >= 0) S.companies[i] = res.j.company;
+              if (S.onlyCall) renderAll();
+            }
+            updateStats();
+          }).catch(function () {});
+        };
+        (function () {
+          var toCallBtn = document.getElementById('toCallBtn');
+          if (!toCallBtn) return;
+          toCallBtn.addEventListener('click', function () {
+            S.onlyCall = !S.onlyCall;
+            toCallBtn.classList.toggle('active', S.onlyCall);
+            renderAll();
+            if (window.__pmSay) window.__pmSay(S.onlyCall ? 'هلیا جان، اینا همه‌ی اونایی‌ان که گفتی باید بهشون زنگ بزنی 📞' : 'برگشتیم به همه‌ی شرکت‌ها هلیا جان 🐾');
+          });
+        })();
         (function () {
           var addSheet = document.getElementById('addSheet');
           if (!addSheet) return;
@@ -2410,6 +2432,7 @@ function pmMorningOnce() {
           if (!card || !pbCardsEl.contains(card)) return;
           var t = b.textContent.trim();
           var id = +card.getAttribute('data-id');
+          if (b.classList.contains('callflag-btn')) { if (window.__pmToggleFlag) window.__pmToggleFlag(id, b); return; }
           if (t === 'تماس گرفتم') { markActed(card, 'call'); postAction(id, 'contacted'); }
           else if (t === 'رد کردن') { markActed(card, 'reject'); postAction(id, 'rejected'); }
           else if (t === 'مشتری شد') { markActed(card, 'win'); postAction(id, 'customer'); }

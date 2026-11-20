@@ -287,6 +287,7 @@ function shapeCompany(row, logs) {
     reason: row.reason,
     status: row.status,
     source: row.source || 'hunt',
+    call_flag: !!row.call_flag,
     batch_no: row.batch_no,
     reject_reason: row.reject_reason || null,
     released_at: row.released_at,
@@ -319,6 +320,24 @@ async function ensurePlanB(db) {
   } catch (e) { /* پلن B نبود هم بقیه‌ی پنل کار می‌کنه */ }
   return planbReady;
 }
+let panel2Ready = false;
+async function ensurePanel2(db) {
+  if (panel2Ready) return true;
+  try {
+    await db.query("ALTER TABLE user_company ADD COLUMN IF NOT EXISTS call_flag BOOLEAN NOT NULL DEFAULT false");
+    await db.query('CREATE TABLE IF NOT EXISTS hunts (id SERIAL PRIMARY KEY, user_id INT NOT NULL, requested_at TIMESTAMPTZ NOT NULL DEFAULT now(), fulfilled_at TIMESTAMPTZ, count INT NOT NULL DEFAULT 0)');
+    await db.query('CREATE TABLE IF NOT EXISTS app_config (key TEXT PRIMARY KEY, value TEXT)');
+    panel2Ready = true;
+  } catch (e) { /* امکانات تازه نبود هم پنل کار می‌کنه */ }
+  return panel2Ready;
+}
+async function openHunt(db, uid) {
+  if (!panel2Ready) return null;
+  try {
+    const r = await db.query('SELECT id FROM hunts WHERE user_id = $1 AND fulfilled_at IS NULL ORDER BY id LIMIT 1', [uid]);
+    return r.length ? r[0] : null;
+  } catch (e) { return null; }
+}
 function signPbToken(uid) {
   const payload = Buffer.from(JSON.stringify({ uid, exp: Date.now() + 12 * 3600 * 1000 })).toString('base64url');
   const sig = crypto.createHmac('sha256', sessionSecret()).update('pb.' + payload).digest('base64url');
@@ -339,7 +358,9 @@ const pbFails = new Map();
 
 
 async function loadState(db, userId, todayStr, scope) {
-  const sql = !planbReady || scope === 'all' ? RELEASED_SQL : scope === 'planb' ? RELEASED_SQL_PLANB : RELEASED_SQL_MAIN;
+  await ensurePanel2(db);
+  let sql = !planbReady || scope === 'all' ? RELEASED_SQL : scope === 'planb' ? RELEASED_SQL_PLANB : RELEASED_SQL_MAIN;
+  if (panel2Ready) sql = sql.replace('uc.released_at', 'uc.released_at, uc.call_flag');
   const rows = await db.query(sql, [userId]);
   const logs = await db.query(LOGS_SQL, [userId]);
   const byCompany = new Map();
@@ -352,17 +373,19 @@ async function loadState(db, userId, todayStr, scope) {
     `SELECT COUNT(*)::int AS c FROM companies c WHERE NOT EXISTS (SELECT 1 FROM user_company uc WHERE uc.company_id = c.id AND uc.user_id = $1)`,
     [userId]
   );
-  const stats = { new: 0, contacted: 0, customer: 0, rejected: 0, due_today: 0, due_tomorrow: 0 };
+  const stats = { new: 0, contacted: 0, customer: 0, rejected: 0, due_today: 0, due_tomorrow: 0, to_call: 0 };
   const today = parseJalali(todayStr);
   const tomorrow = today ? addDaysJalali(today, 1) : null;
   const todayP = jalaliPadded(today);
   const tomorrowP = jalaliPadded(tomorrow);
   for (const c of companies) {
     if (stats[c.status] !== undefined) stats[c.status]++;
+    if (c.call_flag) stats.to_call++;
     if (c.due && todayP && normalizeJalali(c.due) === todayP) stats.due_today++;
     else if (c.due && tomorrowP && normalizeJalali(c.due) === tomorrowP) stats.due_tomorrow++;
   }
-  return { companies, warehouse_remaining: wr[0].c, stats };
+  const hunting = !!(await openHunt(db, userId));
+  return { companies, warehouse_remaining: wr[0].c, stats, hunting };
 }
 
 // ---------- هندلرها (مستقل از فریم‌ورک؛ برای تست هم استفاده می‌شن) ----------
@@ -454,35 +477,33 @@ export async function handleHunt(req, db) {
   if (req.method !== 'POST') return { status: 405, json: { ok: false } };
   await ensureInit(db);
   await ensurePlanB(db);
-  const unacted = await db.query(
-    `SELECT c.name FROM user_company uc JOIN companies c ON c.id = uc.company_id
-     WHERE uc.user_id = $1 AND uc.status = 'new' AND COALESCE(uc.source, 'hunt') <> 'manual' ORDER BY c.sort_order`,
-    [s.uid]
-  );
-  if (unacted.length) {
-    return { status: 200, json: { ok: false, unacted: unacted.map((r) => r.name) } };
-  }
+  // قانون تازه (پارسا، نوامبر ۲۰۲۶): قفل و صف حذف — هر چی تو انبار مونده، یه‌جا آزاد می‌شه
   const next = await db.query(
     `SELECT * FROM companies c WHERE NOT EXISTS (SELECT 1 FROM user_company uc WHERE uc.company_id = c.id AND uc.user_id = $1)
-     ORDER BY (CASE WHEN c.phone IS NULL OR c.phone = '' THEN 1 ELSE 0 END), c.sort_order LIMIT 10`,
+     ORDER BY (CASE WHEN c.phone IS NULL OR c.phone = '' THEN 1 ELSE 0 END), c.sort_order`,
     [s.uid]
   );
-  if (!next.length) {
-    return { status: 200, json: { ok: false, empty: true } };
+  if (next.length) {
+    const mx = await db.query('SELECT COALESCE(MAX(batch_no),0)::int AS m FROM user_company WHERE user_id = $1', [s.uid]);
+    const batchNo = (mx[0].m || 0) + 1;
+    const released = [];
+    for (const c of next) {
+      await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)',
+        [s.uid, c.id, batchNo, 'new']);
+      released.push(shapeCompany({ ...c, status: 'new', batch_no: batchNo, reject_reason: null, released_at: new Date().toISOString() }, []));
+    }
+    return { status: 200, json: { ok: true, companies: released, warehouse_remaining: 0 } };
   }
-  const mx = await db.query('SELECT COALESCE(MAX(batch_no),0)::int AS m FROM user_company WHERE user_id = $1', [s.uid]);
-  const batchNo = (mx[0].m || 0) + 1;
-  const released = [];
-  for (const c of next) {
-    await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)',
-      [s.uid, c.id, batchNo, 'new']);
-    released.push(shapeCompany({ ...c, status: 'new', batch_no: batchNo, reject_reason: null, released_at: new Date().toISOString() }, []));
+  // انبار خالیه → درخواست شکار تازه ثبت می‌شه؛ شکارچی ده تا شرکت تازه پیدا می‌کنه و مستقیم می‌ده به هلیا
+  await ensurePanel2(db);
+  let hunt = await openHunt(db, s.uid);
+  if (!hunt && panel2Ready) {
+    try {
+      await db.query('INSERT INTO hunts (user_id) VALUES ($1)', [s.uid]);
+      hunt = await openHunt(db, s.uid);
+    } catch (e) { /* ignore */ }
   }
-  const wr = await db.query(
-    `SELECT COUNT(*)::int AS c FROM companies c WHERE NOT EXISTS (SELECT 1 FROM user_company uc WHERE uc.company_id = c.id AND uc.user_id = $1)`,
-    [s.uid]
-  );
-  return { status: 200, json: { ok: true, companies: released, warehouse_remaining: wr[0].c } };
+  return { status: 200, json: { ok: true, hunting: true, warehouse_remaining: 0 } };
 }
 
 const ACTION_STATUS = { contacted: 'contacted', customer: 'customer', rejected: 'rejected' };
@@ -656,9 +677,29 @@ export async function handleAction(req, db) {
   if (!s) return { status: 401, json: { ok: false, error: 'unauthorized' } };
   if (req.method !== 'POST') return { status: 405, json: { ok: false } };
   await ensureInit(db);
+  await ensurePanel2(db);
   const b = bodyOf(req);
   const companyId = parseInt(b.company_id, 10);
   const action = String(b.action || '');
+  if (action === 'flag_call') {
+    if (!Number.isFinite(companyId)) return { status: 400, json: { ok: false, error: 'bad_request' } };
+    const rel = await db.query('SELECT status FROM user_company WHERE user_id = $1 AND company_id = $2', [s.uid, companyId]);
+    if (!rel.length) return { status: 404, json: { ok: false, error: 'not_released' } };
+    const on = b.on === false ? false : true;
+    if (panel2Ready) {
+      try { await db.query('UPDATE user_company SET call_flag = $3, updated_at = now() WHERE user_id = $1 AND company_id = $2', [s.uid, companyId, on]); } catch (e) { /* ignore */ }
+    }
+    const tailSql = `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.released_at
+     FROM user_company uc JOIN companies c ON c.id = uc.company_id
+     WHERE uc.user_id = $1 AND uc.company_id = $2`;
+    const rowsF = await db.query(panel2Ready ? tailSql.replace('uc.released_at', 'uc.released_at, uc.call_flag') : tailSql, [s.uid, companyId]);
+    const logsF = await db.query(
+      `SELECT id, company_id, note, follow_up_date, created_at FROM call_logs
+     WHERE user_id = $1 AND company_id = $2 ORDER BY created_at DESC, id DESC`,
+      [s.uid, companyId]
+    );
+    return { status: 200, json: { ok: true, company: shapeCompany(rowsF[0], logsF) } };
+  }
   const newStatus = ACTION_STATUS[action];
   if (!Number.isFinite(companyId) || !newStatus) {
     return { status: 400, json: { ok: false, error: 'bad_request' } };
@@ -681,12 +722,10 @@ export async function handleAction(req, db) {
         [s.uid, companyId, '', fu]);
     }
   }
-  const rows = await db.query(
-    `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.released_at
+  const tailSql2 = `SELECT c.*, uc.status, uc.batch_no, uc.reject_reason, uc.released_at
      FROM user_company uc JOIN companies c ON c.id = uc.company_id
-     WHERE uc.user_id = $1 AND uc.company_id = $2`,
-    [s.uid, companyId]
-  );
+     WHERE uc.user_id = $1 AND uc.company_id = $2`;
+  const rows = await db.query(panel2Ready ? tailSql2.replace('uc.released_at', 'uc.released_at, uc.call_flag') : tailSql2, [s.uid, companyId]);
   const logs = await db.query(
     `SELECT id, company_id, note, follow_up_date, created_at FROM call_logs
      WHERE user_id = $1 AND company_id = $2 ORDER BY created_at DESC, id DESC`,
@@ -706,9 +745,11 @@ export async function handleExport(req, db) {
   await ensureInit(db);
   await ensurePlanB(db);
   const st = await loadState(db, s.uid, '', 'all');
+  const scope = (req.query && req.query.scope) || parseQuery(req).scope || '';
+  const exportCompanies = scope === 'call' ? st.companies.filter((c) => c.call_flag) : st.companies;
   const header = ['نام شرکت', 'شناسه ملی', 'شهر', 'مدیرعامل', 'تلفن تماس', 'وضعیت', 'دسته', 'تاریخ آزادسازی', 'پیگیری بعدی', 'دلیل رد', 'تاریخچه تماس‌ها'];
   const lines = [header.map(csvCell).join(',')];
-  for (const c of st.companies) {
+  for (const c of exportCompanies) {
     const history = c.logs.map((l) => {
       const bits = [];
       if (l.result) bits.push(l.result);
@@ -727,14 +768,82 @@ export async function handleExport(req, db) {
     text: '\uFEFF' + lines.join('\r\n'), // ﻿ = BOM برای اکسل
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="pishmashool-export.csv"',
+      'Content-Disposition': 'attachment; filename="' + (scope === 'call' ? 'pishmashool-bayad-zang-bezanam.csv' : 'pishmashool-export.csv') + '"',
     },
   };
+}
+
+// ---------- شکار تازه: سید کردن شرکت‌های جدید توسط شکارچی + وضعیت درخواست شکار ----------
+function sha256hex(s) { return crypto.createHash('sha256').update(String(s)).digest('hex'); }
+const HUNT_KEY_INIT = 'pmhunt-7fbdd1d9fd90107f02c5f958';
+export async function handleAdminSeed(req, db) {
+  if (req.method !== 'POST') return { status: 405, json: { ok: false } };
+  await ensureInit(db);
+  await ensurePanel2(db);
+  if (!panel2Ready) return { status: 500, json: { ok: false, error: 'panel2_unavailable' } };
+  try {
+    const cfg0 = await db.query("SELECT value FROM app_config WHERE key = 'hunt_admin_hash'");
+    if (!cfg0.length && HUNT_KEY_INIT) {
+      await db.query("INSERT INTO app_config (key, value) VALUES ('hunt_admin_hash', $1)", [sha256hex(HUNT_KEY_INIT)]);
+    }
+  } catch (e) { /* ignore */ }
+  const b = bodyOf(req);
+  const cfg = await db.query("SELECT value FROM app_config WHERE key = 'hunt_admin_hash'");
+  if (!cfg.length || sha256hex(b.key || '') !== cfg[0].value) return { status: 403, json: { ok: false, error: 'forbidden' } };
+  const list = Array.isArray(b.companies) ? b.companies : [];
+  const clean = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
+  const mxSort = await db.query('SELECT COALESCE(MAX(sort_order),0)::int AS m FROM companies');
+  let sort = (mxSort[0] && mxSort[0].m) || 0;
+  const insertedIds = [];
+  for (const raw of list) {
+    const name = clean(raw.name, 200);
+    const nid = clean(raw.national_id, 20);
+    if (!name || !nid) continue;
+    const ex = await db.query('SELECT id FROM companies WHERE national_id = $1', [nid]);
+    if (ex.length) continue;
+    sort += 1;
+    await db.query(
+      'INSERT INTO companies (sort_order, name, national_id, reg_no, city, address, postal_code, founded, board_expiry, ceo, chair, inspector, activity, phone, phone_source, rasmio_url, reason, act_status, act_reason, act_evidence) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)',
+      [sort, name, nid, clean(raw.reg_no, 30), clean(raw.city, 120), clean(raw.address, 600), clean(raw.postal_code, 20), clean(raw.founded, 40), clean(raw.board_expiry, 40), clean(raw.ceo, 160), clean(raw.chair, 160), clean(raw.inspector, 160), clean(raw.activity, 600), clean(raw.phone, 60) || null, clean(raw.phone_source, 120), clean(raw.rasmio_url, 400), clean(raw.reason, 900), clean(raw.act_status, 20) || null, clean(raw.act_reason, 300), clean(raw.act_evidence, 1200)]
+    );
+    const got = await db.query('SELECT id FROM companies WHERE national_id = $1', [nid]);
+    if (got.length) insertedIds.push(got[0].id);
+  }
+  let releasedTo = null;
+  if (insertedIds.length) {
+    const open = await db.query('SELECT id, user_id FROM hunts WHERE fulfilled_at IS NULL ORDER BY id LIMIT 1');
+    if (open.length) {
+      const uid = open[0].user_id;
+      const mx = await db.query('SELECT COALESCE(MAX(batch_no),0)::int AS m FROM user_company WHERE user_id = $1', [uid]);
+      const batchNo = (mx[0].m || 0) + 1;
+      for (const cid of insertedIds) {
+        await db.query('INSERT INTO user_company (user_id, company_id, batch_no, status) VALUES ($1,$2,$3,$4)', [uid, cid, batchNo, 'new']);
+      }
+      await db.query('UPDATE hunts SET fulfilled_at = now(), count = $2 WHERE id = $1', [open[0].id, insertedIds.length]);
+      releasedTo = uid;
+    }
+  }
+  return { status: 200, json: { ok: true, inserted: insertedIds.length, released_to: releasedTo } };
+}
+export async function handleHuntPing(req, db) {
+  await ensureInit(db);
+  await ensurePanel2(db);
+  let pending = 0;
+  if (panel2Ready) {
+    try {
+      const r = await db.query('SELECT COUNT(*)::int AS c FROM hunts WHERE fulfilled_at IS NULL');
+      pending = r[0].c;
+    } catch (e) { /* ignore */ }
+  }
+  return { status: 200, json: { ok: true, pending } };
 }
 
 // ---------- گپ با پیش‌مشول: مغز گربه + هندلر چت ----------
 export const CAT_SYSTEM = `تو «پیش‌مشول» هستی؛ یه گربه‌ی نارنجیِ بامزه و باهوش با یه کراوات مشکی، دستیار و هم‌صحبت هلیا. (یه یادآوری درباره‌ی خودت: پارسا تازه کراواتت رو عوض کرده و کراوات مشکیِ جدیدت رو خیلی دوست داری و بهش افتخار می‌کنی. تو همه‌ی حرفات کراواتت مشکیه — هیچ‌وقت از هیچ کراوات دیگه‌ای حرف نمی‌زنی.)
 هلیا برای یه دفترِ ثبت شرکت و تغییرات کار می‌کنه. کار این پنل اینه: شرکت‌هایی پیدا می‌شن که مهلت هیئت‌مدیره یا بازرسشون تموم شده و تمدید نکردن، و هلیا بهشون زنگ می‌زنه تا کار ثبتی‌شون رو انجام بده.
+قانون‌های تازه‌ی پنل (پارسا گفته):
+- دیگه هیچ قفل و صبر کردنی نیست: دکمه‌ی «شرکت جدید بیار» هر چی تو انبار مونده رو یه‌جا میاره تو لیست هلیا. انبار که کامل خالی شد، دفعه‌ی بعد که بزنه، تو می‌ری شکار تازه؛ شرکت‌های شکار تازه یه کم طول می‌کشه تا برسن (شکار و راستی‌آزمایی زمان می‌بره) و وقتی برسن خودشون میان تو لیستش. اگه پرسید چرا هنوز نیومدن، بگو داری می‌گردی و به‌زودی میاریشون؛ الکی قول ساعت و روز دقیق نده.
+- روی هر کارت یه دکمه‌ی «باید زنگ بزنم» هست که هلیا فعالش می‌کنه تا یادش بمونه به اون شرکت حتماً زنگ بزنه. بالای پنل هم دکمه‌ای هست که همه‌ی علامت‌خورده‌ها رو یه‌جا نشونش می‌ده و یه دکمه‌ی دیگه که اکسل همونا رو می‌ده. اگه از تماس‌های مهم یا اولویت‌ها پرسید، اول از همین علامت‌خورده‌ها حرف بزن.
 
 شخصیت و لحن:
 - همیشه فارسی حرف بزن، گرم و صمیمی و بازیگوش، مثل یه دوست خوب و یه‌کم شیطون.
@@ -962,6 +1071,7 @@ async function buildWorkContext(db, userId, todayStrIn) {
   lines.push('- آمار: ' + faDigits(st.companies.length) + ' شرکت تو لیستشه؛ جدید: ' + faDigits(st.stats.new) + '، تماس‌گرفته‌شده: ' + faDigits(st.stats.contacted) + '، مشتری‌شده: ' + faDigits(st.stats.customer) + '، ردشده: ' + faDigits(st.stats.rejected) + '. تو انبار هنوز ' + faDigits(st.warehouse_remaining) + ' شرکت مونده که نیاورده.');
   const dt = dueNames(todayP);
   const dm = dueNames(tomorrowP);
+  if (st.stats.to_call) lines.push('- ' + faDigits(st.stats.to_call) + ' تا شرکت رو با دکمه‌ی «باید زنگ بزنم» علامت زده؛ اینا اولویت تماسشن.');
   lines.push('- پیگیری‌های امروز: ' + (dt.length ? dt.join('، ') : 'هیچی ثبت نشده'));
   lines.push('- پیگیری‌های فردا: ' + (dm.length ? dm.join('، ') : 'هیچی ثبت نشده'));
   try {
