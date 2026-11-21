@@ -838,6 +838,28 @@ export async function handleHuntPing(req, db) {
   return { status: 200, json: { ok: true, pending } };
 }
 
+export async function handleAdminPlanBReset(req, db) {
+  if (req.method !== 'POST') return { status: 405, json: { ok: false } };
+  await ensureInit(db);
+  await ensurePanel2(db);
+  if (!panel2Ready) return { status: 500, json: { ok: false, error: 'panel2_unavailable' } };
+  const b = bodyOf(req);
+  const cfg = await db.query("SELECT value FROM app_config WHERE key = 'hunt_admin_hash'");
+  if (!cfg.length || sha256hex(b.key || '') !== cfg[0].value) return { status: 403, json: { ok: false, error: 'forbidden' } };
+  const pin = String(b.pin || '');
+  if (pin.length < 4 || pin.length > 64) return { status: 400, json: { ok: false, error: 'bad_pin' } };
+  const username = String(b.username || 'helia');
+  const users = await db.query('SELECT id FROM users WHERE username = $1', [username]);
+  if (!users.length) return { status: 404, json: { ok: false, error: 'no_user' } };
+  if (!(await ensurePlanB(db))) return { status: 500, json: { ok: false, error: 'unavailable' } };
+  const uid = users[0].id;
+  const { hash, salt } = hashPassword(pin);
+  await db.query('DELETE FROM planb_auth WHERE user_id = $1', [uid]);
+  await db.query('INSERT INTO planb_auth (user_id, pass_hash, salt) VALUES ($1,$2,$3)', [uid, hash, salt]);
+  pbFails.delete(uid);
+  return { status: 200, json: { ok: true } };
+}
+
 // ---------- گپ با پیش‌مشول: مغز گربه + هندلر چت ----------
 export const CAT_SYSTEM = `تو «پیش‌مشول» هستی؛ یه گربه‌ی نارنجیِ بامزه و باهوش با یه کراوات مشکی، دستیار و هم‌صحبت هلیا. (یه یادآوری درباره‌ی خودت: پارسا تازه کراواتت رو عوض کرده و کراوات مشکیِ جدیدت رو خیلی دوست داری و بهش افتخار می‌کنی. تو همه‌ی حرفات کراواتت مشکیه — هیچ‌وقت از هیچ کراوات دیگه‌ای حرف نمی‌زنی.)
 هلیا برای یه دفترِ ثبت شرکت و تغییرات کار می‌کنه. کار این پنل اینه: شرکت‌هایی پیدا می‌شن که مهلت هیئت‌مدیره یا بازرسشون تموم شده و تمدید نکردن، و هلیا بهشون زنگ می‌زنه تا کار ثبتی‌شون رو انجام بده.
