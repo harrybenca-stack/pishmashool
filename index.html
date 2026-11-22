@@ -673,11 +673,73 @@
       .pin-err { color: #dc2626; font-weight: 700; font-size: .9rem; min-height: 1.4em; margin-top: 10px; }
       @keyframes pbShake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
       .pin-shake { animation: pbShake .45s ease; }
+
+      /* ---------- پنل حرفه‌ای: سایدبار + تب‌ها + حالت رسمی ---------- */
+      .pro-side { display: none; }
+      .pro-tabs { display: flex; gap: 8px; margin: 0 0 14px; overflow-x: auto; padding-bottom: 2px; }
+      .pro-tab { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; padding: 9px 14px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+      .pro-tab.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+      .pro-tab .bdg { background: var(--red); color: #fff; font-size: 11px; min-width: 19px; height: 19px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; }
+      .pro-tab.active .bdg { background: #fff; color: var(--red); }
+      @media (min-width: 1024px) {
+        body:not(.locked) { padding-right: 266px; }
+        .pro-tabs { display: none; }
+        .pro-side { display: flex; flex-direction: column; gap: 6px; position: fixed; top: 0; right: 0; width: 266px; height: 100dvh; background: var(--surface); border-left: 1px solid var(--line); padding: 20px 14px; z-index: 40; }
+        .pro-side .ps-brand { padding: 2px 8px 14px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+        .pro-side .ps-brand b { font-size: 16.5px; display: block; }
+        .pro-side .ps-brand span { font-size: 12px; color: var(--ink-2); }
+        .pro-side .ps-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 12px; cursor: pointer; font-size: 14.5px; border: 1px solid transparent; background: none; font-family: inherit; color: var(--ink); text-align: right; width: 100%; }
+        .pro-side .ps-item:hover { background: var(--surface-2); }
+        .pro-side .ps-item.active { background: var(--accent-soft); border-color: var(--line); font-weight: 700; color: var(--accent); }
+        .pro-side .ps-item .bdg { margin-inline-start: auto; background: var(--red); color: #fff; font-size: 11px; min-width: 20px; height: 20px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+        .pro-side .ps-foot { margin-top: auto; font-size: 12px; color: var(--ink-2); padding: 10px 8px; border-top: 1px solid var(--line); }
+        body .pro-view { right: 266px; }
+      }
+      .pro-view { position: fixed; inset: 0; z-index: 54; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px 60px; }
+      .pro-view .pv-inner { max-width: 880px; margin: 0 auto; }
+      .pro-view h2 { font-size: 19px; margin: 4px 0 4px; }
+      .pro-view .pv-sub { color: var(--ink-2); font-size: 13px; margin-bottom: 14px; }
+      .pv-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+      .pv-stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+      .pv-stat .n { font-size: 20px; font-weight: 800; }
+      .pv-stat .l { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+      @media (max-width: 640px) { .pv-stats { grid-template-columns: repeat(2, 1fr); } }
+      .req-card, .inc-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 11px; box-shadow: var(--shadow); }
+      .req-card h3, .inc-card h3 { font-size: 15.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .req-card .meta, .inc-card .meta { font-size: 13px; color: var(--ink-2); line-height: 1.9; }
+      .req-card .acts, .inc-card .acts { display: flex; gap: 8px; margin-top: 11px; flex-wrap: wrap; }
+      .pv-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .pv-form .fld label { display: block; font-size: 12.5px; color: var(--ink-2); margin-bottom: 5px; }
+      .pv-form .fld input, .pv-form .fld select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; font: inherit; font-size: 14px; background: var(--surface); color: var(--ink); }
+      .pv-form .wide { grid-column: 1 / -1; }
+      .pv-empty { text-align: center; color: var(--ink-2); padding: 34px 10px; font-size: 14px; line-height: 2; }
+      body.formal { --bg: #eceff3; --surface: #ffffff; --surface-2: #eef1f5; --ink: #16222e; --ink-2: #5b6b7c; --line: #d5dce4; --accent: #0b3c6c; --accent-soft: #e2eaf3; --reason-bg: #f2f5f8; --reason-line: #ccd6e0; --reason-ink: #40536a; }
+      body.formal .pm, body.formal #chatOpenBtn, body.formal .actions-row a[href="/cat"], body.formal #topSub, body.formal .hunts-sub { display: none !important; }
+      .formal-btn { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; padding: 8px 13px; border-radius: 999px; cursor: pointer; margin-bottom: 10px; }
+      .formal-btn .sw { width: 32px; height: 18px; border-radius: 9px; background: #c9d2dd; position: relative; flex: 0 0 auto; }
+      .formal-btn .sw::after { content: ''; position: absolute; top: 2px; inset-inline-start: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .2s; }
+      body.formal .formal-btn .sw { background: var(--accent); }
+      body.formal .formal-btn .sw::after { transform: translateX(-13px); }
 </style>
   </head>
   <body class="locked">
+    <script>try { if (localStorage.getItem("pmFormal") === "1") document.body.classList.add("formal"); } catch (e) {}</script>
+    <aside class="pro-side" id="proSide">
+      <div class="ps-brand"><b id="psBrand">پنل پیش‌مشول</b><span>سامانه‌ی مدیریت مشتریان پارلیا</span></div>
+      <button class="ps-item" type="button" data-view="reqs">📩 درخواست‌های وب‌سایت پارلیا <span class="bdg" data-req-badge hidden>۰</span></button>
+      <button class="ps-item active" type="button" data-view="crm">🗂️ مدیریت شرکت‌ها (CRM)</button>
+      <button class="ps-item" type="button" data-view="acc">💰 حسابداری و درآمدها</button>
+      <button class="ps-item" type="button" data-view="planb">🔐 پلن B</button>
+      <div class="ps-foot">هولدینگ پارلیا — ثبت شرکت و تغییرات</div>
+    </aside>
     <div class="wrap">
 
+      <nav class="pro-tabs" id="proTabs">
+        <button class="pro-tab" type="button" data-view="reqs">📩 درخواست‌های پارلیا <span class="bdg" data-req-badge hidden>۰</span></button>
+        <button class="pro-tab active" type="button" data-view="crm">🗂️ شرکت‌ها (CRM)</button>
+        <button class="pro-tab" type="button" data-view="acc">💰 حسابداری</button>
+        <button class="pro-tab" type="button" data-view="planb">🔐 پلن B</button>
+      </nav>
       <!-- ۱) نوار بالا -->
       <header class="topbar">
         <div class="brand">
@@ -688,6 +750,7 @@
           </div>
         </div>
         <div class="add-wrap">
+          <button class="formal-btn" type="button" id="formalBtn">🎩 <span id="formalLbl">حالت رسمی: خاموش</span><span class="sw"></span></button>
           <div class="actions-row">
             <button class="btn-add act-main" type="button">+ شرکت جدید بیار</button>
             <button class="btn-chat" type="button" id="chatOpenBtn">💬 گپ با پیش‌مشول</button>
@@ -1133,6 +1196,50 @@
       </div>
     </div>
 
+
+    <!-- درخواست‌های وب‌سایت پارلیا -->
+    <div class="pro-view" id="reqView" hidden>
+      <div class="pv-inner">
+        <button class="planb-back" type="button" data-back>→ برگرد به پنل اصلی</button>
+        <h2>درخواست‌های وب‌سایت پارلیا</h2>
+        <p class="pv-sub">درخواست‌های مشاوره‌ای که از فرم سایت پارلیا ثبت شده‌اند.</p>
+        <div class="pv-stats">
+          <div class="pv-stat"><div class="n" id="rqNew">۰</div><div class="l">درخواست جدید</div></div>
+          <div class="pv-stat"><div class="n" id="rqTotal">۰</div><div class="l">مجموع درخواست‌ها</div></div>
+          <div class="pv-stat"><div class="n" id="rqCust">۰</div><div class="l">تبدیل‌شده به مشتری</div></div>
+          <div class="pv-stat"><div class="n" id="rqWait">۰</div><div class="l">در انتظار تماس</div></div>
+        </div>
+        <div id="reqList"><p class="pv-empty">در حال بارگذاری…</p></div>
+      </div>
+    </div>
+
+    <!-- حسابداری -->
+    <div class="pro-view" id="accView" hidden>
+      <div class="pv-inner">
+        <button class="planb-back" type="button" data-back>→ برگرد به پنل اصلی</button>
+        <h2>حسابداری و درآمدها</h2>
+        <p class="pv-sub">دریافتی‌ها را با جزئیات ثبت کنید؛ جمع ماه و کل همیشه اینجاست.</p>
+        <div class="pv-stats">
+          <div class="pv-stat"><div class="n" id="acMonth">۰</div><div class="l">دریافت این ماه (تومان)</div></div>
+          <div class="pv-stat"><div class="n" id="acTotal">۰</div><div class="l">مجموع دریافتی‌ها (تومان)</div></div>
+          <div class="pv-stat"><div class="n" id="acPend">۰</div><div class="l">در انتظار وصول (تومان)</div></div>
+          <div class="pv-stat"><div class="n" id="acCount">۰</div><div class="l">تعداد تراکنش‌ها</div></div>
+        </div>
+        <div class="req-card">
+          <h3>ثبت دریافتی جدید</h3>
+          <div class="pv-form" style="margin-top:10px">
+            <div class="fld"><label>تاریخ (شمسی)</label><input id="inDate" inputmode="numeric" placeholder="۱۴۰۵/۰۹/۰۱"></div>
+            <div class="fld"><label>مبلغ (تومان)</label><input id="inAmount" inputmode="numeric" placeholder="مثلاً ۴۵۰۰۰۰۰"></div>
+            <div class="fld"><label>شرح خدمت</label><select id="inService"><option>ثبت شرکت</option><option>تغییرات شرکت</option><option>انحلال شرکت</option><option>ثبت برند</option><option>اخذ جواز کسب</option><option>مشاوره</option><option>سایر</option></select></div>
+            <div class="fld"><label>پرداخت‌کننده (مشتری / شرکت)</label><input id="inPayer" placeholder="نام مشتری یا شرکت"></div>
+            <div class="fld"><label>وضعیت</label><select id="inStatus"><option value="received">دریافت شد</option><option value="pending">در انتظار وصول</option></select></div>
+            <div class="fld"><label>توضیح (اختیاری)</label><input id="inNote" placeholder="توضیح کوتاه"></div>
+            <div class="fld wide"><button class="btn-add" type="button" id="inAdd" style="width:100%">ثبت تراکنش</button></div>
+          </div>
+        </div>
+        <div id="incList"><p class="pv-empty">در حال بارگذاری…</p></div>
+      </div>
+    </div>
     <!-- قفل پلن B -->
     <div class="planb-view" id="pinView" hidden>
       <button class="planb-back" type="button" id="pinBack">→ برگرد به پنل اصلی</button>
@@ -3044,5 +3151,170 @@ function pmMorningOnce() {
       })();
 </script>
 
-  </body>
+  
+    <script>
+    (function () {
+      'use strict';
+      var $ = function (s, r) { return (r || document).querySelector(s); };
+      var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+      var faNum = function (n) { return new Intl.NumberFormat('fa-IR').format(n); };
+      function enDigits(s) { return String(s == null ? '' : s).replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); }).replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }); }
+      function api(body) {
+        if (window.__pmApi) return window.__pmApi('/api/action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        return fetch('/api/action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { http: r.status, ok: r.ok, j: j }; }); });
+      }
+      function say(msg) { if (window.__pmSay) try { window.__pmSay(msg); } catch (e) {} }
+
+      // ---------- جابه‌جایی بین نماها ----------
+      var reqView = $('#reqView'), accView = $('#accView');
+      function setActive(name) {
+        $$('[data-view]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-view') === name); });
+      }
+      window.__pmShowView = function (name) {
+        if (name === 'planb') {
+          reqView.hidden = true; accView.hidden = true; setActive('planb');
+          var pb = $('#planbBtn'); if (pb) pb.click();
+          return;
+        }
+        var pv = $('#pinView'), pbv = $('#planbView');
+        if (pv) pv.hidden = true; if (pbv) pbv.hidden = true;
+        reqView.hidden = name !== 'reqs';
+        accView.hidden = name !== 'acc';
+        setActive(name);
+        if (name === 'reqs') loadRequests();
+        if (name === 'acc') loadIncome();
+        window.scrollTo(0, 0);
+      };
+      $$('[data-view]').forEach(function (b) { b.addEventListener('click', function () { window.__pmShowView(b.getAttribute('data-view')); }); });
+      $$('[data-back]').forEach(function (b) { b.addEventListener('click', function () { window.__pmShowView('crm'); }); });
+      // باز شدن پلن B از دکمه‌ی خودش → نماهای حرفه‌ای بسته شن
+      document.addEventListener('click', function (e) {
+        if (e.target && e.target.closest && e.target.closest('#planbBtn')) { reqView.hidden = true; accView.hidden = true; setActive('planb'); }
+      }, true);
+
+      // ---------- حالت رسمی ----------
+      var h1El = $('.brand h1'), huntBtn = $('.btn-add.act-main'), psBrand = $('#psBrand'), formalLbl = $('#formalLbl');
+      var orig = { h1: h1El ? h1El.textContent : '', hunt: huntBtn ? huntBtn.textContent : '', ps: psBrand ? psBrand.textContent : '' };
+      function applyFormal() {
+        var f = document.body.classList.contains('formal');
+        if (formalLbl) formalLbl.textContent = f ? 'حالت رسمی: روشن' : 'حالت رسمی: خاموش';
+        if (h1El) h1El.textContent = f ? 'پنل مدیریت پارلیا' : orig.h1;
+        if (huntBtn) huntBtn.textContent = f ? 'دریافت شرکت‌های جدید' : orig.hunt;
+        if (psBrand) psBrand.textContent = f ? 'پنل مدیریت پارلیا' : orig.ps;
+        try { localStorage.setItem('pmFormal', f ? '1' : '0'); } catch (e) {}
+      }
+      var fBtn = $('#formalBtn');
+      if (fBtn) fBtn.addEventListener('click', function () { document.body.classList.toggle('formal'); applyFormal(); });
+      applyFormal();
+
+      // ---------- درخواست‌های وب‌سایت ----------
+      var RQ = { items: [] };
+      var RQ_STATUS = { new: ['جدید', 'chip amber'], contacted: ['تماس گرفته شد', 'chip green'], customer: ['مشتری شد', 'chip green'], rejected: ['رد شد', 'chip grey'] };
+      function setBadge(n) {
+        $$('[data-req-badge]').forEach(function (b) { b.hidden = !(n > 0); b.textContent = faNum(n); });
+      }
+      function fmtWhen(iso) {
+        try { return new Intl.DateTimeFormat('fa-IR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso)); } catch (e) { return ''; }
+      }
+      function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      function renderRequests() {
+        var box = $('#reqList'); if (!box) return;
+        var items = RQ.items;
+        $('#rqNew').textContent = faNum(items.filter(function (x) { return x.status === 'new'; }).length);
+        $('#rqTotal').textContent = faNum(items.length);
+        $('#rqCust').textContent = faNum(items.filter(function (x) { return x.status === 'customer'; }).length);
+        $('#rqWait').textContent = faNum(items.filter(function (x) { return x.status === 'new' || x.status === 'contacted'; }).length);
+        if (!items.length) { box.innerHTML = '<p class="pv-empty">هنوز درخواستی از سایت پارلیا ثبت نشده است.<br>به‌محض ثبت اولین درخواست، همین‌جا نمایش داده می‌شود.</p>'; return; }
+        box.innerHTML = items.map(function (r) {
+          var st = RQ_STATUS[r.status] || RQ_STATUS.new;
+          var acts = '';
+          if (r.status === 'new') acts += '<button class="mini solid" data-rq="contacted" data-id="' + r.id + '">تماس گرفتم</button>';
+          if (r.status === 'new' || r.status === 'contacted') acts += '<button class="mini" data-rq="customer" data-id="' + r.id + '">مشتری شد</button><button class="mini" data-rq="rejected" data-id="' + r.id + '">رد کردن</button>';
+          if (r.status === 'rejected') acts += '<button class="mini" data-rq="new" data-id="' + r.id + '">برگردوندن به جدید</button>';
+          acts += '<button class="mini" data-rq="delete" data-id="' + r.id + '">حذف</button>';
+          return '<div class="req-card"><h3>' + esc(r.name) + ' <span class="' + st[1] + '">' + st[0] + '</span> <span class="chip">' + esc(r.purpose) + '</span></h3>' +
+            '<div class="meta">📞 <a href="tel:' + esc(enDigits(r.phone).replace(/[^+0-9]/g, '')) + '"><b>' + esc(r.phone) + '</b></a> — ' + esc(fmtWhen(r.created_at)) + (r.note ? '<br>📝 ' + esc(r.note) : '') + '</div>' +
+            '<div class="acts">' + acts + '</div></div>';
+        }).join('');
+      }
+      function loadRequests() {
+        api({ action: 'req_list' }).then(function (r) {
+          if (r.j && r.j.ok) { RQ.items = r.j.requests || []; setBadge(r.j.counts ? r.j.counts.fresh : 0); renderRequests(); }
+        }).catch(function () {});
+      }
+      var reqListEl = $('#reqList');
+      if (reqListEl) reqListEl.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-rq]') : null; if (!b) return;
+        var id = parseInt(b.getAttribute('data-id'), 10), act = b.getAttribute('data-rq');
+        if (act === 'delete') {
+          api({ action: 'req_delete', id: id }).then(function () { RQ.items = RQ.items.filter(function (x) { return x.id !== id; }); setBadge(RQ.items.filter(function (x) { return x.status === 'new'; }).length); renderRequests(); });
+          return;
+        }
+        api({ action: 'req_status', id: id, status: act }).then(function (r) {
+          if (r.j && r.j.ok) { RQ.items = RQ.items.map(function (x) { return x.id === id ? r.j.request : x; }); setBadge(RQ.items.filter(function (x) { return x.status === 'new'; }).length); renderRequests(); say('انجام شد ✓'); }
+        });
+      });
+
+      // ---------- حسابداری ----------
+      var INC = { items: [] };
+      function todayJ() {
+        var t = window.__pmTodayParts;
+        if (t) return { y: +t.y, m: +t.m, d: +t.d };
+        return null;
+      }
+      function renderIncome() {
+        var box = $('#incList'); if (!box) return;
+        var items = INC.items, tj = todayJ();
+        var sumR = 0, sumP = 0, sumM = 0;
+        items.forEach(function (x) {
+          if (x.status === 'received') { sumR += x.amount; if (tj) { var pr = String(x.entry_date).split('/'); if (+pr[0] === tj.y && +pr[1] === tj.m) sumM += x.amount; } }
+          else sumP += x.amount;
+        });
+        $('#acMonth').textContent = faNum(sumM); $('#acTotal').textContent = faNum(sumR);
+        $('#acPend').textContent = faNum(sumP); $('#acCount').textContent = faNum(items.length);
+        if (!items.length) { box.innerHTML = '<p class="pv-empty">هنوز دریافتی‌ای ثبت نشده است.<br>اولین دریافتی را از فرم بالا ثبت کنید.</p>'; return; }
+        box.innerHTML = items.map(function (x) {
+          var chip = x.status === 'received' ? '<span class="chip green">دریافت شد</span>' : '<span class="chip amber">در انتظار وصول</span>';
+          return '<div class="inc-card"><h3>' + esc(x.payer) + ' ' + chip + '</h3>' +
+            '<div class="meta">' + esc(x.service) + ' — <b>' + faNum(x.amount) + ' تومان</b> — ' + esc(x.entry_date) + (x.note ? '<br>📝 ' + esc(x.note) : '') + '</div>' +
+            '<div class="acts"><button class="mini" data-inc-del="' + x.id + '">حذف</button></div></div>';
+        }).join('');
+      }
+      function loadIncome() {
+        var tj = todayJ();
+        var dEl = $('#inDate');
+        if (tj && dEl && !dEl.value) dEl.value = tj.y + '/' + ('0' + tj.m).slice(-2) + '/' + ('0' + tj.d).slice(-2);
+        api({ action: 'income_list' }).then(function (r) { if (r.j && r.j.ok) { INC.items = r.j.entries || []; renderIncome(); } }).catch(function () {});
+      }
+      var inAdd = $('#inAdd');
+      if (inAdd) inAdd.addEventListener('click', function () {
+        var amount = parseInt(enDigits($('#inAmount').value).replace(/[^0-9]/g, ''), 10);
+        var payer = $('#inPayer').value.trim();
+        var date = enDigits($('#inDate').value).trim();
+        if (!amount || amount <= 0) { say('مبلغ رو درست وارد کن 🙏'); return; }
+        if (!payer) { say('نام پرداخت‌کننده رو بنویس 🙏'); return; }
+        if (!/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(date)) { say('تاریخ رو مثل ۱۴۰۵/۰۹/۰۱ بنویس 🙏'); return; }
+        api({ action: 'income_add', entry_date: date, amount: amount, service: $('#inService').value, payer: payer, status: $('#inStatus').value, note: $('#inNote').value.trim() }).then(function (r) {
+          if (r.j && r.j.ok) { INC.items.unshift(r.j.entry); renderIncome(); $('#inAmount').value = ''; $('#inPayer').value = ''; $('#inNote').value = ''; say('ثبت شد ✓'); }
+          else say('ثبت نشد؛ دوباره تلاش کن 🙏');
+        });
+      });
+      var incListEl = $('#incList');
+      if (incListEl) incListEl.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-inc-del]') : null; if (!b) return;
+        var id = parseInt(b.getAttribute('data-inc-del'), 10);
+        api({ action: 'income_delete', id: id }).then(function () { INC.items = INC.items.filter(function (x) { return x.id !== id; }); renderIncome(); });
+      });
+
+      // ---------- بج درخواست‌ها بعد از ورود ----------
+      var tries = 0;
+      var iv = setInterval(function () {
+        tries++;
+        if (!document.body.classList.contains('locked')) { clearInterval(iv); loadRequests(); }
+        else if (tries > 40) clearInterval(iv);
+      }, 1000);
+    })();
+    </script>
+</body>
 </html>

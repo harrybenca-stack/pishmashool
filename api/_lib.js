@@ -700,6 +700,55 @@ export async function handleAction(req, db) {
     );
     return { status: 200, json: { ok: true, company: shapeCompany(rowsF[0], logsF) } };
   }
+  if (action === 'req_list' || action === 'req_status' || action === 'req_delete' ||
+      action === 'income_list' || action === 'income_add' || action === 'income_delete') {
+    if (!(await ensurePro(db))) return { status: 500, json: { ok: false, error: 'unavailable' } };
+    if (action === 'req_list') {
+      const rows = await db.query('SELECT * FROM web_requests ORDER BY id DESC LIMIT 200');
+      const items = rows.map(shapeRequest);
+      const counts = { total: items.length, fresh: items.filter((x) => x.status === 'new').length };
+      return { status: 200, json: { ok: true, requests: items, counts } };
+    }
+    if (action === 'req_status') {
+      const id = parseInt(b.id, 10);
+      if (!Number.isFinite(id) || !REQ_STATUSES.includes(String(b.status || ''))) return { status: 400, json: { ok: false, error: 'bad_request' } };
+      await db.query('UPDATE web_requests SET status = $2 WHERE id = $1', [id, String(b.status)]);
+      const rows = await db.query('SELECT * FROM web_requests WHERE id = $1', [id]);
+      if (!rows.length) return { status: 404, json: { ok: false, error: 'not_found' } };
+      return { status: 200, json: { ok: true, request: shapeRequest(rows[0]) } };
+    }
+    if (action === 'req_delete') {
+      const id = parseInt(b.id, 10);
+      if (!Number.isFinite(id)) return { status: 400, json: { ok: false, error: 'bad_request' } };
+      await db.query('DELETE FROM web_requests WHERE id = $1', [id]);
+      return { status: 200, json: { ok: true } };
+    }
+    if (action === 'income_list') {
+      const rows = await db.query('SELECT * FROM income_entries WHERE user_id = $1 ORDER BY id DESC LIMIT 300', [s.uid]);
+      const items = rows.map(shapeIncome);
+      const sum = (st) => items.filter((x) => x.status === st).reduce((a, x) => a + x.amount, 0);
+      return { status: 200, json: { ok: true, entries: items, totals: { received: sum('received'), pending: sum('pending'), count: items.length } } };
+    }
+    if (action === 'income_add') {
+      const date = String(b.entry_date || '').trim();
+      const amount = Math.floor(Number(b.amount));
+      const service = String(b.service || '').trim().slice(0, 60);
+      const payer = String(b.payer || '').trim().slice(0, 80);
+      const st = b.status === 'pending' ? 'pending' : 'received';
+      const note = String(b.note || '').trim().slice(0, 300);
+      if (!/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(date)) return { status: 400, json: { ok: false, error: 'bad_date' } };
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000000000) return { status: 400, json: { ok: false, error: 'bad_amount' } };
+      if (!service || !payer) return { status: 400, json: { ok: false, error: 'bad_fields' } };
+      const rows = await db.query('INSERT INTO income_entries (user_id, entry_date, amount, service, payer, status, note) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
+        [s.uid, date, amount, service, payer, st, note || null]);
+      return { status: 200, json: { ok: true, entry: shapeIncome(rows[0]) } };
+    }
+    // income_delete
+    const id = parseInt(b.id, 10);
+    if (!Number.isFinite(id)) return { status: 400, json: { ok: false, error: 'bad_request' } };
+    await db.query('DELETE FROM income_entries WHERE id = $1 AND user_id = $2', [id, s.uid]);
+    return { status: 200, json: { ok: true } };
+  }
   const newStatus = ACTION_STATUS[action];
   if (!Number.isFinite(companyId) || !newStatus) {
     return { status: 400, json: { ok: false, error: 'bad_request' } };
@@ -858,6 +907,61 @@ export async function handleAdminPlanBReset(req, db) {
   await db.query('INSERT INTO planb_auth (user_id, pass_hash, salt) VALUES ($1,$2,$3)', [uid, hash, salt]);
   pbFails.delete(uid);
   return { status: 200, json: { ok: true } };
+}
+
+// ---------- پنل حرفه‌ای: درخواست‌های وب‌سایت پارلیا + حسابداری (تنبل، خودنگهبان) ----------
+let proReady = false;
+async function ensurePro(db) {
+  if (proReady) return true;
+  try {
+    await db.query(`CREATE TABLE IF NOT EXISTS web_requests (
+      id SERIAL PRIMARY KEY, name TEXT NOT NULL, phone TEXT NOT NULL, purpose TEXT NOT NULL,
+      note TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TIMESTAMPTZ NOT NULL DEFAULT now())`);
+    await db.query(`CREATE TABLE IF NOT EXISTS income_entries (
+      id SERIAL PRIMARY KEY, user_id INT NOT NULL, entry_date TEXT NOT NULL, amount BIGINT NOT NULL,
+      service TEXT NOT NULL, payer TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'received',
+      note TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`);
+    proReady = true;
+  } catch (e) { /* دفعه‌ی بعد دوباره */ }
+  return proReady;
+}
+export const REQ_PURPOSES = ['ثبت شرکت', 'تغییرات شرکت', 'انحلال شرکت', 'ثبت برند', 'اخذ جواز کسب', 'مشاوره عمومی', 'سایر'];
+const REQ_STATUSES = ['new', 'contacted', 'customer', 'rejected'];
+const PARLIA_ORIGINS = ['https://parlia.ir', 'https://www.parlia.ir'];
+function corsHeaders(req) {
+  const o = (req.headers && (req.headers.origin || req.headers.Origin)) || '';
+  if (PARLIA_ORIGINS.includes(o)) return { 'Access-Control-Allow-Origin': o, 'Vary': 'Origin' };
+  return {};
+}
+export function handleCorsPreflight(req) {
+  const h = corsHeaders(req);
+  if (!h['Access-Control-Allow-Origin']) return { status: 403, json: { ok: false } };
+  return { status: 200, headers: { ...h, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' }, json: { ok: true } };
+}
+// سابمیت عمومی فرم مشاوره‌ی سایت پارلیا (بدون لاگین؛ اعتبارسنجی + هانی‌پات)
+export async function handleWebRequestSubmit(req, db) {
+  const headers = corsHeaders(req);
+  if (req.method !== 'POST') return { status: 405, headers, json: { ok: false } };
+  await ensureInit(db);
+  if (!(await ensurePro(db))) return { status: 500, headers, json: { ok: false, error: 'unavailable' } };
+  const b = bodyOf(req);
+  if (b.website) return { status: 200, headers, json: { ok: true } }; // هانی‌پات: ربات‌ها ساکت رد می‌شن
+  const name = String(b.name || '').trim();
+  const phoneRaw = String(b.phone || '').trim();
+  const phoneDigits = phoneRaw.replace(/[^0-9]/g, '');
+  const purpose = String(b.purpose || '').trim();
+  const note = String(b.note || '').trim().slice(0, 500);
+  if (name.length < 2 || name.length > 80) return { status: 400, headers, json: { ok: false, error: 'bad_name' } };
+  if (phoneDigits.length < 10 || phoneDigits.length > 13) return { status: 400, headers, json: { ok: false, error: 'bad_phone' } };
+  if (!REQ_PURPOSES.includes(purpose)) return { status: 400, headers, json: { ok: false, error: 'bad_purpose' } };
+  await db.query('INSERT INTO web_requests (name, phone, purpose, note) VALUES ($1,$2,$3,$4)', [name, phoneRaw, purpose, note || null]);
+  return { status: 200, headers, json: { ok: true } };
+}
+function shapeRequest(r) {
+  return { id: r.id, name: r.name, phone: r.phone, purpose: r.purpose, note: r.note || '', status: r.status, created_at: r.created_at };
+}
+function shapeIncome(r) {
+  return { id: r.id, entry_date: r.entry_date, amount: Number(r.amount), service: r.service, payer: r.payer, status: r.status, note: r.note || '', created_at: r.created_at };
 }
 
 // ---------- گپ با پیش‌مشول: مغز گربه + هندلر چت ----------
