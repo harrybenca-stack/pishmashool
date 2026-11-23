@@ -724,6 +724,73 @@
       .formal-btn .sw::after { content: ''; position: absolute; top: 2px; inset-inline-start: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .2s; }
       body.formal .formal-btn .sw { background: var(--accent); }
       body.formal .formal-btn .sw::after { transform: translateX(-13px); }
+        /* ---------- CRM حرفه‌ای v2 (نمونه‌ی تأییدشده‌ی پارسا) ---------- */
+        .pg-off { display: none !important; }
+        .v2-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 14px 0 4px; }
+        .v2-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px; box-shadow: 0 1px 2px rgba(16,35,56,.05), 0 6px 18px rgba(16,35,56,.05); }
+        .v2-kpi .n { font-size: 23px; font-weight: 800; line-height: 1.15; }
+        .v2-kpi .t { color: var(--ink-2); font-size: 12.5px; margin-top: 2px; }
+        .v2-kpi.hot { border-color: #EBCB8B; background: #FFFDF6; }
+        .v2-kpi.hot .n { color: #9A6A12; }
+        .v2-viewtoggle { display: none; gap: 6px; margin-inline-start: auto; }
+        .v2-viewtoggle button { border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 10px; padding: 7px 13px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .v2-viewtoggle button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .v2-tablewrap { display: none; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 2px rgba(16,35,56,.05), 0 6px 18px rgba(16,35,56,.05); overflow: hidden; margin-top: 14px; }
+        .v2-table { width: 100%; border-collapse: collapse; }
+        .v2-table th { text-align: right; font-size: 12.5px; color: var(--ink-2); font-weight: 700; padding: 12px 16px; background: var(--surface-2, #F6F8FA); border-bottom: 1px solid var(--line); white-space: nowrap; }
+        .v2-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 14px; }
+        .v2-table tbody tr.v2-row { cursor: pointer; }
+        .v2-table tbody tr.v2-row:hover { background: #F8FAFC; }
+        .v2-table tr.sel { background: var(--accent-soft); }
+        .v2-cname { font-weight: 800; }
+        .v2-ccity { color: var(--ink-2); font-size: 12.5px; }
+        .v2-pill { display: inline-block; padding: 3px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+        .v2-pill.new { background: var(--accent-soft); color: var(--accent); }
+        .v2-pill.follow { background: #FBF0D3; color: #9A6A12; }
+        .v2-pill.customer { background: #E2F2E8; color: #177245; }
+        .v2-pill.rejected { background: #F9E4E1; color: #B3352B; }
+        .v2-act { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+        .v2-act.ok { color: #177245; } .v2-act.unclear { color: #66727E; } .v2-act.sleep { color: #9A6A12; }
+        .v2-phone { font-weight: 700; color: var(--accent-2); white-space: nowrap; }
+        .v2-phone.none { color: var(--ink-2); font-weight: 400; }
+        .v2-fup { white-space: nowrap; color: var(--ink-2); font-size: 13px; }
+        .v2-fup.today { color: #B3352B; font-weight: 800; }
+        .v2-flag { font-size: 16px; opacity: .28; cursor: pointer; }
+        .v2-flag.on { opacity: 1; }
+        .v2-rowbtns { display: flex; gap: 6px; }
+        .v2-mini { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 9px; padding: 5px 11px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .v2-mini.solid { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .v2-detail td { background: #FBFCFE; padding: 16px 20px 18px; }
+        .v2-reason { background: #FFF8E6; border: 1px solid #EFDDAC; border-radius: 11px; padding: 10px 13px; font-size: 13.5px; margin-bottom: 12px; }
+        .v2-detail-phones { margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .v2-tl-title { font-weight: 800; font-size: 13.5px; margin-bottom: 6px; }
+        .v2-tl { font-size: 13.5px; }
+        .v2-nolog { color: var(--ink-2); font-size: 13px; }
+        .v2-detail-btns { display: flex; gap: 7px; margin-top: 13px; flex-wrap: wrap; }
+        .v2-empty { text-align: center; color: var(--ink-2); padding: 26px 16px !important; }
+        .v2-pager { display: flex; align-items: center; gap: 7px; justify-content: center; margin: 16px 0 6px; flex-wrap: wrap; }
+        .v2-pg { min-width: 38px; height: 38px; padding: 0 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; color: var(--ink); }
+        .v2-pg.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .v2-pg:disabled { opacity: .4; cursor: default; }
+        .v2-dots { color: var(--ink-2); padding: 0 2px; }
+        .v2-pinfo { color: var(--ink-2); font-size: 13px; margin-inline-start: 10px; }
+        @media (min-width: 1024px) {
+          body:not(.v2-cards) #cards { display: none; }
+          body:not(.v2-cards) .v2-tablewrap { display: block; }
+          .v2-viewtoggle { display: flex; }
+          .pro-side { background: #0d2137; color: #DCE6F2; border-left-color: #0d2137; }
+          .pro-side .ps-brand { border-bottom-color: rgba(255,255,255,.12); }
+          .pro-side .ps-brand b { color: #fff; }
+          .pro-side .ps-brand span { color: #9FB4CC; }
+          .pro-side .ps-item { color: #DCE6F2; }
+          .pro-side .ps-item:hover { background: rgba(255,255,255,.06); }
+          .pro-side .ps-item.active { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.16); color: #fff; }
+          .pro-side .ps-foot { color: #8FA5BF; border-top-color: rgba(255,255,255,.12); }
+        }
+        @media (max-width: 1023px) {
+          .v2-kpis { grid-template-columns: repeat(2, 1fr); }
+          .v2-kpi:last-child { grid-column: span 2; }
+        }
 </style>
   </head>
   <body class="locked">
@@ -3320,6 +3387,289 @@ function pmMorningOnce() {
         else if (tries > 40) clearInterval(iv);
       }, 1000);
     })();
+    </script>
+    <script>
+      (function () {
+        // ---------- CRM حرفه‌ای v2: شاخص‌ها + صفحه‌بندی ۱۰تایی + نمای جدولی دسکتاپ ----------
+        var PAGE_SIZE = 10;
+        var FA = '۰۱۲۳۴۵۶۷۸۹';
+        function faNum(n) { return String(n).replace(/[0-9]/g, function (d) { return FA[+d]; }); }
+        function faTxt(s) { return String(s == null ? '' : s).replace(/[0-9]/g, function (d) { return FA[+d]; }); }
+        function escT(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+        var cardsEl = document.getElementById('cards');
+        if (!cardsEl) return;
+        var toolsEl = document.querySelector('.tools');
+        var searchEl = document.getElementById('search');
+        var toCallBtn = document.getElementById('toCallBtn');
+
+        // ----- نوار شاخص‌ها -----
+        var kpis = document.createElement('div');
+        kpis.className = 'v2-kpis';
+        kpis.innerHTML =
+          '<div class="v2-kpi"><div class="n" id="v2KpiTotal">۰</div><div class="t">مجموع شرکت‌ها</div></div>' +
+          '<div class="v2-kpi"><div class="n" id="v2KpiNew">۰</div><div class="t">شرکت جدید</div></div>' +
+          '<div class="v2-kpi"><div class="n" id="v2KpiProg">۰</div><div class="t">در حال پیگیری</div></div>' +
+          '<div class="v2-kpi"><div class="n" id="v2KpiWon">۰</div><div class="t">مشتری‌شده</div></div>' +
+          '<div class="v2-kpi hot"><div class="n" id="v2KpiFlag">۰</div><div class="t">📞 باید زنگ بزنم</div></div>';
+        if (toolsEl && toolsEl.parentNode) toolsEl.parentNode.insertBefore(kpis, toolsEl);
+
+        // ----- سوییچ نمای جدولی/کارتی (فقط دسکتاپ) -----
+        var viewMode = 'table';
+        try { viewMode = localStorage.getItem('pmViewMode') || 'table'; } catch (e) {}
+        function applyViewMode() {
+          document.body.classList.toggle('v2-cards', viewMode === 'cards');
+          var bT = document.getElementById('v2ViewTable'), bC = document.getElementById('v2ViewCards');
+          if (bT) bT.classList.toggle('active', viewMode === 'table');
+          if (bC) bC.classList.toggle('active', viewMode === 'cards');
+        }
+        if (toolsEl) {
+          var vt = document.createElement('div');
+          vt.className = 'v2-viewtoggle';
+          vt.innerHTML = '<button type="button" id="v2ViewTable">📋 نمای جدولی</button><button type="button" id="v2ViewCards">🗂️ نمای کارتی</button>';
+          toolsEl.appendChild(vt);
+          vt.addEventListener('click', function (e) {
+            var b = e.target.closest('button'); if (!b) return;
+            viewMode = b.id === 'v2ViewCards' ? 'cards' : 'table';
+            try { localStorage.setItem('pmViewMode', viewMode); } catch (err) {}
+            applyViewMode();
+          });
+        }
+
+        // ----- جدول دسکتاپ + پیجر اصلی -----
+        var twrap = document.createElement('div');
+        twrap.className = 'v2-tablewrap';
+        twrap.innerHTML = '<table class="v2-table"><thead><tr><th>شرکت</th><th>وضعیت</th><th>فعالیت</th><th>تلفن</th><th>پیگیری بعدی</th><th>📞</th><th>عملیات</th></tr></thead><tbody id="v2Tbody"></tbody></table>';
+        cardsEl.parentNode.insertBefore(twrap, cardsEl.nextSibling);
+        var pager = document.createElement('div');
+        pager.className = 'v2-pager'; pager.id = 'v2Pager';
+        twrap.parentNode.insertBefore(pager, twrap.nextSibling);
+
+        // ----- پیجر پلن B -----
+        var pbCardsEl = document.getElementById('pbCards');
+        var pbPager = null;
+        if (pbCardsEl) {
+          pbPager = document.createElement('div');
+          pbPager.className = 'v2-pager'; pbPager.id = 'v2PbPager';
+          pbCardsEl.parentNode.insertBefore(pbPager, pbCardsEl.nextSibling);
+        }
+
+        var page = 1, lastSig = '', openId = null;
+        var pbPage = 1, pbLastSig = '';
+
+        function cardList() { return Array.prototype.slice.call(cardsEl.querySelectorAll('.card')); }
+        function activeFilter() {
+          var chip = document.querySelector('.chip[aria-pressed="true"]');
+          return chip ? chip.getAttribute('data-filter') : 'all';
+        }
+        function matchingCards() {
+          var f = activeFilter();
+          var q = searchEl ? searchEl.value.trim() : '';
+          return cardList().filter(function (card) {
+            var okStatus = f === 'all' || card.getAttribute('data-status') === f;
+            var okSearch = !q || (card.getAttribute('data-search') || '').indexOf(q) !== -1 || card.textContent.indexOf(q) !== -1;
+            return okStatus && okSearch;
+          });
+        }
+        function sigOf(list) {
+          var ids = [];
+          list.forEach(function (c) { ids.push(c.getAttribute('data-id')); });
+          return activeFilter() + '|' + (searchEl ? searchEl.value.trim() : '') + '|' + (toCallBtn && toCallBtn.classList.contains('active') ? '1' : '0') + '|' + ids.join(',');
+        }
+
+        var PILL = { new: ['new', 'جدید'], progress: ['follow', 'در حال پیگیری'], won: ['customer', 'مشتری شد'], rejected: ['rejected', 'رد شده'] };
+        function rowData(card) {
+          var h3 = card.querySelector('.card-head h3');
+          var city = card.querySelector('.city');
+          var pill = PILL[card.getAttribute('data-status')] || PILL.new;
+          var act = card.querySelector('.act-chip');
+          var actCls = act ? (act.classList.contains('on') ? 'ok' : act.classList.contains('mid') ? 'unclear' : 'sleep') : '';
+          var num = card.querySelector('a.call-link .num');
+          var dueB = card.querySelector('.due-badge');
+          var due = '';
+          if (dueB) due = dueB.textContent.replace('📅 پیگیری:', '').trim();
+          else if (card.getAttribute('data-due')) due = faTxt(card.getAttribute('data-due').replace(/-/g, '/'));
+          var reason = card.querySelector('.reason');
+          var tl = card.querySelector('.history .tl');
+          var callRow = card.querySelector('.call-row');
+          return {
+            id: card.getAttribute('data-id'),
+            name: h3 ? h3.textContent : '',
+            city: city ? city.textContent : '',
+            pillCls: pill[0], pillTxt: pill[1],
+            actTxt: act ? act.textContent : '—', actCls: actCls,
+            phone: num ? num.textContent : '',
+            due: due, dueToday: due.indexOf('امروز') === 0,
+            flagged: !!card.querySelector('.callflag-btn.on'),
+            reasonHTML: reason ? reason.innerHTML : '',
+            tlHTML: tl ? tl.innerHTML : '',
+            callHTML: callRow ? callRow.innerHTML : ''
+          };
+        }
+
+        function paintTable(slice) {
+          var tb = document.getElementById('v2Tbody');
+          if (!tb) return;
+          if (!slice.length) {
+            tb.innerHTML = '<tr><td colspan="7" class="v2-empty">موردی برای نمایش نیست</td></tr>';
+            return;
+          }
+          var h = '';
+          slice.forEach(function (card) {
+            var d = rowData(card);
+            var open = String(openId) === String(d.id);
+            h += '<tr class="v2-row' + (open ? ' sel' : '') + '" data-id="' + d.id + '">' +
+              '<td><div class="v2-cname">' + escT(d.name) + '</div><div class="v2-ccity">' + escT(d.city) + '</div></td>' +
+              '<td><span class="v2-pill ' + d.pillCls + '">' + d.pillTxt + '</span></td>' +
+              '<td><span class="v2-act ' + d.actCls + '">' + escT(d.actTxt) + '</span></td>' +
+              '<td>' + (d.phone ? '<span class="v2-phone">' + escT(d.phone) + '</span>' : '<span class="v2-phone none">شماره‌ای منتشر نشده</span>') + '</td>' +
+              '<td>' + (d.due ? '<span class="v2-fup' + (d.dueToday ? ' today' : '') + '">' + escT(d.due) + '</span>' : '<span class="v2-fup">—</span>') + '</td>' +
+              '<td><span class="v2-flag' + (d.flagged ? ' on' : '') + '" data-act="flag" title="باید زنگ بزنم">📞</span></td>' +
+              '<td><div class="v2-rowbtns"><button type="button" class="v2-mini solid" data-act="call">تماس گرفتم</button><button type="button" class="v2-mini" data-act="win">مشتری شد</button></div></td></tr>';
+            if (open) {
+              h += '<tr class="v2-detail" data-id="' + d.id + '"><td colspan="7">' +
+                (d.reasonHTML ? '<div class="v2-reason">' + d.reasonHTML + '</div>' : '') +
+                (d.callHTML ? '<div class="v2-detail-phones">' + d.callHTML + '</div>' : '') +
+                '<div class="v2-tl-title">تاریخچه تماس‌ها</div>' +
+                (d.tlHTML ? '<ul class="tl v2-tl">' + d.tlHTML + '</ul>' : '<div class="v2-nolog">هنوز تماسی ثبت نشده</div>') +
+                '<div class="v2-detail-btns"><button type="button" class="v2-mini" data-act="note">📝 یادداشت + یادآوری</button><button type="button" class="v2-mini" data-act="reject">رد کردن</button><button type="button" class="v2-mini solid" data-act="open">📂 باز کردن کارت کامل</button></div>' +
+                '</td></tr>';
+            }
+          });
+          tb.innerHTML = h;
+        }
+
+        function paintPager(el, cur, pages, total, from, to, onGo) {
+          if (!el) return;
+          if (pages <= 1) { el.innerHTML = ''; el.style.display = 'none'; return; }
+          el.style.display = '';
+          var nums = [];
+          if (pages <= 7) { for (var i = 1; i <= pages; i++) nums.push(i); }
+          else {
+            nums = [1];
+            if (cur > 3) nums.push('…');
+            for (var j = Math.max(2, cur - 1); j <= Math.min(pages - 1, cur + 1); j++) nums.push(j);
+            if (cur < pages - 2) nums.push('…');
+            nums.push(pages);
+          }
+          var h = '<button type="button" class="v2-pg" data-go="prev"' + (cur <= 1 ? ' disabled' : '') + '>‹ قبلی</button>';
+          nums.forEach(function (n) {
+            if (n === '…') h += '<span class="v2-dots">…</span>';
+            else h += '<button type="button" class="v2-pg' + (n === cur ? ' active' : '') + '" data-go="' + n + '">' + faNum(n) + '</button>';
+          });
+          h += '<button type="button" class="v2-pg" data-go="next"' + (cur >= pages ? ' disabled' : '') + '>بعدی ›</button>';
+          h += '<span class="v2-pinfo">صفحه‌ی ' + faNum(cur) + ' از ' + faNum(pages) + ' — نمایش ' + faNum(from) + ' تا ' + faNum(to) + ' از ' + faNum(total) + ' شرکت</span>';
+          el.innerHTML = h;
+          el.querySelectorAll('.v2-pg').forEach(function (b) {
+            b.addEventListener('click', function () {
+              var g = b.getAttribute('data-go');
+              if (g === 'prev') onGo(cur - 1); else if (g === 'next') onGo(cur + 1); else onGo(+g);
+            });
+          });
+        }
+
+        function paintKpis(cards) {
+          var n = { total: cards.length, new: 0, progress: 0, won: 0, flag: 0 };
+          cards.forEach(function (c) {
+            var st = c.getAttribute('data-status');
+            if (st === 'new') n.new++; else if (st === 'progress') n.progress++; else if (st === 'won') n.won++;
+            if (c.querySelector('.callflag-btn.on')) n.flag++;
+          });
+          var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = faNum(v); };
+          set('v2KpiTotal', n.total); set('v2KpiNew', n.new); set('v2KpiProg', n.progress); set('v2KpiWon', n.won); set('v2KpiFlag', n.flag);
+        }
+
+        var currentSlice = [];
+        function recompute() {
+          var cards = cardList();
+          var match = matchingCards();
+          var sig = sigOf(match);
+          if (sig !== lastSig) { lastSig = sig; page = 1; }
+          var pages = Math.max(1, Math.ceil(match.length / PAGE_SIZE));
+          if (page > pages) page = pages;
+          var from = match.length ? (page - 1) * PAGE_SIZE + 1 : 0;
+          var to = Math.min(match.length, page * PAGE_SIZE);
+          currentSlice = match.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+          var inPage = {};
+          currentSlice.forEach(function (c) { inPage[c.getAttribute('data-id')] = 1; });
+          cards.forEach(function (c) {
+            var isMatch = match.indexOf(c) !== -1;
+            c.classList.toggle('pg-off', isMatch && !inPage[c.getAttribute('data-id')]);
+          });
+          paintKpis(cards);
+          paintTable(currentSlice);
+          paintPager(pager, page, pages, match.length, from, to, function (p) {
+            var pg2 = Math.max(1, Math.ceil(matchingCards().length / PAGE_SIZE));
+            page = Math.min(Math.max(1, p), pg2);
+            recompute();
+            pager.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          });
+        }
+
+        function paintPb() {
+          if (!pbCardsEl || !pbPager) return;
+          var cards = Array.prototype.slice.call(pbCardsEl.querySelectorAll('.card'));
+          var ids = cards.map(function (c) { return c.getAttribute('data-id'); }).join(',');
+          if (ids !== pbLastSig) { pbLastSig = ids; pbPage = 1; }
+          var pages = Math.max(1, Math.ceil(cards.length / PAGE_SIZE));
+          if (pbPage > pages) pbPage = pages;
+          var from = cards.length ? (pbPage - 1) * PAGE_SIZE + 1 : 0;
+          var to = Math.min(cards.length, pbPage * PAGE_SIZE);
+          cards.forEach(function (c, i) {
+            c.classList.toggle('pg-off', !(i >= (pbPage - 1) * PAGE_SIZE && i < pbPage * PAGE_SIZE));
+          });
+          paintPager(pbPager, pbPage, pages, cards.length, from, to, function (p) {
+            pbPage = Math.min(Math.max(1, p), pages);
+            paintPb();
+          });
+        }
+
+        // ----- اکشن‌های جدول: فوروارد به دکمه‌های کارت واقعی -----
+        function realCard(id) { return cardsEl.querySelector('.card[data-id="' + id + '"]'); }
+        function clickIn(card, sel) { var b = card ? card.querySelector(sel) : null; if (b) b.click(); return !!b; }
+        twrap.addEventListener('click', function (e) {
+          var tr = e.target.closest('tr[data-id]');
+          var actEl = e.target.closest('[data-act]');
+          if (actEl && !tr) tr = actEl.closest('tr[data-id]');
+          if (!tr) return;
+          var id = tr.getAttribute('data-id');
+          var card = realCard(id);
+          if (!card) return;
+          var act = actEl ? actEl.getAttribute('data-act') : '';
+          if (act === 'flag') { clickIn(card, '.callflag-btn'); setTimeout(recompute, 80); return; }
+          if (act === 'win') { clickIn(card, '.actions .btn.win'); setTimeout(recompute, 500); return; }
+          if (act === 'reject') { clickIn(card, '.actions .btn.reject'); return; }
+          if (act === 'note') { clickIn(card, '.note-open'); return; }
+          if (act === 'call' || act === 'open') {
+            viewMode = 'cards';
+            try { localStorage.setItem('pmViewMode', 'cards'); } catch (err) {}
+            applyViewMode();
+            if (window.__pmOpenCard) window.__pmOpenCard(card);
+            setTimeout(function () { card.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60);
+            if (act === 'call') setTimeout(function () { clickIn(card, '.actions .btn.primary'); }, 250);
+            return;
+          }
+          if (e.target.closest('a, button')) return;
+          if (tr.classList.contains('v2-detail')) return;
+          openId = String(openId) === String(id) ? null : id;
+          paintTable(currentSlice);
+        });
+
+        // ----- تریگرها -----
+        var deb = null;
+        function schedule() { clearTimeout(deb); deb = setTimeout(function () { recompute(); paintPb(); }, 90); }
+        new MutationObserver(schedule).observe(cardsEl, { childList: true });
+        if (pbCardsEl) new MutationObserver(schedule).observe(pbCardsEl, { childList: true });
+        if (searchEl) searchEl.addEventListener('input', function () { clearTimeout(deb); deb = setTimeout(recompute, 220); });
+        document.addEventListener('click', function (e) {
+          if (e.target.closest('.chip') || e.target.closest('#toCallBtn')) setTimeout(recompute, 60);
+          else if (e.target.closest('#cards .callflag-btn') || e.target.closest('#pbCards .callflag-btn')) setTimeout(function () { recompute(); paintPb(); }, 120);
+          else if (e.target.closest('#cards .actions .btn') || e.target.closest('#pbCards .actions .btn')) setTimeout(function () { recompute(); paintPb(); }, 600);
+        });
+        applyViewMode();
+        recompute();
+        paintPb();
+      })();
     </script>
 </body>
 </html>
