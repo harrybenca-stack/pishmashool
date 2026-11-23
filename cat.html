@@ -198,11 +198,31 @@ body.chatting .pm-bubble{ display:none !important; }
 .pm .pm-zpj{ display:none; }
 .pm.sleeping .pm-zpj{ display:block; }
 .room-rack{ position:fixed; right:0%; bottom:12%; width:102px; z-index:6; cursor:pointer; pointer-events:auto; filter:drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
-.room-dog{ position:fixed; left:1%; bottom:17.5%; width:134px; z-index:2; pointer-events:none; filter:drop-shadow(0 5px 6px rgba(0,0,0,.30)); }
+.room-dog{ position:fixed; left:1%; bottom:17.5%; width:134px; z-index:6; pointer-events:auto; cursor:pointer; filter:drop-shadow(0 5px 6px rgba(0,0,0,.30)); }
 .room-dog svg{ animation:dogBreath 3.6s ease-in-out infinite; transform-origin:50% 100%; }
 @keyframes dogBreath{ 0%,100%{ transform:scale(1,1);} 50%{ transform:scale(1.012,1.022);} }
 .room-dog .dog-head{ animation:dogSway 7s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 85%; }
 @keyframes dogSway{ 0%,100%{ transform:rotate(0deg);} 30%{ transform:rotate(1.4deg);} 65%{ transform:rotate(-1.2deg);} }
+.room-dog .dog-ear{ transform-box:fill-box; transform-origin:50% 12%; }
+.room-dog .dog-pupils{ transition:transform .28s ease; }
+.room-dog .dog-eyes-closed{ display:none; }
+.room-dog.sleeping .dog-eyes-open{ display:none; }
+.room-dog.sleeping .dog-eyes-closed{ display:block; }
+.room-dog.sleeping svg{ animation-duration:5.5s; }
+.room-dog.sleeping .dog-head{ animation:none; transform:rotate(3.5deg) translateY(2.5px); }
+.dog-zzz{ position:absolute; top:-10px; right:2px; font-size:15px; font-weight:800; color:#BFD4FF; opacity:0; pointer-events:none; letter-spacing:1px; }
+.room-dog.sleeping .dog-zzz{ opacity:1; animation:dogZzz 2.6s ease-in-out infinite; }
+@keyframes dogZzz{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-5px);} }
+.dog-bark{ position:absolute; top:-16px; left:50%; transform:translateX(-50%) scale(.55); background:#fff; color:#26262B; border-radius:12px; padding:2px 9px; font-size:13.5px; font-weight:800; opacity:0; transition:all .16s ease; pointer-events:none; box-shadow:0 3px 8px rgba(0,0,0,.3); white-space:nowrap; z-index:3; }
+.room-dog.barking .dog-bark{ opacity:1; transform:translateX(-50%) scale(1) translateY(-4px); }
+.room-dog.barking svg{ animation:dogJump .68s ease; }
+@keyframes dogJump{ 0%{ transform:translateY(0);} 30%{ transform:translateY(-11px) scale(1.03,.97);} 55%{ transform:translateY(0);} 76%{ transform:translateY(-6px);} 100%{ transform:translateY(0);} }
+.room-dog.barking .dog-ear-l{ animation:earFlapL .34s ease 2; }
+.room-dog.barking .dog-ear-r{ animation:earFlapR .34s ease 2; }
+@keyframes earFlapL{ 0%,100%{ transform:rotate(0);} 50%{ transform:rotate(-9deg);} }
+@keyframes earFlapR{ 0%,100%{ transform:rotate(0);} 50%{ transform:rotate(9deg);} }
+.room-dog .dog-ear-l.twitch{ animation:earFlapL .5s ease; }
+.room-dog .dog-ear-r.twitch{ animation:earFlapR .5s ease; }
 .pm-outfit{ display:none; }
 .pm[data-outfit="cream"] .pm-outfit[data-o="cream"]{ display:block; }
 .pm[data-outfit="navy"] .pm-outfit[data-o="navy"]{ display:block; }
@@ -315,7 +335,7 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare 
 <g clip-path="url(#winCurtClipR)"><rect x="148" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="169" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="190" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="211" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="232" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="253" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="156" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="177" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="198" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="219" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="240" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="137" y="156" width="127" height="16" fill="#D9A1A1" opacity=".8"/><rect x="137" y="152" width="127" height="3" fill="#C48B8B" opacity=".8"/></g>
 <path d="M137 12 L264 12 L264 168 Q250 178 200 172 Q153 178 137 166 Z" fill="none" stroke="#C9B48C" stroke-width="1.6"/>
 <g class="win-tie"><rect x="142" y="102" width="118" height="8" rx="4" fill="#D9A1A1"/><circle cx="249" cy="106" r="4.6" fill="#C48B8B"/></g>
-</g></g></svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-dog" id="roomDog" aria-hidden="true"><svg viewBox="0 0 200 196" width="100%">
+</g></g></svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-dog" id="roomDog" role="button" aria-label="سگ پیش‌مشول"><span class="dog-zzz">Z z z</span><span class="dog-bark" id="dogBark">هاپ!</span><svg viewBox="0 0 200 196" width="100%">
 <defs><linearGradient id="dogGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0D488"/><stop offset=".55" stop-color="#C9962E"/><stop offset="1" stop-color="#9A741F"/></linearGradient></defs>
 <ellipse cx="100" cy="186" rx="58" ry="7" fill="rgba(0,0,0,.18)"/>
 <path d="M100 108 C138 108 156 132 156 158 C156 180 132 190 100 190 C68 190 44 180 44 158 C44 132 62 108 100 108 Z" fill="#1E1E23"/>
@@ -327,16 +347,16 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare 
 <path d="M50 128 Q100 148 150 128 L150 141 Q100 161 50 141 Z" fill="url(#dogGold)"/>
 <path d="M50 128 Q100 148 150 128" fill="none" stroke="#8A6414" stroke-width="2"/>
 <g class="dog-head">
-<path d="M54 40 C32 44 24 78 34 102 C39 115 54 112 57 96 L58 56 Z" fill="#131316"/>
-<path d="M146 40 C168 44 176 78 166 102 C161 115 146 112 143 96 L142 56 Z" fill="#131316"/>
+<path class="dog-ear dog-ear-l" d="M54 40 C32 44 24 78 34 102 C39 115 54 112 57 96 L58 56 Z" fill="#131316"/>
+<path class="dog-ear dog-ear-r" d="M146 40 C168 44 176 78 166 102 C161 115 146 112 143 96 L142 56 Z" fill="#131316"/>
 <path d="M100 20 C137 20 157 47 157 82 C157 117 133 136 100 136 C67 136 43 117 43 82 C43 47 63 20 100 20 Z" fill="#202025"/>
 <path d="M71 43 Q100 34 129 43" fill="none" stroke="#3A3A42" stroke-width="4" stroke-linecap="round"/>
 <path d="M75 55 Q100 47 125 55" fill="none" stroke="#3A3A42" stroke-width="3.6" stroke-linecap="round"/>
 <path d="M81 66 Q100 60 119 66" fill="none" stroke="#33333B" stroke-width="3.2" stroke-linecap="round"/>
 <path d="M63 76 Q76 69 89 74" fill="none" stroke="#3A3A42" stroke-width="3.6" stroke-linecap="round"/>
 <path d="M111 74 Q124 69 137 76" fill="none" stroke="#3A3A42" stroke-width="3.6" stroke-linecap="round"/>
-<circle cx="76" cy="89" r="10.5" fill="#EFE6CF"/><circle cx="76" cy="89" r="6.2" fill="#0D0D10"/><circle cx="73.4" cy="86" r="2.2" fill="#fff"/>
-<circle cx="124" cy="89" r="10.5" fill="#EFE6CF"/><circle cx="124" cy="89" r="6.2" fill="#0D0D10"/><circle cx="121.4" cy="86" r="2.2" fill="#fff"/>
+<g class="dog-eyes-open"><circle cx="76" cy="89" r="10.5" fill="#EFE6CF"/><circle cx="124" cy="89" r="10.5" fill="#EFE6CF"/><g class="dog-pupils"><circle cx="76" cy="89" r="6.2" fill="#0D0D10"/><circle cx="73.4" cy="86" r="2.2" fill="#fff"/><circle cx="124" cy="89" r="6.2" fill="#0D0D10"/><circle cx="121.4" cy="86" r="2.2" fill="#fff"/></g></g>
+<g class="dog-eyes-closed"><path d="M66 90 Q76 96 86 90" fill="none" stroke="#55555F" stroke-width="3.4" stroke-linecap="round"/><path d="M114 90 Q124 96 134 90" fill="none" stroke="#55555F" stroke-width="3.4" stroke-linecap="round"/></g>
 <ellipse cx="79" cy="117" rx="17" ry="13" fill="#2A2A31"/>
 <ellipse cx="121" cy="117" rx="17" ry="13" fill="#2A2A31"/>
 <ellipse cx="100" cy="125" rx="15" ry="9.5" fill="#2A2A31"/>
@@ -1427,5 +1447,50 @@ api('/api/state').then(function (res) {
     go();
   }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 })();
-</script></body>
+</script><script>
+(function(){
+  var dog = document.getElementById('roomDog');
+  if(!dog) return;
+  var barkEl = document.getElementById('dogBark');
+  var barks = ['هاپ!', 'هاپ هاپ!', 'واق!', 'هاپ! 🐾'];
+  var busy = false;
+  dog.addEventListener('click', function(ev){
+    ev.stopPropagation();
+    if(busy) return;
+    busy = true;
+    barkEl.textContent = barks[Math.floor(Math.random()*barks.length)];
+    dog.classList.add('barking');
+    setTimeout(function(){ dog.classList.remove('barking'); busy = false; }, 720);
+  });
+  function syncSleep(){
+    var night = document.body.classList.contains('night');
+    var cat = document.querySelector('.pm');
+    var catSleep = cat && cat.classList.contains('sleeping');
+    dog.classList.toggle('sleeping', !!(night || catSleep));
+  }
+  new MutationObserver(syncSleep).observe(document.body, {attributes:true, attributeFilter:['class']});
+  var pmEl = document.querySelector('.pm');
+  if(pmEl) new MutationObserver(syncSleep).observe(pmEl, {attributes:true, attributeFilter:['class']});
+  syncSleep();
+  var pupils = dog.querySelector('.dog-pupils');
+  function lookAround(){
+    if(pupils && !dog.classList.contains('sleeping')){
+      var dx = (Math.random()*4.4 - 2.2).toFixed(1);
+      pupils.style.transform = 'translateX(' + dx + 'px)';
+      setTimeout(function(){ pupils.style.transform = ''; }, 1150);
+    }
+    setTimeout(lookAround, 11000 + Math.random()*8000);
+  }
+  setTimeout(lookAround, 6000);
+  function twitch(){
+    if(!dog.classList.contains('sleeping')){
+      var ear = dog.querySelector(Math.random() < .5 ? '.dog-ear-l' : '.dog-ear-r');
+      if(ear){ ear.classList.add('twitch'); setTimeout(function(){ ear.classList.remove('twitch'); }, 520); }
+    }
+    setTimeout(twitch, 9000 + Math.random()*6000);
+  }
+  setTimeout(twitch, 8000);
+})();
+</script>
+</body>
 </html>
