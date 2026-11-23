@@ -791,6 +791,12 @@
           .v2-kpis { grid-template-columns: repeat(2, 1fr); }
           .v2-kpi:last-child { grid-column: span 2; }
         }
+
+      /* brand logo — top-level rules (apply at every width) */
+      .brand .brand-parlia { display: none; height: 52px; width: auto; }
+      body.formal .brand img.logo { display: none; }
+      body.formal .brand .brand-parlia { display: block; }
+      .ps-logo { width: 40px; height: auto; }
 </style>
   </head>
   <body class="locked">
