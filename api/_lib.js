@@ -927,7 +927,7 @@ async function ensurePro(db) {
 }
 export const REQ_PURPOSES = ['ثبت شرکت', 'تغییرات شرکت', 'انحلال شرکت', 'ثبت برند', 'اخذ جواز کسب', 'مشاوره عمومی', 'سایر'];
 const REQ_STATUSES = ['new', 'contacted', 'customer', 'rejected'];
-const PARLIA_ORIGINS = ['https://parlia.ir', 'https://www.parlia.ir'];
+const PARLIA_ORIGINS = ['https://parlia.ir', 'https://www.parlia.ir', 'http://parlia.ir', 'http://www.parlia.ir'];
 function corsHeaders(req) {
   const o = (req.headers && (req.headers.origin || req.headers.Origin)) || '';
   if (PARLIA_ORIGINS.includes(o)) return { 'Access-Control-Allow-Origin': o, 'Vary': 'Origin' };
