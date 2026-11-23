@@ -198,6 +198,11 @@ body.chatting .pm-bubble{ display:none !important; }
 .pm .pm-zpj{ display:none; }
 .pm.sleeping .pm-zpj{ display:block; }
 .room-rack{ position:fixed; right:0%; bottom:12%; width:102px; z-index:6; cursor:pointer; pointer-events:auto; filter:drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
+.room-dog{ position:fixed; left:1%; bottom:17.5%; width:134px; z-index:2; pointer-events:none; filter:drop-shadow(0 5px 6px rgba(0,0,0,.30)); }
+.room-dog svg{ animation:dogBreath 3.6s ease-in-out infinite; transform-origin:50% 100%; }
+@keyframes dogBreath{ 0%,100%{ transform:scale(1,1);} 50%{ transform:scale(1.012,1.022);} }
+.room-dog .dog-head{ animation:dogSway 7s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 85%; }
+@keyframes dogSway{ 0%,100%{ transform:rotate(0deg);} 30%{ transform:rotate(1.4deg);} 65%{ transform:rotate(-1.2deg);} }
 .pm-outfit{ display:none; }
 .pm[data-outfit="cream"] .pm-outfit[data-o="cream"]{ display:block; }
 .pm[data-outfit="navy"] .pm-outfit[data-o="navy"]{ display:block; }
@@ -231,7 +236,7 @@ body.night .switch-dot{ background:#FF9D3C; box-shadow:0 0 8px 2px rgba(255,157,
 .room-dim{ position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .7s ease; background:radial-gradient(ellipse 95% 75% at 50% 45%, rgba(3,6,16,.22) 0%, rgba(3,6,16,.55) 55%, rgba(2,4,12,.84) 100%); }
 body.night .room-dim{ opacity:1; }
 header, .stage, .hint, .actions{ position:relative; z-index:2; }
-body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare .room-window, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
+body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare .room-dog, body.bare .room-window, body.bare .wall-frame, body.bare .room-clock, body.bare .to-clock, body.bare .room-switch, body.bare .room-dim{ display:none !important; }
 .to-clock{ text-align:center; font-size:15.5px; letter-spacing:3px; color:rgba(215,228,255,.62); margin-top:3px; font-variant-numeric:tabular-nums; }
 #pmBubble{ max-height:34dvh; overflow-y:auto; scrollbar-width:none; }
 #pmBubble::-webkit-scrollbar{ display:none; }
@@ -310,7 +315,38 @@ body.bare .room-floor, body.bare .room-rug-img, body.bare .room-rack, body.bare 
 <g clip-path="url(#winCurtClipR)"><rect x="148" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="169" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="190" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="211" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="232" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="253" y="12" width="7" height="168" fill="#D9C8A9" opacity=".45"/><rect x="156" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="177" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="198" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="219" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="240" y="12" width="3.5" height="168" fill="#FFFDF6" opacity=".55"/><rect x="137" y="156" width="127" height="16" fill="#D9A1A1" opacity=".8"/><rect x="137" y="152" width="127" height="3" fill="#C48B8B" opacity=".8"/></g>
 <path d="M137 12 L264 12 L264 168 Q250 178 200 172 Q153 178 137 166 Z" fill="none" stroke="#C9B48C" stroke-width="1.6"/>
 <g class="win-tie"><rect x="142" y="102" width="118" height="8" rx="4" fill="#D9A1A1"/><circle cx="249" cy="106" r="4.6" fill="#C48B8B"/></g>
-</g></g></svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-rack" id="roomRack" role="button" aria-label="جارختی پیش‌مشول"><svg viewBox="0 0 120 215" width="100%" aria-hidden="true">
+</g></g></svg></div><img class="room-rug-img" src="rug.png" alt=""><div class="room-dog" id="roomDog" aria-hidden="true"><svg viewBox="0 0 200 196" width="100%">
+<defs><linearGradient id="dogGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0D488"/><stop offset=".55" stop-color="#C9962E"/><stop offset="1" stop-color="#9A741F"/></linearGradient></defs>
+<ellipse cx="100" cy="186" rx="58" ry="7" fill="rgba(0,0,0,.18)"/>
+<path d="M100 108 C138 108 156 132 156 158 C156 180 132 190 100 190 C68 190 44 180 44 158 C44 132 62 108 100 108 Z" fill="#1E1E23"/>
+<ellipse cx="100" cy="160" rx="33" ry="25" fill="#26262C" opacity=".85"/>
+<path d="M76 138 L94 138 L93 178 C93 186 77 186 77 178 Z" fill="#1A1A1F"/>
+<path d="M106 138 L124 138 L123 178 C123 186 107 186 107 178 Z" fill="#1A1A1F"/>
+<ellipse cx="84" cy="182" rx="13" ry="6.5" fill="#141419"/><ellipse cx="116" cy="182" rx="13" ry="6.5" fill="#141419"/>
+<ellipse cx="52" cy="178" rx="14" ry="8" fill="#17171B"/><ellipse cx="148" cy="178" rx="14" ry="8" fill="#17171B"/>
+<path d="M50 128 Q100 148 150 128 L150 141 Q100 161 50 141 Z" fill="url(#dogGold)"/>
+<path d="M50 128 Q100 148 150 128" fill="none" stroke="#8A6414" stroke-width="2"/>
+<g class="dog-head">
+<path d="M54 40 C32 44 24 78 34 102 C39 115 54 112 57 96 L58 56 Z" fill="#131316"/>
+<path d="M146 40 C168 44 176 78 166 102 C161 115 146 112 143 96 L142 56 Z" fill="#131316"/>
+<path d="M100 20 C137 20 157 47 157 82 C157 117 133 136 100 136 C67 136 43 117 43 82 C43 47 63 20 100 20 Z" fill="#202025"/>
+<path d="M71 43 Q100 34 129 43" fill="none" stroke="#3A3A42" stroke-width="4" stroke-linecap="round"/>
+<path d="M75 55 Q100 47 125 55" fill="none" stroke="#3A3A42" stroke-width="3.6" stroke-linecap="round"/>
+<path d="M81 66 Q100 60 119 66" fill="none" stroke="#33333B" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M63 76 Q76 69 89 74" fill="none" stroke="#3A3A42" stroke-width="3.6" stroke-linecap="round"/>
+<path d="M111 74 Q124 69 137 76" fill="none" stroke="#3A3A42" stroke-width="3.6" stroke-linecap="round"/>
+<circle cx="76" cy="89" r="10.5" fill="#EFE6CF"/><circle cx="76" cy="89" r="6.2" fill="#0D0D10"/><circle cx="73.4" cy="86" r="2.2" fill="#fff"/>
+<circle cx="124" cy="89" r="10.5" fill="#EFE6CF"/><circle cx="124" cy="89" r="6.2" fill="#0D0D10"/><circle cx="121.4" cy="86" r="2.2" fill="#fff"/>
+<ellipse cx="79" cy="117" rx="17" ry="13" fill="#2A2A31"/>
+<ellipse cx="121" cy="117" rx="17" ry="13" fill="#2A2A31"/>
+<ellipse cx="100" cy="125" rx="15" ry="9.5" fill="#2A2A31"/>
+<ellipse cx="100" cy="103" rx="11" ry="7.5" fill="#0A0A0C"/><circle cx="96.5" cy="100.5" r="2" fill="#3d3d44"/>
+<path d="M89 119 Q100 127 111 119" fill="none" stroke="#0E0E11" stroke-width="2.6" stroke-linecap="round"/>
+<rect x="104" y="120" width="7" height="9.5" rx="2.6" fill="#fff" transform="rotate(4 107 124)"/>
+</g>
+<circle cx="100" cy="152" r="10" fill="url(#dogGold)" stroke="#8A6414" stroke-width="1.6"/>
+<path d="M94.5 152 q3.4-3.6 7.4 0 q-4 3.6-7.4 0 Z" fill="#7A5A10"/><path d="M101.6 152 l4.4-3 v6 Z" fill="#7A5A10"/>
+</svg></div><div class="room-rack" id="roomRack" role="button" aria-label="جارختی پیش‌مشول"><svg viewBox="0 0 120 215" width="100%" aria-hidden="true">
 <ellipse cx="60" cy="207" rx="48" ry="6" fill="#000" opacity=".20"/>
 <path d="M18 36 Q60 28 102 36" fill="none" stroke="#8A5A2E" stroke-width="6" stroke-linecap="round"/>
 <path d="M18 34.5 Q60 26.5 102 34.5" fill="none" stroke="#C89B62" stroke-width="2" stroke-linecap="round" opacity=".8"/>
